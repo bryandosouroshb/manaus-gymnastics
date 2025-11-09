@@ -262,41 +262,51 @@
 
             function renderRotationPanels() {
                 if (!startListData.rotations) return;
-                
-                rotationsContainer.innerHTML = startListData.rotations.map((rot, index) => {
+
+                const panelsHtml = startListData.rotations.map((rot, index) => {
                     // Converter apparatus de objeto para array para renderização
                     const apparatusArray = Object.entries(rot.apparatus || {}).map(([code, gymnasts]) => ({
                         code: code,
                         displayName: apparatusNames[code] || code,
                         gymnasts: gymnasts
                     }));
-                    
+
+                    const apparatusHtml = apparatusArray.map(app => {
+                        // Garantir que `gymnasts` seja um array
+                        const gymList = Array.isArray(app.gymnasts) ? app.gymnasts : (app.gymnasts ? Object.values(app.gymnasts) : []);
+                        const gymItems = gymList.map((gymnast, i) => `
+                            <div class="gymnast-item">
+                                <div class="gymnast-order">${i + 1}.</div>
+                                <div class="gymnast-details">
+                                    <div class="gymnast-name" title="${gymnast.name}">${gymnast.name}</div>
+                                    <div class="gymnast-country"><span class="fi fi-${getCountryCode(gymnast.country)}"></span> ${gymnast.country}</div>
+                                </div>
+                            </div>
+                        `).join('');
+
+                        return `
+                            <div class="apparatus-card">
+                                <div class="apparatus-header">
+                                    <span>${app.displayName || app.code}</span>
+                                </div>
+                                <div class="gymnast-list">
+                                    ${gymItems}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
                     return `
                         <div id="rotation-${rot.number}-panel" class="view-panel ${index > 0 ? 'hidden' : ''}">
                             <div class="panel-header"><h1 class="panel-title">Rotação ${rot.number}</h1></div>
                             <div class="apparatus-grid">
-                                ${apparatusArray.map(app => `
-                                    <div class="apparatus-card">
-                                        <div class="apparatus-header">
-                                            <span>${app.displayName || app.code}</span>
-                                        </div>
-                                        <div class="gymnast-list">
-                                            ${(app.gymnasts || []).map((gymnast, i) => `
-                                                <div class="gymnast-item">
-                                                    <div class="gymnast-order">${i + 1}.</div>
-                                                    <div class="gymnast-details">
-                                                        <div class="gymnast-name" title="${gymnast.name}">${gymnast.name}</div>
-                                                        <div class="gymnast-country"><span class="fi fi-${getCountryCode(gymnast.country)}"></span> ${gymnast.country}</div>
-                                                    </div>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
+                                ${apparatusHtml}
                             </div>
                         </div>
                     `;
                 }).join('');
+
+                rotationsContainer.innerHTML = panelsHtml;
             }
 
             function setupNavEvents() {

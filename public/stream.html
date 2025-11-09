@@ -1895,10 +1895,13 @@
                     // Nome do país
                     const countryInfo = getCountryInfo(item.country);
                     const displayName = countryInfo.code || item.country || 'PAÍS';
-                    
+                    const resolvedFlagCode = countryInfo.code || (window.getCountryCode ? window.getCountryCode(item.country) : null);
+                    const resolvedFlagEmoji = countryInfo.emoji || (window.getCountryFlag ? window.getCountryFlag(item.country) : '🏳️');
+                    const flagMarkup = getFlagMarkup({ flagCode: resolvedFlagCode, flagEmoji: resolvedFlagEmoji }, 'w80');
                     card.innerHTML = `
                         <div class="ranking-position">#${i}</div>
                         <div class="ranking-info">
+                            <div class="ranking-flag">${flagMarkup}</div>
                             <div class="ranking-name">${displayName}</div>
                         </div>
                         <div class="ranking-score">${formatScoreValue(scoreValue, 3)}</div>
@@ -1933,9 +1936,12 @@
                     // Nome formatado
                     const displayName = gymnast.name || gymnast.displayName || gymnast.firstName || 'Ginasta';
                     
+                    const countryInfo = getCountryInfo(gymnast.country);
+                    const indFlagMarkup = getFlagMarkup({ flagCode: countryInfo.code, flagEmoji: countryInfo.emoji }, 'w80');
                     card.innerHTML = `
                         <div class="ranking-position">#${i}</div>
                         <div class="ranking-info">
+                            <div class="ranking-flag">${indFlagMarkup}</div>
                             <div class="ranking-name">${displayName}</div>
                         </div>
                         <div class="ranking-score">${formatScoreValue(scoreValue, 3)}</div>
@@ -2640,11 +2646,28 @@
             
             const gymnast = resolveGymnastById(gymnastId);
             if (!gymnast || !gymnast.scores) return null;
-            
+
             const basePhaseName = getBasePhaseName(phase);
-            const phaseScores = gymnast.scores[basePhaseName];
-            
-            if (!phaseScores) return null;
+            // Primeiro, tenta o formato aninhado: gymnast.scores.team_final
+            let phaseScores = gymnast.scores[basePhaseName];
+
+            // Se não existir formato aninhado, alguns documentos armazenam as chaves
+            // diretamente em gymnast.scores como `team_final_vt_d`, `team_final_fx_e`, etc.
+            // Nesse caso, construir um objeto phaseScores a partir das chaves planas.
+            if (!phaseScores) {
+                phaseScores = {};
+                const prefix = `${basePhaseName}_`;
+                Object.keys(gymnast.scores).forEach((k) => {
+                    if (typeof k === 'string' && k.startsWith(prefix)) {
+                        phaseScores[k] = gymnast.scores[k];
+                    }
+                });
+
+                // Se não encontrou nenhuma chave com prefixo, não temos scores para esta fase
+                if (!Object.keys(phaseScores).length) {
+                    return null;
+                }
+            }
             
             console.log('[Stream] 🔍 phaseScores object:', phaseScores);
             console.log('[Stream] 🔍 basePhaseName:', basePhaseName);
@@ -2868,7 +2891,16 @@
 
                     if (apparatus) {
                         results = finalGymnasts.map((gymnast) => {
-                            const phaseScores = gymnast.scores?.[basePhase] || {};
+                            // Construir phaseScores de forma robusta (apoiar chaves planas como 'aa_final_vt_d')
+                            let phaseScores = gymnast.scores?.[basePhase];
+                            if (!phaseScores) {
+                                phaseScores = {};
+                                const prefix = `${basePhase}_`;
+                                Object.keys(gymnast.scores || {}).forEach((k) => {
+                                    if (typeof k === 'string' && k.startsWith(prefix)) phaseScores[k] = gymnast.scores[k];
+                                });
+                                if (!Object.keys(phaseScores).length) phaseScores = {};
+                            }
                             const scoreData = getAppScore(phaseScores, apparatus, gymnast.id, basePhase);
                             return { ...gymnast, apparatusScore: scoreData.total };
                         }).filter((g) => g.apparatusScore > 0).sort((a, b) => b.apparatusScore - a.apparatusScore);
@@ -2902,7 +2934,15 @@
                     const finalGymnasts = finalists.length ? gymnasts.filter((g) => finalistIds.has(g.id)) : gymnasts;
 
                     results = finalGymnasts.map((gymnast) => {
-                        const phaseScores = gymnast.scores?.[basePhase] || {};
+                        let phaseScores = gymnast.scores?.[basePhase];
+                        if (!phaseScores) {
+                            phaseScores = {};
+                            const prefix = `${basePhase}_`;
+                            Object.keys(gymnast.scores || {}).forEach((k) => {
+                                if (typeof k === 'string' && k.startsWith(prefix)) phaseScores[k] = gymnast.scores[k];
+                            });
+                            if (!Object.keys(phaseScores).length) phaseScores = {};
+                        }
                         if (apparatusFinal === 'vt') {
                             const vt1 = getAppScore(phaseScores, 'vt1', gymnast.id, basePhase);
                             const vt2 = getAppScore(phaseScores, 'vt2', gymnast.id, basePhase);
@@ -2942,7 +2982,20 @@
                 }
             }
 
-            const phaseScores = gymnast.scores?.[phaseName] || {};
+            // Primeiro tenta estrutura aninhada
+            let phaseScores = gymnast.scores?.[phaseName];
+            // Se não existir, reconstruir a partir de chaves planas como 'team_final_vt_d'
+            if (!phaseScores) {
+                phaseScores = {};
+                const prefix = `${phaseName}_`;
+                Object.keys(gymnast.scores || {}).forEach((k) => {
+                    if (typeof k === 'string' && k.startsWith(prefix)) {
+                        phaseScores[k] = gymnast.scores[k];
+                    }
+                });
+                // Se não achou nada, garantir objeto vazio para evitar erros em getAppScore
+                if (!Object.keys(phaseScores).length) phaseScores = {};
+            }
             const scoreData = getAppScore(phaseScores, appKey, gymnast.id, phaseName);
             const countryCode = gymnast.country || currentGymnast.country || '';
             const countryInfo = getCountryInfo(countryCode);
@@ -3833,7 +3886,15 @@
                             const apparatusCode = getApparatusCode(data.gymnast?.apparatus || overlayContext.apparatus);
                             
                             // Get scores
-                            const phaseScores = gymnast.scores?.[basePhase] || {};
+                            let phaseScores = gymnast.scores?.[basePhase];
+                            if (!phaseScores) {
+                                phaseScores = {};
+                                const prefix = `${basePhase}_`;
+                                Object.keys(gymnast.scores || {}).forEach((k) => {
+                                    if (typeof k === 'string' && k.startsWith(prefix)) phaseScores[k] = gymnast.scores[k];
+                                });
+                                if (!Object.keys(phaseScores).length) phaseScores = {};
+                            }
                             let appKey = apparatusCode;
                             if (apparatusCode === 'vt') {
                                 appKey = overlayContext.activeVaultNum === 2 ? 'vt2' : 'vt1';
@@ -4066,10 +4127,38 @@
         }
 
         function playAnthemMusic(countryCode) {
-            const normalized = (countryCode || '').toUpperCase();
-            const file = ANTHEM_FILES[normalized];
+            const raw = (countryCode || '').toString().trim();
+            const normalized = raw.toUpperCase();
+
+            // Tenta encontrar a chave direta (pode ser 3-letter like 'ITA')
+            let anthemKey = normalized;
+            let file = ANTHEM_FILES[anthemKey];
+
+            // Se não encontrar, e o código for 2-letter (ex: 'it'), tentar mapear para 3-letter
+            if (!file && normalized.length === 2 && window.countryData) {
+                for (const three of Object.keys(window.countryData)) {
+                    const cd = window.countryData[three];
+                    if (cd && cd.code && cd.code.toUpperCase() === normalized) {
+                        anthemKey = three.toUpperCase();
+                        file = ANTHEM_FILES[anthemKey];
+                        break;
+                    }
+                }
+            }
+
+            // Se não encontrou com código 2-letter, talvez foi passado um 3-letter em lowercase ou similar;
+            // garantir tentativa extra usando somente first 3 chars
+            if (!file && normalized.length >= 2) {
+                // tentar usar exactly 3 letters if possible
+                const maybe3 = (normalized.length === 3) ? normalized : null;
+                if (maybe3 && ANTHEM_FILES[maybe3]) {
+                    anthemKey = maybe3;
+                    file = ANTHEM_FILES[anthemKey];
+                }
+            }
+
             if (!file) {
-                console.warn('[Stream] ⚠️ No anthem file available for country:', countryCode);
+                console.warn('[Stream] ⚠️ No anthem file available for country:', countryCode, '(tried keys:', anthemKey, ')');
                 return;
             }
             if (!ensureAudioEnabled()) {
@@ -4130,12 +4219,15 @@
                             .filter(g => g.country === team.country && normalizeBooleanValue(g.team_final_present, true))
                             .map(g => g.name)
                             .slice(0, 6);
+                        // Garantir flagCode e flagEmoji robustos (aceitar 2 or 3 letter codes)
+                        const resolvedFlagCode = (countryInfo && countryInfo.code) ? countryInfo.code : (window.getCountryCode ? window.getCountryCode(team.country) : null);
+                        const resolvedFlagEmoji = (countryInfo && countryInfo.emoji) ? countryInfo.emoji : (window.getCountryFlag ? window.getCountryFlag(team.country) : '🏳️');
                         return {
                             type: 'team',
                             rank: index + 1,
                             country: team.country,
-                            flagCode: countryInfo.code,
-                            flagEmoji: countryInfo.emoji,
+                            flagCode: resolvedFlagCode,
+                            flagEmoji: resolvedFlagEmoji,
                             score: Number(team.total || team.score || 0),
                             athletes
                         };

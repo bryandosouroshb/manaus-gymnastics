@@ -100,6 +100,10 @@
             <ul id="finalist-list-sidebar" class="finalist-nav-list">
                 <!-- Lista de finalistas da sidebar será inserida via JS -->
             </ul>
+            <div class="sidebar-controls" style="margin-top: auto; display:flex; flex-direction:column; gap:10px;">
+                <button id="shuffle-start-list" class="manaus-button secondary"><i class="fas fa-random"></i> Reorganizar Ordem</button>
+                <button id="save-start-list" class="manaus-button"><i class="fas fa-save"></i> Salvar Ordem</button>
+            </div>
         </aside>
 
         <main class="content-area">
@@ -144,6 +148,8 @@
             }
             
             initializeWhenReady();
+            // Store current finalists for shuffle/save actions
+            let currentFinalists = [];
 
             async function loadVTFinalists() {
                 try {
@@ -189,7 +195,8 @@
 
                     document.getElementById('loading').classList.add('hidden');
                     document.getElementById('start-list-main-container').classList.remove('hidden');
-                    displayStartList(finalists);
+                    currentFinalists = finalists.slice();
+                    displayStartList(currentFinalists);
 
                 } catch (error) {
                     console.error('Erro ao carregar finalistas:', error);
@@ -197,6 +204,39 @@
                     mainContainer.innerHTML = `<p style="color: red; text-align: center;">Erro ao carregar dados.</p>`;
                 }
             }
+
+            // Shuffle / Generate handler
+            document.getElementById('shuffle-start-list').addEventListener('click', () => {
+                if (!currentFinalists || !currentFinalists.length) return alert('Nenhuma finalista carregada para reorganizar.');
+                // Fisher-Yates shuffle
+                for (let i = currentFinalists.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [currentFinalists[i], currentFinalists[j]] = [currentFinalists[j], currentFinalists[i]];
+                }
+                displayStartList(currentFinalists);
+            });
+
+            // Save handler
+            document.getElementById('save-start-list').addEventListener('click', async () => {
+                if (!window.db) return alert('Banco de dados não inicializado.');
+                if (!currentFinalists || !currentFinalists.length) return alert('Nenhuma finalista para salvar.');
+                try {
+                    const payload = {
+                        type: 'apparatus_final',
+                        athletes: currentFinalists.map((g, idx) => ({ id: g.id, name: g.name, country: g.country, position: idx + 1 })),
+                        lastUpdated: new Date()
+                    };
+                    await window.db.collection('start_lists').doc('vt_final').set({ structure: payload, lastUpdated: new Date() });
+                    const saveBtn = document.getElementById('save-start-list');
+                    const original = saveBtn.innerHTML;
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+                    saveBtn.disabled = true;
+                    setTimeout(() => { saveBtn.innerHTML = original; saveBtn.disabled = false; }, 2000);
+                } catch (e) {
+                    console.error('Erro ao salvar start list VT:', e);
+                    alert('Erro ao salvar a ordem. Veja o console.');
+                }
+            });
 
             function displayStartList(gymnasts) {
                 const sidebarContainer = document.getElementById('finalist-list-sidebar');

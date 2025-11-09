@@ -111,23 +111,31 @@ function getAppScore(phaseScores, app, gymnastId = null, phaseName = null) {
 function getTeamFinalAppScore(gymnast, app) {
     // Buscar dados na estrutura scores.team_final
     const teamFinalScores = gymnast.scores?.team_final || {};
-    
+
     const primaryDKey = `team_final_${app}_d`;
     const primaryEKey = `team_final_${app}_e`;
     const primaryPKey = `team_final_${app}_p`;
-    
-    // Fallbacks para estruturas antigas
+
+    // Fallbacks para estruturas antigas e formatos planos
     const fallbackDKey = `${app}_d`;
     const fallbackEKey = `${app}_e`;
     const fallbackPKey = `${app}_p`;
-    
+
+    // Alguns documentos armazenam as chaves de team final diretamente em gymnast.scores (flat),
+    // por isso tentamos buscar em várias localizações.
     let dVal = teamFinalScores[primaryDKey];
     let eVal = teamFinalScores[primaryEKey];
     let pVal = teamFinalScores[primaryPKey];
-    
-    if (dVal === undefined) dVal = teamFinalScores[fallbackDKey];
-    if (eVal === undefined) eVal = teamFinalScores[fallbackEKey];
-    if (pVal === undefined) pVal = teamFinalScores[fallbackPKey];
+
+    // Se não encontrou dentro de gymnast.scores.team_final, procurar no objeto raiz gymnast.scores
+    if (dVal === undefined) dVal = gymnast.scores?.[primaryDKey];
+    if (eVal === undefined) eVal = gymnast.scores?.[primaryEKey];
+    if (pVal === undefined) pVal = gymnast.scores?.[primaryPKey];
+
+    // Se ainda não encontrou, tentar chaves sem prefixo (fallback)
+    if (dVal === undefined) dVal = teamFinalScores[fallbackDKey] ?? gymnast.scores?.[fallbackDKey];
+    if (eVal === undefined) eVal = teamFinalScores[fallbackEKey] ?? gymnast.scores?.[fallbackEKey];
+    if (pVal === undefined) pVal = teamFinalScores[fallbackPKey] ?? gymnast.scores?.[fallbackPKey];
     
     // Ensure that explicitly set 0 scores are preserved
     const d = (dVal === 0 || dVal === '0') ? 0 : parseFloat(String(dVal ?? '').replace(',', '.')) || 0;
@@ -175,7 +183,18 @@ function calculateAAScores(gymnastData, currentPhase = 'qualifiers') {
     const phaseName = currentPhase === 'aa_final' ? 'aa_final' : 'qualifiers';
     
     const calculatedScores = gymnastData.map((gymnast, index) => {
-        const phaseScores = gymnast.scores?.[phaseName] || {};
+        // Support both nested phase object (gymnast.scores.aa_final) and flat keys (gymnast.scores['aa_final_vt_d'])
+        let phaseScores = gymnast.scores?.[phaseName];
+        if (!phaseScores) {
+            phaseScores = {};
+            const prefix = `${phaseName}_`;
+            Object.keys(gymnast.scores || {}).forEach((k) => {
+                if (typeof k === 'string' && k.startsWith(prefix)) {
+                    phaseScores[k] = gymnast.scores[k];
+                }
+            });
+            if (!Object.keys(phaseScores).length) phaseScores = {};
+        }
         
         let vtScoreForAA, ubScore, bbScore, fxScore;
         
@@ -209,7 +228,16 @@ function calculateApparatusScores(gymnastData, apparatus) {
     console.log(`[calculateApparatusScores] Starting for ${apparatus} (${gymnastData.length} athletes).`);
     const phaseName = 'qualifiers'; // Qualificação por aparelho usa notas da Qualificação
     return gymnastData.map((gymnast, index) => {
-        const phaseScores = gymnast.scores?.[phaseName] || {};
+        // Support nested or flat qualifier keys
+        let phaseScores = gymnast.scores?.[phaseName];
+        if (!phaseScores) {
+            phaseScores = {};
+            const prefix = `${phaseName}_`;
+            Object.keys(gymnast.scores || {}).forEach((k) => {
+                if (typeof k === 'string' && k.startsWith(prefix)) phaseScores[k] = gymnast.scores[k];
+            });
+            if (!Object.keys(phaseScores).length) phaseScores = {};
+        }
         console.log(`[calculateApparatusScores] ${gymnast.name} - phaseScores:`, phaseScores);
         
         let score = 0;
@@ -321,8 +349,11 @@ function calculateTeamFinalScores(allGymnastData, qualifyingCountryCodes) {
 
         // ✅ VERIFICAR SE HAS DADOS DE TEAM FINAL: só processar se tem dados válidos
         const teamFinalScores = gymnast.scores?.team_final || {};
-        const hasTeamFinalData = Object.keys(teamFinalScores).some(key => {
-            const value = teamFinalScores[key];
+        // Também verificar chaves planas no root de gymnast.scores
+        const rootScores = gymnast.scores || {};
+        const combinedKeys = Array.from(new Set([...(Object.keys(teamFinalScores || {})), ...(Object.keys(rootScores || {}))]));
+        const hasTeamFinalData = combinedKeys.some(key => {
+            const value = (teamFinalScores && teamFinalScores[key] !== undefined) ? teamFinalScores[key] : rootScores[key];
             const hasValue = value !== '' && value !== null && value !== undefined;
             if (!hasValue) return false;
             if (key.startsWith('team_final_')) return true;

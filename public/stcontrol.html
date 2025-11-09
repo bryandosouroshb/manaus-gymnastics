@@ -1225,12 +1225,21 @@
             if (!applyConfigurationElement) return;
             
             applyConfigurationElement.onclick = () => {
-                const phase = phaseSelectElement?.value;
-                const rotation = rotationSelectElement?.value;
-                const apparatus = apparatusSelectElement?.value;
+                let phase = phaseSelectElement?.value;
+                let rotation = rotationSelectElement?.value;
+                let apparatus = apparatusSelectElement?.value;
+
+                // If operator selected an apparatus final, force apparatus derived from phase
+                if (phase && phase.endsWith('_final') && !phase.startsWith('aa') && !phase.startsWith('team')) {
+                    apparatus = phase.replace('_final','');
+                    try { if (apparatusSelectElement) apparatusSelectElement.value = apparatus; } catch(e){}
+                    currentSelectedApparatus = apparatus;
+                }
                 
                 // Para finais por aparelho (exceto VT e AA), rotação não é necessária
-                const needsRotation = phase === 'qualifiers' || phase === 'aa_final' || (phase.includes('_final') && apparatus === 'vt');
+                // Rotation is required for qualifiers, AA final and team final only.
+                // Apparatus finals MUST NOT use rotation — do not require rotation for vt/ub/bb/fx finals.
+                const needsRotation = phase === 'qualifiers' || phase === 'aa_final' || phase === 'team_final';
                 
                 if (!phase || (!needsRotation && !apparatus) || (needsRotation && (!rotation || !apparatus))) {
                     if (needsRotation) {
@@ -1330,7 +1339,24 @@
             const phaseName = `${apparatus}_final`;
             
             return allGymnastData.map(g => {
-                const phaseScores = g.scores?.[phaseName] || {};
+                // Support nested phase object (gymnast.scores[phaseName]) and flat keys (e.g., "fx_final_d" stored at root)
+                let phaseScores = g.scores?.[phaseName];
+                if (!phaseScores) {
+                    phaseScores = {};
+                    const prefix = `${phaseName}_`;
+                    Object.keys(g.scores || {}).forEach((k) => {
+                        if (typeof k === 'string' && k.startsWith(prefix)) phaseScores[k] = g.scores[k];
+                    });
+                    // Also support legacy/flat apparatus keys like 'fx_d' by copying those that start with `${apparatus}_`
+                    if (!Object.keys(phaseScores).length) {
+                        const appPrefix = `${apparatus}_`;
+                        Object.keys(g.scores || {}).forEach((k) => {
+                            if (typeof k === 'string' && k.startsWith(appPrefix)) phaseScores[k] = g.scores[k];
+                        });
+                    }
+                    if (!Object.keys(phaseScores).length) phaseScores = {};
+                }
+
                 const scoreData = window.getAppScore(phaseScores, apparatus, g.id, phaseName);
                 
                 return {
@@ -1529,12 +1555,18 @@
                 
                 if (apparatus === 'AA') {
                     subtitle = 'Women\'s All-Around Final';
-                    
-                    // ✅ USA window.calculateAAScores do calculation-logic.js
+
+                    // ✅ Usa window.calculateAAScores do calculation-logic.js
                     const calculatedData = window.calculateAAScores(allGymnastData, 'aa_final');
-                    console.log('[Control] 📊 Finals AA calculated:', calculatedData);
-                    
-                    data = calculatedData.map(g => ({
+                    console.log('[Control] 📊 Finals AA calculated (raw):', calculatedData);
+
+                    // Aplicar regra de final: Top 8 com máximo 2 por país
+                    const finalists = (typeof window.applyMaxPerCountry === 'function')
+                        ? window.applyMaxPerCountry(calculatedData, 8, 2)
+                        : calculatedData.slice(0, 8);
+                    console.log('[Control] 📊 Finals AA finalists after 2-per-country:', finalists.map(f => ({ id: f.id, name: f.name, aaTotal: f.aaTotal })));
+
+                    data = finalists.map(g => ({
                         gymnast: g,
                         score: g.aaTotal || 0
                     }));
@@ -2188,14 +2220,49 @@
                 const rotIdx = parseInt(rotation) - 1; // Convert 1-based to 0-based
                 finalSelection = `${phase}|rot${rotIdx}|${apparatus}`;
                 console.log(`[Stream Control] Built team/aa final selection: ${finalSelection}`);
+            } else if (phase && phase.endsWith('_final') && !phase.startsWith('aa') && !phase.startsWith('team')) {
+                // Apparatus finals (vt_final, ub_final, bb_final, fx_final)
+                // Rotation MUST NOT be used for apparatus finals — always use phase|apparatus
+                const derivedApp = apparatus || phase.replace('_final','');
+                finalSelection = `${phase}|${derivedApp}`;
+                // Hide rotation selector for apparatus finals to prevent operators choosing a rotation
+                try {
+                    if (rotationSelectElement?.parentElement) rotationSelectElement.parentElement.style.display = 'none';
+                } catch (e) { /* ignore */ }
+                // Ensure apparatus dropdown reflects the phase (force selection to derived apparatus)
+                if (apparatusSelectElement) {
+                    try { apparatusSelectElement.value = derivedApp; currentSelectedApparatus = derivedApp; } catch(e) { /* ignore */ }
+                }
+                console.log(`[Stream Control] Built apparatus final selection (no rotation): ${finalSelection}`);
             } else if (phase === 'qualifiers' && rotation && apparatus) {
                 const rotIdx = parseInt(rotation) - 1;
                 finalSelection = `qualifiers|rot${rotIdx}|${apparatus}`;
                 console.log(`[Stream Control] Built qualifiers selection: ${finalSelection}`);
             }
             
-            // Only load if we have a complete selection
-            if (finalSelection && finalSelection !== phase || (phase && !phase.endsWith('_final') || (phase.endsWith('_final') && !phase.includes('team') && !phase.includes('aa')))) {
+            // Only load if we have a complete selection.
+            // Rules:
+            // - For phases that require rotation+apparatus (team_final, aa_final, qualifiers when rotation is chosen) we require rotation && apparatus.
+            // - For other phases (ex: vt_final, ub_final, fx_final, qualifiers without rotation) we can load by phase alone.
+            let canLoad = false;
+            if (!phase) {
+                canLoad = false;
+            } else if (phase === 'team_final' || phase === 'aa_final') {
+                canLoad = !!(rotation && apparatus);
+            } else if (phase === 'qualifiers') {
+                // qualifiers can be global or specific rotation+apparatus
+                canLoad = !!(rotation && apparatus) || true; // allow qualifiers without rotation to load global list
+            } else {
+                // Other phases (apparatus finals) - allow load
+                canLoad = true;
+            }
+
+            // Restore rotation selector visibility for phases that need it
+            if (phase && !(phase.endsWith('_final') && !phase.startsWith('aa') && !phase.startsWith('team'))) {
+                try { if (rotationSelectElement?.parentElement) rotationSelectElement.parentElement.style.display = 'block'; } catch(e){}
+            }
+
+            if (canLoad && finalSelection) {
                 loadFXStartListFromDropdown(finalSelection);
             } else {
                 console.log(`[Stream Control] Incomplete selection, not loading: phase=${phase}, rotation=${rotation}, apparatus=${apparatus}`);
