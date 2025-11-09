@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -436,6 +436,64 @@
             transform: translateY(0);
         }
 
+          .podium-section .podium-status {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              background: linear-gradient(135deg, rgba(247, 201, 72, 0.18), rgba(255, 255, 255, 0.25));
+              border: 1px solid rgba(247, 201, 72, 0.35);
+              border-radius: 10px;
+              padding: 12px 16px;
+              margin-bottom: 16px;
+          }
+
+          .podium-section .podium-status .label {
+              font-size: 0.85rem;
+              font-weight: 600;
+              color: var(--text-light);
+          }
+
+          .podium-section .podium-status .value {
+              font-size: 1rem;
+              font-weight: 700;
+              color: var(--primary-green);
+              text-transform: uppercase;
+              letter-spacing: 0.05rem;
+          }
+
+          .podium-section .control-grid {
+              margin-bottom: 14px;
+          }
+
+          .podium-section .medal-buttons {
+              display: grid;
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+              gap: 10px;
+              margin-bottom: 14px;
+          }
+
+          .podium-section .control-btn.medal-bronze {
+              background: linear-gradient(135deg, #c08457, #8a4f24);
+              color: #fff;
+          }
+
+          .podium-section .control-btn.medal-silver {
+              background: linear-gradient(135deg, #d1d5db, #6b7280);
+              color: #1f2937;
+          }
+
+          .podium-section .control-btn.medal-gold {
+              background: linear-gradient(135deg, #f7c948, #dda70a);
+              color: #1f2937;
+          }
+
+          .podium-section .anthem-btn {
+              width: 100%;
+              background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+              color: #fff;
+              margin-top: 4px;
+          }
+
         .sound-btn.anthem {
             background: linear-gradient(45deg, #3b82f6, #2563eb);
             box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
@@ -803,6 +861,36 @@
                     </button>
                 </div>
             </div>
+
+          <!-- Cerimônia de Pódio -->
+          <div class="control-section podium-section">
+              <div class="section-title">🏆 Cerimônia de Pódio</div>
+              <div class="form-group">
+                  <label for="podium-phase-select">Fase da Cerimônia</label>
+                  <select id="podium-phase-select">
+                      <option value="team_final">Final por Equipes</option>
+                      <option value="aa_final">Final Individual Geral</option>
+                      <option value="vt_final">Final de Salto</option>
+                      <option value="ub_final">Final de Barras Assimétricas</option>
+                      <option value="bb_final">Final de Trave</option>
+                      <option value="fx_final">Final de Solo</option>
+                  </select>
+              </div>
+              <div class="podium-status">
+                  <span class="label">Evento Selecionado:</span>
+                  <span class="value" id="podium-phase-display">Final por Equipes</span>
+              </div>
+              <div class="control-grid">
+                  <button class="control-btn warning" id="btn-podium-ceremony">🎶 Som de Premiação</button>
+                  <button class="control-btn danger" id="btn-podium-reset">🛑 Encerrar</button>
+              </div>
+              <div class="medal-buttons">
+                  <button class="control-btn medal-bronze" id="btn-podium-bronze">🥉 Bronze</button>
+                  <button class="control-btn medal-silver" id="btn-podium-silver">🥈 Prata</button>
+                  <button class="control-btn medal-gold" id="btn-podium-gold">🥇 Ouro</button>
+              </div>
+              <button class="control-btn anthem-btn" id="btn-podium-anthem">🎵 Hino 1º Lugar</button>
+          </div>
         </div>
     </div>
 
@@ -911,6 +999,24 @@
         const selectedDvVt1Element = document.getElementById('selected-dv-vt1');
         const selectedDvVt2Element = document.getElementById('selected-dv-vt2');
 
+          const podiumPhaseSelect = document.getElementById('podium-phase-select');
+          const podiumPhaseDisplay = document.getElementById('podium-phase-display');
+          const btnPodiumCeremony = document.getElementById('btn-podium-ceremony');
+          const btnPodiumBronze = document.getElementById('btn-podium-bronze');
+          const btnPodiumSilver = document.getElementById('btn-podium-silver');
+          const btnPodiumGold = document.getElementById('btn-podium-gold');
+          const btnPodiumAnthem = document.getElementById('btn-podium-anthem');
+          const btnPodiumReset = document.getElementById('btn-podium-reset');
+
+          const PODIUM_PHASES_CONTROL = {
+              team_final: { label: 'Final por Equipes', phaseLabel: 'Team Final', category: 'team', apparatus: null },
+              aa_final: { label: 'Final Individual Geral', phaseLabel: 'All-Around Final', category: 'individual', apparatus: null },
+              vt_final: { label: 'Final de Salto', phaseLabel: 'Vault Final', category: 'individual', apparatus: 'vt' },
+              ub_final: { label: 'Final de Barras Assimétricas', phaseLabel: 'Uneven Bars Final', category: 'individual', apparatus: 'ub' },
+              bb_final: { label: 'Final de Trave', phaseLabel: 'Balance Beam Final', category: 'individual', apparatus: 'bb' },
+              fx_final: { label: 'Final de Solo', phaseLabel: 'Floor Exercise Final', category: 'individual', apparatus: 'fx' }
+          };
+
         function parseDropdownValue(value) {
             const parts = value.split('|');
             const phase = parts[0];
@@ -944,6 +1050,39 @@
             currentSelectedApparatus = app;
             return { phase, apparatus: app, subdivIdx, rotIdx };
         }
+
+          function updatePodiumPhaseDisplay() {
+              if (!podiumPhaseSelect || !podiumPhaseDisplay) return;
+              const config = PODIUM_PHASES_CONTROL[podiumPhaseSelect.value] || PODIUM_PHASES_CONTROL.team_final;
+              podiumPhaseDisplay.textContent = config.label;
+          }
+
+          function getSelectedPodiumContext() {
+              if (!podiumPhaseSelect) return null;
+              const key = podiumPhaseSelect.value;
+              const config = PODIUM_PHASES_CONTROL[key];
+              if (!config) {
+                  alert('Selecione uma fase válida para o pódio.');
+                  return null;
+              }
+              return {
+                  phaseKey: key,
+                  phaseLabel: config.phaseLabel,
+                  category: config.category,
+                  apparatus: config.apparatus || null
+              };
+          }
+
+          function sendPodiumMedal(medal) {
+              const context = getSelectedPodiumContext();
+              if (!context) return;
+              controlChannel.postMessage({
+                  action: 'podium-show-medal',
+                  medal,
+                  ...context
+              });
+          }
+
         function updateGymnastInfo() {
             if (!infoDivElement) return;
             
@@ -2296,6 +2435,51 @@
         }
         if (btnActivateVt1Element) btnActivateVt1Element.onclick = () => setActiveVault(1);
         if (btnActivateVt2Element) btnActivateVt2Element.onclick = () => setActiveVault(2);
+
+          if (podiumPhaseSelect) {
+              updatePodiumPhaseDisplay();
+              podiumPhaseSelect.addEventListener('change', updatePodiumPhaseDisplay);
+          }
+
+          if (btnPodiumCeremony) {
+              btnPodiumCeremony.addEventListener('click', () => {
+                  const context = getSelectedPodiumContext();
+                  if (!context) return;
+                  controlChannel.postMessage({
+                      action: 'podium-start-ceremony',
+                      ...context
+                  });
+              });
+          }
+
+          if (btnPodiumReset) {
+              btnPodiumReset.addEventListener('click', () => {
+                  controlChannel.postMessage({ action: 'podium-hide' });
+              });
+          }
+
+          if (btnPodiumBronze) {
+              btnPodiumBronze.addEventListener('click', () => sendPodiumMedal('bronze'));
+          }
+
+          if (btnPodiumSilver) {
+              btnPodiumSilver.addEventListener('click', () => sendPodiumMedal('silver'));
+          }
+
+          if (btnPodiumGold) {
+              btnPodiumGold.addEventListener('click', () => sendPodiumMedal('gold'));
+          }
+
+          if (btnPodiumAnthem) {
+              btnPodiumAnthem.addEventListener('click', () => {
+                  const context = getSelectedPodiumContext();
+                  if (!context) return;
+                  controlChannel.postMessage({
+                      action: 'podium-start-anthem',
+                      ...context
+                  });
+              });
+          }
 
         // Botões de mostrar/ocultar timer
         const btnShowTimer = document.getElementById('btn-timer-show');

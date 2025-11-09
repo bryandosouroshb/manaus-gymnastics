@@ -2,6 +2,25 @@
 
 const apparatusList = ['vt', 'ub', 'bb', 'fx'];
 
+/**
+ * Normaliza valores booleanos vindos do Firestore/UI (true/false, "true"/"false", 1/0, etc).
+ * @param {*} value Valor original.
+ * @param {boolean} defaultValue Valor padrão quando undefined/null/string vazia.
+ * @returns {boolean}
+ */
+function normalizeBoolean(value, defaultValue = false) {
+    if (value === undefined || value === null) return defaultValue;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (!normalized) return defaultValue;
+        if (['true', '1', 'yes', 'y', 'sim'].includes(normalized)) return true;
+        if (['false', '0', 'no', 'n', 'nao', 'não'].includes(normalized)) return false;
+    }
+    return Boolean(value);
+}
+
 // Helper to extract numeric prefix from ID (e.g., '008' from 'gym_008')
 // Kept for potential future use, though current logic might not require it if keys are standardized
 function getNumericPrefixFromId(gymnastId) {
@@ -93,23 +112,33 @@ function getTeamFinalAppScore(gymnast, app) {
     // Buscar dados na estrutura scores.team_final
     const teamFinalScores = gymnast.scores?.team_final || {};
     
-    const dKey = `team_final_${app}_d`;
-    const eKey = `team_final_${app}_e`;
-    const pKey = `team_final_${app}_p`;
+    const primaryDKey = `team_final_${app}_d`;
+    const primaryEKey = `team_final_${app}_e`;
+    const primaryPKey = `team_final_${app}_p`;
     
-    const dVal = teamFinalScores[dKey];
-    const eVal = teamFinalScores[eKey];
-    const pVal = teamFinalScores[pKey];
+    // Fallbacks para estruturas antigas
+    const fallbackDKey = `${app}_d`;
+    const fallbackEKey = `${app}_e`;
+    const fallbackPKey = `${app}_p`;
+    
+    let dVal = teamFinalScores[primaryDKey];
+    let eVal = teamFinalScores[primaryEKey];
+    let pVal = teamFinalScores[primaryPKey];
+    
+    if (dVal === undefined) dVal = teamFinalScores[fallbackDKey];
+    if (eVal === undefined) eVal = teamFinalScores[fallbackEKey];
+    if (pVal === undefined) pVal = teamFinalScores[fallbackPKey];
     
     // Ensure that explicitly set 0 scores are preserved
-    const d = (dVal === 0 || dVal === '0') ? 0 : parseFloat(String(dVal).replace(',', '.')) || 0;
-    const e = (eVal === 0 || eVal === '0') ? 0 : parseFloat(String(eVal).replace(',', '.')) || 0;
-    const p = (pVal === 0 || pVal === '0') ? 0 : parseFloat(String(pVal).replace(',', '.')) || 0;
+    const d = (dVal === 0 || dVal === '0') ? 0 : parseFloat(String(dVal ?? '').replace(',', '.')) || 0;
+    const e = (eVal === 0 || eVal === '0') ? 0 : parseFloat(String(eVal ?? '').replace(',', '.')) || 0;
+    const p = (pVal === 0 || pVal === '0') ? 0 : parseFloat(String(pVal ?? '').replace(',', '.')) || 0;
     
     // Calculate total - always calculate if any scores exist, including 0
-    const total = (d > 0 || e > 0 || dVal === 0 || eVal === 0) ? Math.max(0, d + e - p) : 0;
+    const hasAnyScore = dVal !== undefined || eVal !== undefined || pVal !== undefined;
+    const total = hasAnyScore ? Math.max(0, d + e - p) : 0;
     
-    console.log(`[getTeamFinalAppScore] ${gymnast.name} App: ${app}, Keys: ${dKey}=${d}, ${eKey}=${e}, ${pKey}=${p}, Total:${total}`);
+    console.log(`[getTeamFinalAppScore] ${gymnast.name} App: ${app}, Keys: ${primaryDKey}/${fallbackDKey}=${d}, ${primaryEKey}/${fallbackEKey}=${e}, ${primaryPKey}/${fallbackPKey}=${p}, Total:${total}`);
     return { d, e, p, total };
 }
 
@@ -284,14 +313,21 @@ function calculateTeamFinalScores(allGymnastData, qualifyingCountryCodes) {
         const phaseScores = gymnast.scores?.[phaseName] || {}; // Pega as notas da fase team_final
 
         // ✅ VERIFICAR PRESENÇA: só processar se estiver presente no Team Final
-        if (gymnast.team_final_present !== true) {
+        const isPresent = normalizeBoolean(gymnast.team_final_present, true);
+        if (!isPresent) {
             console.log(`[calculateTeamFinalScores] ${gymnast.name} (${country}) AUSENTE - pulando (present=${gymnast.team_final_present})`);
             return; // Pula esta ginasta
         }
 
         // ✅ VERIFICAR SE HAS DADOS DE TEAM FINAL: só processar se tem dados válidos
         const teamFinalScores = gymnast.scores?.team_final || {};
-        const hasTeamFinalData = Object.keys(teamFinalScores).some(key => key.startsWith('team_final_') && teamFinalScores[key] !== '' && teamFinalScores[key] !== null && teamFinalScores[key] !== undefined);
+        const hasTeamFinalData = Object.keys(teamFinalScores).some(key => {
+            const value = teamFinalScores[key];
+            const hasValue = value !== '' && value !== null && value !== undefined;
+            if (!hasValue) return false;
+            if (key.startsWith('team_final_')) return true;
+            return apparatusList.some(app => key.startsWith(`${app}_`));
+        });
         if (!hasTeamFinalData) {
             console.log(`[calculateTeamFinalScores] ${gymnast.name} (${country}) SEM DADOS DE TEAM FINAL - pulando`);
             return;
@@ -302,13 +338,14 @@ function calculateTeamFinalScores(allGymnastData, qualifyingCountryCodes) {
         // Soma as notas dos aparelhos onde a ginasta competiu (3-up, 3-count - SOMA TODAS AS 3 NOTAS)
         apparatusList.forEach(app => {
             const competesKey = `competes_on_${app}`; // Flag definida no modal
-            if (phaseScores[competesKey]) { // Verifica se a ginasta competiu neste aparelho
+            const competes = normalizeBoolean(phaseScores[competesKey], false);
+            if (competes) { // Verifica se a ginasta competiu neste aparelho
                 // ⚠️ USAR DADOS DIRETO DO FIREBASE ao invés de phaseScores
                 const appScoreData = getTeamFinalAppScore(gymnast, app);
                 console.log(`[calculateTeamFinalScores] ${gymnast.name} - ${app}: competes=${phaseScores[competesKey]}, score=${appScoreData.total}`);
                 
                 // MUDANÇA: Soma TODAS as notas válidas (>= 0), incluindo zeros
-                if (appScoreData.total >= 0) {
+                if (typeof appScoreData.total === 'number' && appScoreData.total >= 0) {
                     teamScores[country][app] += appScoreData.total; // Adiciona ao total do aparelho para o time
                     console.log(`[calculateTeamFinalScores] Added ${appScoreData.total} to ${country} ${app}. New total: ${teamScores[country][app]}`);
                 }
@@ -370,17 +407,16 @@ function calculateTeamFinalScoresWithDuplication(allGymnastData, qualifyingCount
                 countrySlots.forEach(slot => {
                     if (slot.gymnastId) {
                         const gymnast = allGymnastData.find(g => g.id === slot.gymnastId);
+                        const isPresent = gymnast ? normalizeBoolean(gymnast.team_final_present, true) : false;
                         
-                        // VERIFICAR PRESENÇA: só usar nota se ginasta está presente
-                        if (gymnast && gymnast.team_final_present === true) {
+                        if (gymnast && isPresent) {
                             const appScoreData = getTeamFinalAppScore(gymnast, rotationApp);
+                            const multiplier = typeof slot.multiplier === 'number' ? slot.multiplier : 1;
+                            const multipliedScore = appScoreData.total * multiplier;
                             
-                            // Aplicar multiplicador
-                            const multipliedScore = appScoreData.total * slot.multiplier;
+                            console.log(`[calculateTeamFinalScoresWithDuplication] ${gymnast.name} - ${rotationApp}: original_score=${appScoreData.total}, multiplier=${multiplier}, multiplied_score=${multipliedScore}, present=${gymnast.team_final_present}`);
                             
-                            console.log(`[calculateTeamFinalScoresWithDuplication] ${gymnast.name} - ${rotationApp}: original_score=${appScoreData.total}, multiplier=${slot.multiplier}, multiplied_score=${multipliedScore}, present=${gymnast.team_final_present}`);
-                            
-                            if (multipliedScore >= 0) {
+                            if (typeof multipliedScore === 'number' && multipliedScore >= 0) {
                                 const previousTotal = teamScores[country][rotationApp];
                                 teamScores[country][rotationApp] += multipliedScore;
                                 console.log(`[calculateTeamFinalScoresWithDuplication] ${country} ${rotationApp}: ${previousTotal} + ${multipliedScore} = ${teamScores[country][rotationApp]}`);

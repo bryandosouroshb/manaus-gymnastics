@@ -297,9 +297,48 @@
                         <ol id="list-center-items"></ol>
                     </div>
                 </div>
-            </section>
+              </section>
 
-            <!-- Warmup Overlay -->
+              <!-- ✨ Novo: Overlays de Cerimônia de Pódio -->
+              <section class="overlay-podium-intro" id="overlay-podium-intro" data-visible="false">
+                  <div class="intro-card">
+                      <h1>PREMIAÇÃO</h1>
+                      <h2>EVENTO TESTE</h2>
+                      <div class="intro-phase" id="podium-intro-phase">TEAM FINAL</div>
+                  </div>
+              </section>
+
+              <section class="overlay-podium" id="overlay-podium" data-visible="false">
+                  <div class="podium-title">
+                      <span>PÓDIO</span>
+                      <span id="podium-phase-label">Team Final</span>
+                  </div>
+                  <div class="podium-stage" id="podium-stage"></div>
+              </section>
+
+              <section class="overlay-podium-footer" id="overlay-podium-footer" data-visible="false">
+                  <div class="podium-footer-left">
+                      <div class="podium-footer-flag" id="podium-footer-flag"></div>
+                      <div class="podium-footer-text">
+                          <div class="country" id="podium-footer-country">BRAZIL</div>
+                          <div class="subtitle" id="podium-footer-subtitle">Bronze Medal - Team Final - Manaus 2025</div>
+                      </div>
+                  </div>
+                  <div class="podium-footer-medal">
+                      <div class="medal-icon" id="podium-footer-medal-icon">🥉</div>
+                      <span id="podium-footer-score">164.450</span>
+                  </div>
+              </section>
+
+              <section class="overlay-podium-flags" id="overlay-podium-flags" data-visible="false">
+                  <div class="podium-title" style="justify-content: center;">
+                      <span>HINO NACIONAL</span>
+                      <span id="podium-flags-phase">Team Final</span>
+                  </div>
+                  <div class="flag-raising-stage" id="podium-flags-stage"></div>
+              </section>
+
+              <!-- Warmup Overlay -->
             <section class="overlay-warmup" id="overlay-warmup" data-visible="false">
                 <div class="warmup-content">
                     <h1 class="warmup-title">AQUECIMENTO</h1>
@@ -678,6 +717,61 @@
                 title: document.getElementById('overlay-results-title'),
                 list: document.getElementById('overlay-results-items')
             }
+        };
+
+        const overlayPodiumIntro = document.getElementById('overlay-podium-intro');
+        const overlayPodium = document.getElementById('overlay-podium');
+        const overlayPodiumFooter = document.getElementById('overlay-podium-footer');
+        const overlayPodiumFlags = document.getElementById('overlay-podium-flags');
+        const podiumIntroPhaseEl = document.getElementById('podium-intro-phase');
+        const podiumPhaseLabelEl = document.getElementById('podium-phase-label');
+        const podiumStageContainer = document.getElementById('podium-stage');
+        const podiumFooterFlagEl = document.getElementById('podium-footer-flag');
+        const podiumFooterCountryEl = document.getElementById('podium-footer-country');
+        const podiumFooterSubtitleEl = document.getElementById('podium-footer-subtitle');
+        const podiumFooterMedalIconEl = document.getElementById('podium-footer-medal-icon');
+        const podiumFooterScoreEl = document.getElementById('podium-footer-score');
+        const podiumFlagsPhaseEl = document.getElementById('podium-flags-phase');
+        const podiumFlagsStageEl = document.getElementById('podium-flags-stage');
+
+        const PODIUM_PHASES = {
+            team_final: { label: 'Team Final', category: 'team', apparatus: null },
+            aa_final: { label: 'All-Around Final', category: 'individual', apparatus: null },
+            vt_final: { label: 'Vault Final', category: 'individual', apparatus: 'vt' },
+            ub_final: { label: 'Uneven Bars Final', category: 'individual', apparatus: 'ub' },
+            bb_final: { label: 'Balance Beam Final', category: 'individual', apparatus: 'bb' },
+            fx_final: { label: 'Floor Exercise Final', category: 'individual', apparatus: 'fx' }
+        };
+
+        const MEDAL_CONFIG = {
+            gold: { label: 'Gold Medal', icon: '🥇' },
+            silver: { label: 'Silver Medal', icon: '🥈' },
+            bronze: { label: 'Bronze Medal', icon: '🥉' }
+        };
+
+        const ANTHEM_FILES = {
+            BRA: 'music/brazil-anthem.mp3',
+            ITA: 'music/italy-anthem.mp3',
+            CHN: 'music/china-anthem.mp3',
+            USA: 'music/usa-anthem.mp3'
+        };
+
+        const PODIUM_LAYOUT = ['silver', 'gold', 'bronze'];
+        const MEDAL_INDEX = { gold: 0, silver: 1, bronze: 2 };
+
+        const podiumState = {
+            phaseKey: null,
+            apparatus: null,
+            phaseLabel: '',
+            category: 'individual',
+            results: [],
+            activeMedals: {
+                gold: null,
+                silver: null,
+                bronze: null
+            },
+            lastMedal: null,
+            introTimeout: null
         };
 
         const enableAudioBtn = document.getElementById('enable-audio-btn');
@@ -1988,6 +2082,9 @@
             // Hide instructions
             const instructionsOverlay = document.getElementById('overlay-instructions');
             if (instructionsOverlay) setOverlayVisibility(instructionsOverlay, false);
+
+            hidePodiumOverlays();
+            stopPodiumAudio();
             
             // Hide timer overlay
             if (overlayElements.timer && overlayElements.timer.root) {
@@ -3296,17 +3393,29 @@
                 }
 
                 // Handle Instructions Overlay (Instruções Finais)
-                else if (data.action === 'show-instructions') {
-                    console.log('[Stream] ⚠️ ACTION: show-instructions detected!', data);
-                    showInstructionsOverlay(data.duration || 5000);
-                }
+                  else if (data.action === 'show-instructions') {
+                      console.log('[Stream] ⚠️ ACTION: show-instructions detected!', data);
+                      showInstructionsOverlay(data.duration || 5000);
+                  }
 
-                // Handle Hide All Overlays
-                else if (data.action === 'hide-all-overlays') {
-                    hideAllOverlays();
-                }
+                  // Handle Hide All Overlays
+                  else if (data.action === 'hide-all-overlays') {
+                      hideAllOverlays();
+                  }
+                  else if (data.action === 'podium-start-ceremony') {
+                      handlePodiumStart(data);
+                  }
+                  else if (data.action === 'podium-show-medal') {
+                      handlePodiumShowMedal(data);
+                  }
+                  else if (data.action === 'podium-hide') {
+                      handlePodiumHide();
+                  }
+                  else if (data.action === 'podium-start-anthem') {
+                      handlePodiumAnthem(data);
+                  }
 
-                // Handle Show/Hide Lower-third (Rodapé Padrão)
+                  // Handle Show/Hide Lower-third (Rodapé Padrão)
                 else if (data.action === 'show-lower-third-default') {
                     console.log('[Stream] 👤 Exibindo rodapé padrão...');
                     currentLowerThirdState = true;
@@ -3863,6 +3972,428 @@
             } else if (data.type === 'PLAY_BEEP') {
                 playBeep();
             }
+        }
+
+        function normalizeBooleanValue(value, defaultValue = false) {
+            if (value === undefined || value === null) return defaultValue;
+            if (typeof value === 'boolean') return value;
+            if (typeof value === 'number') return value !== 0;
+            if (typeof value === 'string') {
+                const normalized = value.trim().toLowerCase();
+                if (!normalized) return defaultValue;
+                if (['true', '1', 'yes', 'y', 'sim'].includes(normalized)) return true;
+                if (['false', '0', 'no', 'n', 'nao', 'não'].includes(normalized)) return false;
+            }
+            return Boolean(value);
+        }
+
+        function getFlagMarkup(entry, size = 'w80') {
+            if (!entry) return '';
+            if (entry.flagCode) {
+                return `<img src="${FLAG_CDN_BASE}/${size}/${entry.flagCode}.png" alt="${(entry.country || '').toUpperCase()}">`;
+            }
+            if (entry.flagEmoji) {
+                const fontSize = size === 'w256' ? '3rem' : (size === 'w160' ? '2.4rem' : '2rem');
+                return `<span style="font-size:${fontSize};">${entry.flagEmoji}</span>`;
+            }
+            return '';
+        }
+
+        function resetPodiumState(clearAudio = false) {
+            if (podiumState.introTimeout) {
+                clearTimeout(podiumState.introTimeout);
+                podiumState.introTimeout = null;
+            }
+            podiumState.phaseKey = null;
+            podiumState.apparatus = null;
+            podiumState.phaseLabel = '';
+            podiumState.category = 'individual';
+            podiumState.results = [];
+            podiumState.activeMedals.gold = null;
+            podiumState.activeMedals.silver = null;
+            podiumState.activeMedals.bronze = null;
+            podiumState.lastMedal = null;
+            if (podiumStageContainer) {
+                podiumStageContainer.innerHTML = '';
+            }
+            if (podiumFooterFlagEl) {
+                podiumFooterFlagEl.innerHTML = '';
+            }
+            if (podiumFooterCountryEl) podiumFooterCountryEl.textContent = '';
+            if (podiumFooterSubtitleEl) podiumFooterSubtitleEl.textContent = '';
+            if (podiumFooterScoreEl) podiumFooterScoreEl.textContent = '';
+            if (clearAudio) {
+                stopPodiumAudio();
+            }
+            setOverlayVisibility(overlayPodiumIntro, false);
+            setOverlayVisibility(overlayPodium, false);
+            setOverlayVisibility(overlayPodiumFooter, false);
+            setOverlayVisibility(overlayPodiumFlags, false);
+        }
+
+        function playAwardsMusic() {
+            if (!ensureAudioEnabled()) {
+                console.warn('[Stream] ⚠️ Awards music requested but audio is disabled.');
+                return;
+            }
+            stopGymnastMusic();
+            if (currentSoundEffectAudio) {
+                currentSoundEffectAudio.pause();
+            }
+            currentSoundEffectAudio = new Audio('music/awards.mp3');
+            currentSoundEffectAudio.loop = true;
+            currentSoundEffectAudio.volume = 0.82;
+            currentSoundEffectAudio.play().then(() => {
+                overlayContext.music.status = 'GO';
+                overlayContext.music.label = 'CERIMÔNIA';
+                overlayContext.music.timestamp = Date.now();
+                syncComputedOverlays();
+            }).catch((error) => {
+                console.error('[Stream] ❌ Awards music playback failed:', error);
+            });
+        }
+
+        function stopPodiumAudio() {
+            if (currentSoundEffectAudio) {
+                currentSoundEffectAudio.pause();
+                currentSoundEffectAudio = null;
+            }
+            if (overlayContext.music.label === 'CERIMÔNIA' || overlayContext.music.label === 'HINO') {
+                overlayContext.music.status = 'STOP';
+                overlayContext.music.timestamp = Date.now();
+                syncComputedOverlays();
+            }
+        }
+
+        function playAnthemMusic(countryCode) {
+            const normalized = (countryCode || '').toUpperCase();
+            const file = ANTHEM_FILES[normalized];
+            if (!file) {
+                console.warn('[Stream] ⚠️ No anthem file available for country:', countryCode);
+                return;
+            }
+            if (!ensureAudioEnabled()) {
+                console.warn('[Stream] ⚠️ Anthem requested but audio is disabled.');
+                return;
+            }
+            stopGymnastMusic();
+            if (currentSoundEffectAudio) {
+                currentSoundEffectAudio.pause();
+            }
+            currentSoundEffectAudio = new Audio(file);
+            currentSoundEffectAudio.loop = false;
+            currentSoundEffectAudio.volume = 0.92;
+            currentSoundEffectAudio.play().then(() => {
+                overlayContext.music.status = 'GO';
+                overlayContext.music.label = 'HINO';
+                overlayContext.music.timestamp = Date.now();
+                syncComputedOverlays();
+            }).catch((error) => {
+                console.error('[Stream] ❌ Anthem playback failed:', error);
+            });
+            if (currentSoundEffectAudio) {
+                currentSoundEffectAudio.onended = () => {
+                    overlayContext.music.status = 'STOP';
+                    overlayContext.music.timestamp = Date.now();
+                    syncComputedOverlays();
+                    setOverlayVisibility(overlayPodiumFlags, false);
+                };
+            }
+        }
+
+        function fetchPodiumResults(phaseKey, apparatus, category) {
+            const gymnasts = dataState.gymnasts || [];
+            if (!gymnasts.length) {
+                console.warn('[Stream] ⚠️ Podium requested but gymnast data is empty.');
+                return [];
+            }
+
+            if (phaseKey === 'team_final') {
+                let results = [];
+                const teamQualifiers = typeof calculateTeamScores === 'function' ? calculateTeamScores(gymnasts) : [];
+                const qualifyingCountries = teamQualifiers.map(team => team.country);
+                if (dataState.teamFinalDraw && typeof calculateTeamFinalScoresWithDuplication === 'function') {
+                    results = calculateTeamFinalScoresWithDuplication(gymnasts, qualifyingCountries, dataState.teamFinalDraw);
+                } else if (typeof calculateTeamFinalScores === 'function') {
+                    results = calculateTeamFinalScores(gymnasts, qualifyingCountries);
+                } else {
+                    results = teamQualifiers;
+                }
+
+                return results
+                    .filter(Boolean)
+                    .sort((a, b) => (b.total || 0) - (a.total || 0))
+                    .slice(0, 3)
+                    .map((team, index) => {
+                        const countryInfo = getCountryInfo(team.country);
+                        const athletes = gymnasts
+                            .filter(g => g.country === team.country && normalizeBooleanValue(g.team_final_present, true))
+                            .map(g => g.name)
+                            .slice(0, 6);
+                        return {
+                            type: 'team',
+                            rank: index + 1,
+                            country: team.country,
+                            flagCode: countryInfo.code,
+                            flagEmoji: countryInfo.emoji,
+                            score: Number(team.total || team.score || 0),
+                            athletes
+                        };
+                    });
+            }
+
+            if (phaseKey === 'aa_final') {
+                const aaScores = typeof calculateAAScores === 'function' ? calculateAAScores(gymnasts, 'aa_final') : [];
+                return aaScores
+                    .filter(g => typeof g.aaTotal === 'number' && g.aaTotal > 0)
+                    .sort((a, b) => b.aaTotal - a.aaTotal)
+                    .slice(0, 3)
+                    .map((gymnast, index) => {
+                        const countryInfo = getCountryInfo(gymnast.country);
+                        return {
+                            type: 'individual',
+                            rank: index + 1,
+                            gymnastId: gymnast.id,
+                            fullName: gymnast.name,
+                            country: gymnast.country,
+                            flagCode: countryInfo.code,
+                            flagEmoji: countryInfo.emoji,
+                            score: Number(gymnast.aaTotal || 0)
+                        };
+                    });
+            }
+
+            if (phaseKey && phaseKey.endsWith('_final')) {
+                const targetApparatus = apparatus || phaseKey.replace('_final', '');
+                const finalResults = computeConsolidatedResults(phaseKey, targetApparatus) || [];
+                return finalResults
+                    .filter(Boolean)
+                    .slice(0, 3)
+                    .map((gymnast, index) => {
+                        const countryInfo = getCountryInfo(gymnast.country);
+                        const scoreValue = gymnast.apparatusScore ?? gymnast.total ?? gymnast.score ?? gymnast.points ?? 0;
+                        return {
+                            type: 'individual',
+                            rank: index + 1,
+                            gymnastId: gymnast.id,
+                            fullName: gymnast.name || gymnast.displayName || `${gymnast.firstName || ''} ${gymnast.lastName || ''}`.trim(),
+                            country: gymnast.country,
+                            flagCode: countryInfo.code,
+                            flagEmoji: countryInfo.emoji,
+                            score: Number(scoreValue)
+                        };
+                    });
+            }
+
+            console.warn('[Stream] ⚠️ Unknown podium phase key:', phaseKey);
+            return [];
+        }
+
+        function initializePodiumStateFromControl(payload) {
+            const phaseKey = payload.phaseKey;
+            if (!phaseKey) {
+                console.warn('[Stream] ⚠️ Podium payload missing phaseKey.');
+                return false;
+            }
+            const metadata = PODIUM_PHASES[phaseKey] || {};
+            podiumState.phaseKey = phaseKey;
+            podiumState.phaseLabel = payload.phaseLabel || metadata.label || phaseKey.replace(/_/g, ' ').toUpperCase();
+            podiumState.category = payload.category || metadata.category || 'individual';
+            podiumState.apparatus = payload.apparatus || metadata.apparatus || null;
+            podiumState.results = fetchPodiumResults(podiumState.phaseKey, podiumState.apparatus, podiumState.category);
+            podiumState.activeMedals.gold = null;
+            podiumState.activeMedals.silver = null;
+            podiumState.activeMedals.bronze = null;
+            podiumState.lastMedal = null;
+            if (!podiumState.results.length) {
+                console.warn('[Stream] ⚠️ No podium results available for', podiumState.phaseKey);
+                return false;
+            }
+            if (podiumStageContainer) {
+                podiumStageContainer.innerHTML = '';
+            }
+            return true;
+        }
+
+        function updatePodiumStage(highlightMedal = null) {
+            if (!podiumStageContainer) return;
+            const html = PODIUM_LAYOUT.map((medal) => {
+                const entry = podiumState.activeMedals[medal];
+                const medalCfg = MEDAL_CONFIG[medal];
+                const classes = ['podium-block', `medal-${medal}`];
+                if (entry) classes.push('active');
+                if (highlightMedal === medal) classes.push('podium-active-medal');
+                const scoreText = entry ? formatScoreValue(entry.score ?? 0, 3) : '--';
+                const flagMarkup = entry ? getFlagMarkup(entry, 'w80') : '';
+                const countryLabel = entry ? (entry.country || '').toUpperCase() : '---';
+                let nameLine = '';
+                let athletesLine = '';
+                if (entry) {
+                    if (entry.type === 'team') {
+                        nameLine = `<div class="podium-name">${countryLabel}</div>`;
+                        if (entry.athletes && entry.athletes.length) {
+                            athletesLine = `<div class="podium-athletes">${entry.athletes.join(' • ')}</div>`;
+                        }
+                    } else {
+                        nameLine = `<div class="podium-name">${entry.fullName || entry.display || 'Ginasta'}</div>`;
+                    }
+                }
+                return `
+                    <div class="${classes.join(' ')}">
+                        <div class="podium-header">
+                            <div class="medal-icon">${medalCfg.icon}</div>
+                            <div class="podium-score">${scoreText}</div>
+                        </div>
+                        <div class="podium-details">
+                            <div class="podium-flag">${flagMarkup}<span>${countryLabel}</span></div>
+                            ${nameLine || ''}
+                            ${athletesLine || ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            podiumStageContainer.innerHTML = html;
+            if (podiumPhaseLabelEl) {
+                podiumPhaseLabelEl.textContent = podiumState.phaseLabel || 'Ceremony';
+            }
+        }
+
+        function renderPodiumFooter(medal, entry) {
+            if (!entry || !overlayPodiumFooter) return;
+            const medalCfg = MEDAL_CONFIG[medal] || MEDAL_CONFIG.bronze;
+            if (podiumFooterMedalIconEl) {
+                podiumFooterMedalIconEl.textContent = medalCfg.icon;
+            }
+            if (podiumFooterScoreEl) {
+                podiumFooterScoreEl.textContent = formatScoreValue(entry.score ?? 0, 3);
+            }
+            if (podiumFooterCountryEl) {
+                podiumFooterCountryEl.textContent = entry.type === 'team'
+                    ? (entry.country || 'Equipe')
+                    : (entry.fullName || entry.display || 'Ginasta');
+            }
+            if (podiumFooterSubtitleEl) {
+                const subtitle = `${medalCfg.label.toUpperCase()} - ${(podiumState.phaseLabel || '').toUpperCase()} - MANAUS 2025`;
+                podiumFooterSubtitleEl.textContent = subtitle;
+            }
+            if (podiumFooterFlagEl) {
+                podiumFooterFlagEl.innerHTML = getFlagMarkup(entry, 'w160');
+            }
+        }
+
+        function renderPodiumFlags() {
+            if (!podiumFlagsStageEl) return;
+            const layout = [
+                { medal: 'silver', entry: podiumState.results[1] },
+                { medal: 'gold', entry: podiumState.results[0] },
+                { medal: 'bronze', entry: podiumState.results[2] }
+            ];
+            const html = layout.map(({ medal, entry }) => {
+                if (!entry) return '';
+                const flagMarkup = getFlagMarkup(entry, 'w256');
+                const title = entry.type === 'team'
+                    ? (entry.country || '').toUpperCase()
+                    : (entry.fullName || entry.display || 'Ginasta');
+                return `
+                    <div class="flag-column ${medal}">
+                        <div class="flag-img-wrapper">${flagMarkup}</div>
+                        <div class="flag-caption">
+                            ${title}
+                            <span class="score">${formatScoreValue(entry.score ?? 0, 3)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            podiumFlagsStageEl.innerHTML = html;
+            if (podiumFlagsPhaseEl) {
+                podiumFlagsPhaseEl.textContent = podiumState.phaseLabel || 'Ceremony';
+            }
+        }
+
+        function showPodiumIntro(phaseLabel) {
+            if (podiumIntroPhaseEl) {
+                podiumIntroPhaseEl.textContent = phaseLabel || 'Ceremony';
+            }
+            setOverlayVisibility(overlayPodiumIntro, true);
+            if (podiumState.introTimeout) {
+                clearTimeout(podiumState.introTimeout);
+            }
+            podiumState.introTimeout = setTimeout(() => {
+                setOverlayVisibility(overlayPodiumIntro, false);
+                podiumState.introTimeout = null;
+            }, 10000);
+        }
+
+        function handlePodiumStart(payload) {
+            resetPodiumState(true);
+            if (!initializePodiumStateFromControl(payload)) {
+                hidePodiumOverlays();
+                return;
+            }
+            showPodiumIntro(podiumState.phaseLabel);
+            updatePodiumStage();
+            setOverlayVisibility(overlayPodium, false);
+            setOverlayVisibility(overlayPodiumFooter, false);
+            setOverlayVisibility(overlayPodiumFlags, false);
+            playAwardsMusic();
+        }
+
+        function handlePodiumShowMedal(payload) {
+            if (!payload || !payload.medal) return;
+            if (!podiumState.phaseKey || podiumState.phaseKey !== payload.phaseKey) {
+                if (!initializePodiumStateFromControl(payload)) {
+                    return;
+                }
+            }
+            const medal = payload.medal;
+            if (!MEDAL_CONFIG[medal]) {
+                console.warn('[Stream] ⚠️ Unknown medal:', medal);
+                return;
+            }
+            const entryIndex = MEDAL_INDEX[medal] ?? 0;
+            const entry = podiumState.results[entryIndex];
+            if (!entry) {
+                console.warn('[Stream] ⚠️ Missing podium entry for medal:', medal);
+                return;
+            }
+            podiumState.activeMedals[medal] = entry;
+            podiumState.lastMedal = medal;
+            updatePodiumStage(medal);
+            renderPodiumFooter(medal, entry);
+            setOverlayVisibility(overlayPodiumIntro, false);
+            setOverlayVisibility(overlayPodiumFlags, false);
+            setOverlayVisibility(overlayPodium, true);
+            setOverlayVisibility(overlayPodiumFooter, true);
+        }
+
+        function handlePodiumHide() {
+            resetPodiumState(true);
+        }
+
+        function handlePodiumAnthem(payload) {
+            if (!podiumState.phaseKey || podiumState.phaseKey !== payload.phaseKey) {
+                if (!initializePodiumStateFromControl(payload)) {
+                    return;
+                }
+            }
+            const goldEntry = podiumState.results[0];
+            if (!goldEntry) {
+                console.warn('[Stream] ⚠️ No gold entry available to start anthem.');
+                return;
+            }
+            renderPodiumFlags();
+            setOverlayVisibility(overlayPodium, false);
+            setOverlayVisibility(overlayPodiumFooter, false);
+            setOverlayVisibility(overlayPodiumIntro, false);
+            setOverlayVisibility(overlayPodiumFlags, true);
+            playAnthemMusic(goldEntry.country);
+        }
+
+        function hidePodiumOverlays() {
+            setOverlayVisibility(overlayPodiumIntro, false);
+            setOverlayVisibility(overlayPodium, false);
+            setOverlayVisibility(overlayPodiumFooter, false);
+            setOverlayVisibility(overlayPodiumFlags, false);
         }
 
         function playSoundEffectOnStream(effect, audioFile, timestamp) {
