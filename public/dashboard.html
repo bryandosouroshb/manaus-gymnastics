@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mundial de Ginástica Artística Manaus 2025</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <style>
+        :root {
+            --primary-color: #0e7c3a;
+            --primary-dark: #0b5d2b;
+            --secondary-color: #f7c948;
+            --accent-color: #009f3d;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --background-light: #f8f9fa;
+            --white: #ffffff;
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 5px 25px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 10px 40px rgba(0,0,0,0.2);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(14, 124, 58, 0.1);
+        }
+
+        .header .container-fluid {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-email {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border: none;
+            color: var(--white);
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(14, 124, 58, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            color: var(--white);
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.03)" points="0,1000 1000,800 1000,1000"/></svg>');
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Dashboard Section */
+        .dashboard-section {
+            padding: 80px 0;
+            background: var(--background-light);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Cards Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Modern Cards */
+        .dashboard-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(14, 124, 58, 0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+
+        .dashboard-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(14, 124, 58, 0.03) 0%, transparent 70%);
+            transition: all 0.6s ease;
+            transform: scale(0);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(14, 124, 58, 0.15);
+        }
+
+        .dashboard-card:hover::after {
+            transform: scale(1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--white);
+            position: relative;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
+        .card-icon.edit { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-icon.manage { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .card-icon.scoreboard { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .card-icon.startlist { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .card-icon.control { 
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .card-icon.display { 
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .card-icon.judges { 
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: var(--primary-color);
+        }
+        .card-icon.gymnasts { 
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+
+        .card-content {
+            flex: 1;
+        }
+
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0 0 0.8rem 0;
+            line-height: 1.3;
+        }
+
+        .card-description {
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+            font-size: 1rem;
+            flex-grow: 1;
+        }
+
+        /* Clean Action Buttons */
+        .phases-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.8rem;
+            margin-top: auto;
+        }
+
+        .card-button {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: var(--text-dark);
+            border: 2px solid rgba(14, 124, 58, 0.1);
+            border-radius: 12px;
+            padding: 0.9rem 1.2rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .card-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(14, 124, 58, 0.06) 50%, 
+                transparent 100%);
+            transition: left 0.4s ease;
+        }
+
+        .card-button:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+            box-shadow: 0 6px 20px rgba(14, 124, 58, 0.15);
+            color: var(--primary-color);
+        }
+
+        .card-button:hover::before {
+            left: 100%;
+        }
+
+        .card-button i {
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card-button:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Primary Button Style */
+        .btn-primary-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            border: 2px solid var(--primary-color);
+            font-weight: 700;
+        }
+
+        .btn-primary-card::before {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.15) 50%, 
+                transparent 100%);
+        }
+
+        .btn-primary-card:hover {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(14, 124, 58, 0.25);
+        }
+
+        /* Card Buttons */
+        .card-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+
+        /* Phase Buttons */
+        .phases-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .phase-btn {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(14, 124, 58, 0.05), rgba(14, 124, 58, 0.08));
+            border: 2px solid rgba(14, 124, 58, 0.1);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            /* BUG FIX: Garantir que o conteúdo preencha o botão */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .phase-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 124, 58, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .phase-btn:hover::before {
+            left: 100%;
+        }
+
+        .phase-btn:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: var(--white);
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(14, 124, 58, 0.25);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header .container-fluid {
+                padding: 0.5rem 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body class="index-page">
+    <!-- Header -->
+    <header id="header" class="header">
+        <div class="container-fluid">
+            <a href="#" class="logo">
+                <i class="fas fa-trophy"></i>
+                Mundial de Ginástica Artística
+            </a>
+
+            <div class="user-info">
+                <span id="user-email" class="user-email">
+                    <i class="fas fa-user"></i>
+                    <span id="email-text"></span>
+                </span>
+                <button id="logout-btn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Hero Section -->
+        <section id="hero" class="hero section">
+            <div class="container">
+                <div class="hero-content" data-aos="fade-up">
+                    <div class="hero-badge" data-aos="fade-up" data-aos-delay="100">
+                        <i class="fas fa-medal"></i>
+                        Sistema de Controle Oficial
+                    </div>
+                    <h1 data-aos="fade-up" data-aos-delay="200">
+                        Mundial de Ginástica Artística
+                        <br><span style="color: var(--secondary-color);">Manaus 2025</span>
+                    </h1>
+                    <p data-aos="fade-up" data-aos-delay="300">
+                        Gerencie todas as funcionalidades do sistema de pontuação e controle da competição mundial
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="dashboard-section">
+            <div class="container">
+                <div class="section-title" data-aos="fade-up">
+                    <h2>Painel de Controle</h2>
+                    <p>Acesse todas as ferramentas necessárias para gerenciar a competição</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Card de Edição de Notas -->
+                    <div class="dashboard-card" id="edit-scores-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="card-header">
+                            <div class="card-icon edit">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">Edição de Notas</h3>
+                                <p class="card-description">Sistema avançado de pontuação para todas as modalidades da competição</p>
+                            </div>
+                        </div>
+                        
+                        <div class="phases-list">
+                            <a href="edit-scores-qualifiers.html" class="phase-btn">Qualificatórias</a>
+                            <a href="edit-scores-team-final.html" class="phase-btn">Final Equipes</a>
+                            <a href="edit-scores-aa-final.html" class="phase-btn">Final AA</a>
+                            <a href="edit-scores-vt-final.html" class="phase-btn">Final VT</a>
+                            <a href="edit-scores-ub-final.html" class="phase-btn">Final UB</a>
+                            <a href="edit-scores-bb-final.html" class="phase-btn">Final BB</a>
+                            <a href="edit-scores-fx-final.html" class="phase-btn">Final FX</a>
+                        </div>
+                    </div>
+
+                    <!-- Card de Scoreboard -->
+                    <div class="dashboard-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="card-header">
+                            <div class="card-icon scoreboard">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">Placar Eletrônico</h3>
+                                <p class="card-description">
+                                    Visualize os resultados e classificações em tempo real de cada fase.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="phases-list">
+                            <a href="scoreboard-qualifiers.html" class="phase-btn">Qualificatórias</a>
+                            <a href="scoreboard-team-final.html" class="phase-btn">Final Equipes</a>
+                            <a href="scoreboard-aa-final.html" class="phase-btn">Final AA</a>
+                            <a href="scoreboard-vt-final.html" class="phase-btn">Final VT</a>
+                            <a href="scoreboard-ub-final.html" class="phase-btn">Final UB</a>
+                            <a href="scoreboard-bb-final.html" class="phase-btn">Final BB</a>
+                            <a href="scoreboard-fx-final.html" class="phase-btn">Final FX</a>
+                        </div>
+                    </div>
+
+                    <!-- Card de Start List -->
+                    <div class="dashboard-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="card-header">
+                            <div class="card-icon startlist">
+                                <i class="fas fa-list-ol"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">Lista de Largada</h3>
+                                <p class="card-description">
+                                    Gerencie as ordens de apresentação e rotações das competidoras.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="phases-list">
+                            <a href="start-list-qualifiers.html" class="phase-btn">Qualificatórias</a>
+                            <a href="start-list-team-final.html" class="phase-btn">Final Equipes</a>
+                            <a href="start-list-aa-final.html" class="phase-btn">Final AA</a>
+                            <a href="start-list-vt-final.html" class="phase-btn">Final VT</a>
+                            <a href="start-list-ub-final.html" class="phase-btn">Final UB</a>
+                            <a href="start-list-bb-final.html" class="phase-btn">Final BB</a>
+                            <a href="start-list-fx-final.html" class="phase-btn">Final FX</a>
+                        </div>
+                    </div>
+
+                    <!-- Card de ST Control (Broadcast Control) -->
+                    <div class="dashboard-card" data-aos="fade-up" data-aos-delay="400">
+                        <div class="card-header">
+                            <div class="card-icon control">
+                                <i class="fas fa-broadcast-tower"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">ST Control</h3>
+                                <p class="card-description">
+                                    Controle de broadcast com timers, overlays e ferramentas de transmissão ao vivo.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-buttons">
+                            <a href="stcontrol.html" class="card-button btn-primary-card">
+                                <i class="fas fa-play-circle"></i> Acessar ST Control
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card de Stream (Broadcast Display) -->
+                    <div class="dashboard-card" data-aos="fade-up" data-aos-delay="500">
+                        <div class="card-header">
+                            <div class="card-icon display">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">Stream Display</h3>
+                                <p class="card-description">
+                                    Tela de transmissão com overlays, lower-thirds, cronômetros e informações de competição.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-buttons">
+                            <a href="stream.html" class="card-button btn-primary-card">
+                                <i class="fas fa-external-link-alt"></i> Abrir Stream
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card de Gestão de Notas (Admin) -->
+                    <div class="dashboard-card" id="manage-scores-card" data-aos="fade-up" data-aos-delay="550" style="display: none;">
+                        <div class="card-header">
+                            <div class="card-icon manage">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">Gestão de Notas</h3>
+                                <p class="card-description">
+                                    Operações em massa: zerar todas as notas, gerar notas aleatórias para testes, gerenciar estrutura de dados.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-buttons">
+                            <a href="manage-scores.html" class="card-button btn-primary-card">
+                                <i class="fas fa-cog"></i> Gerenciar Notas
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card de Jurados (apenas para admin) -->
+                    <div class="dashboard-card" id="judges-card" data-aos="fade-up" data-aos-delay="600" style="display: none;">
+                        <div class="card-header">
+                            <div class="card-icon judges">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">Sistema de Jurados</h3>
+                                <p class="card-description">
+                                    Interface especializada para jurados com acesso a funcionalidades de avaliação.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-buttons">
+                            <a href="judges-d.html" class="card-button btn-primary-card">
+                                <i class="fas fa-calculator"></i> Jurado D
+                            </a>
+                            <a href="judges-e.html" class="card-button btn-secondary">
+                                <i class="fas fa-star"></i> Jurado E
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card Gestão de Ginastas -->
+                    <div class="dashboard-card" data-aos="fade-up" data-aos-delay="700">
+                        <div class="card-header">
+                            <div class="card-icon gymnasts">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">Gestão de Ginastas</h3>
+                                <p class="card-description">
+                                    Visualize e gerencie informações completas de todas as ginastas cadastradas no sistema.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-buttons">
+                            <a href="gymnasts.html" class="card-button btn-primary-card">
+                                <i class="fas fa-list"></i> Lista de Ginastas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+        </section>
+    </main>
+
+    <!-- Bootstrap & AOS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <!-- Firebase v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    
+    <!-- Auth Guard -->
+    <script src="js/auth-guard.js"></script>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Firebase já inicializado via firebase-init.js (globals)
+        const auth = window.auth;
+        const db = window.db;
+
+        // Função principal da dashboard
+        function initDashboard() {
+            const userEmailElement = document.getElementById('email-text');
+            const logoutBtn = document.getElementById('logout-btn');
+            const editScoresCard = document.getElementById('edit-scores-card');
+            const judgesCard = document.getElementById('judges-card');
+            const manageScoresCard = document.getElementById('manage-scores-card');
+
+            // Verificar autenticação pelo sistema Firebase
+            const currentUser = getCurrentUser();
+            
+            console.log('🔍 Dashboard - Verificando usuário:', currentUser);
+
+            // Se não estiver logado, auth-guard já redirecionará
+            if (!currentUser.email) {
+                console.log('❌ Usuário não logado, auth-guard deve redirecionar');
+                return;
+            }
+
+            // Verificar se é admin
+            if (!currentUser.isAdmin) {
+                console.log('❌ Usuário não é admin:', currentUser.role);
+                alert('Acesso negado. Apenas administradores podem acessar o dashboard.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            console.log('✅ Admin confirmado, configurando dashboard');
+
+            // Configurar interface para admin
+            if (userEmailElement) {
+                userEmailElement.textContent = currentUser.email || 'admin@gymnastics.com';
+            }
+            
+            // Mostrar cards exclusivos de admin
+            if (judgesCard) {
+                judgesCard.style.display = 'flex';
+            }
+            
+            if (manageScoresCard) {
+                manageScoresCard.style.display = 'flex';
+            }
+
+            // Configurar logout
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    console.log('🚪 Fazendo logout...');
+                    await logout();
+                });
+            }
+
+            console.log('✅ Dashboard inicializado com sucesso');
+        }
+
+        function initializeWhenReady() {
+            if (window.auth && typeof getCurrentUser === 'function') {
+                console.log('✅ Firebase e Auth Guard prontos. Inicializando dashboard...');
+                initDashboard();
+            } else {
+                console.log('⏳ Aguardando Firebase e Auth Guard...');
+                setTimeout(initializeWhenReady, 100);
+            }
+        }
+
+        // Aguardar o DOM estar pronto e então esperar o Firebase
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeWhenReady);
+        } else {
+            initializeWhenReady();
+        }
+    </script>
+</body>
+</html>
+

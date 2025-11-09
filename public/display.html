@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manaus 2025 - FIG World Championships Display</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+
+    <style>
+        /* ==========================================================================
+         ESPECIFICAÇÕES GLOBAIS (Seção 2 do Briefing)
+        ==========================================================================
+        */
+        :root {
+            /* Cores Base */
+            --telao-bg: #0A0F14;
+            --telao-surface-1: #161B22;
+            --telao-surface-2: #21262D;
+            --telao-border: #30363D;
+
+            /* Cores de Texto */
+            --text-primary: #CDD9E5;
+            --text-secondary: #768390;
+            --text-accent-gold: #FFD700;
+            --text-accent-silver: #C0C0C0;
+            --text-accent-bronze: #CD7F32;
+            --text-dark: #0A0F14;
+
+            /* Cores de Status (Fundos de Box) */
+            --status-go-bg: #238636;
+            --status-wait-bg: #D29922;
+            --status-stop-bg: #DA3633;
+            --status-fall-bg: #8957E5;
+            --status-text: #FFFFFF;
+
+            /* Cores de Notas */
+            --score-d-bg: rgba(66, 153, 225, 0.1);
+            --score-d-border: #4299E1;
+            --score-e-bg: rgba(237, 137, 54, 0.1);
+            --score-e-border: #ED8936;
+            --score-p-bg: rgba(218, 54, 51, 0.1);
+            --score-p-border: #DA3633;
+            --score-total-bg: rgba(35, 134, 54, 0.2);
+            --score-total-border: #238636;
+            
+            /* Gradientes de Fundo Dinâmicos */
+            --gradient-wait: radial-gradient(circle at 50% 50%, #313b4e, #0a0f14 70%);
+            --gradient-go-ok: radial-gradient(circle at 50% 50%, #1c4a36, #0a0f14 70%);
+            --gradient-go-warn: radial-gradient(circle at 50% 50%, #6e4a2b, #0a0f14 70%);
+            --gradient-go-over: radial-gradient(circle at 50% 50%, #6e3030, #0a0f14 70%);
+            --gradient-stop: radial-gradient(circle at 50% 50%, #6e3030, #0a0f14 70%);
+            --gradient-score: radial-gradient(circle at 50% 50%, #1c4a36, #0a0f14 70%);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--telao-bg);
+            color: var(--text-primary);
+        }
+
+        #enable-audio-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: var(--telao-surface-1);
+            color: var(--text-primary);
+            border: 1px solid var(--telao-border);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        #enable-audio-btn:hover {
+            background-color: var(--telao-surface-2);
+            transform: translateY(-2px);
+        }
+
+        /* ==========================================================================
+         ESTRUTURA E LAYOUT PRINCIPAL (Seção 6.1)
+        ==========================================================================
+        */
+
+        .telao-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--gradient-wait); /* Default gradient */
+            transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Classes de gradiente para o container */
+        .telao-container.state-wait { background: var(--gradient-wait); }
+        .telao-container.state-running-ok { background: var(--gradient-go-ok); }
+        .telao-container.state-running-warn { background: var(--gradient-go-warn); }
+        .telao-container.state-running-over { background: var(--gradient-go-over); }
+        .telao-container.state-stop { background: var(--gradient-stop); }
+        .telao-container.state-score { background: var(--gradient-score); }
+
+
+        .telao-topbar {
+            width: 100%;
+            padding: 0.5vw 3vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(10, 15, 20, 0.5);
+            border-bottom: 1px solid var(--telao-border);
+            flex-shrink: 0;
+            backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+
+        .telao-topbar span {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 1.5vw, 1.4rem);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+        }
+        .telao-topbar .topbar-logo {
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            position: relative;
+            display: grid;
+            place-items: center;
+        }
+
+        .screen-view, .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.98);
+            transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
+            padding: 2vw 4vw;
+        }
+
+        .screen-view.active, .overlay.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        
+        /* ==========================================================================
+         ANIMAÇÕES
+        ==========================================================================
+        */
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scoreFlash {
+            0% { background-color: transparent; }
+            50% { background-color: var(--status-go-bg); }
+            100% { background-color: transparent; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ==========================================================================
+         TELA 1: APRESENTAÇÃO/TIMER/NOTA (#screen-timer-score)
+        ==========================================================================
+        */
+        #screen-timer-score {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 2vw;
+            align-items: center;
+            grid-template-areas:
+                "gymnast gymnast"
+                "status score";
+        }
+
+        /* Componente de Apresentação da Ginasta */
+        .gymnast-presentation {
+            grid-area: gymnast;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2vw;
+            padding: 1vw;
+            border-bottom: 1px solid var(--telao-border);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .apparatus-icon .apparatus-svg-icon {
+            width: clamp(40px, 4vw, 60px);
+            height: clamp(40px, 4vw, 60px);
+            color: var(--text-primary);
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+        }
+
+        .gymnast-name-country { text-align: left; }
+
+        #gymnast-lastname {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: clamp(4rem, 8vw, 7rem);
+            text-transform: uppercase;
+            color: var(--text-primary);
+            letter-spacing: 1.5px;
+            line-height: 1;
+        }
+        #gymnast-firstname {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: clamp(2rem, 4vw, 4rem);
+            text-transform: capitalize;
+            color: var(--text-secondary);
+            letter-spacing: normal;
+        }
+
+        .gymnast-flag-code { display: flex; align-items: center; gap: 1vw; }
+        .gymnast-flag-code .fi { font-size: clamp(2rem, 4vw, 4rem); border-radius: 4px; }
+
+        #gymnast-country-code {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            text-transform: uppercase;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+        }
+
+        /* Componente de Status e Timer */
+        .status-timer-container {
+            grid-area: status;
+            display: none; /* Controlado por classe */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2vh;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #screen-timer-score.show-status .status-timer-container { 
+            display: flex;
+            opacity: 1; 
+        }
+
+        #status-box {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2.5rem, 4.5vw, 3.5rem);
+            text-transform: uppercase;
+            color: var(--status-text);
+            letter-spacing: 2px;
+            padding: 1.5vw 4vw;
+            border-radius: 12px;
+            transition: background-color 0.4s ease;
+        }
+        #status-box.status-wait { background-color: var(--status-wait-bg); }
+        #status-box.status-go { background-color: var(--status-go-bg); }
+        #status-box.status-stop { background-color: var(--status-stop-bg); }
+        #status-box.status-fall { background-color: var(--status-fall-bg); }
+
+        #timer-display {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            color: var(--text-primary);
+            letter-spacing: -2px;
+        }
+        
+        #dv-display {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(4rem, 8vw, 6.5rem);
+            color: var(--text-accent-gold);
+            letter-spacing: -1px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Componente de Notas */
+        .score-display-container {
+            grid-area: score;
+            display: none; /* Controlado por classe */
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+            gap: 1.5vw;
+            padding: 2vw;
+            background-color: var(--telao-surface-1);
+            border: 1px solid var(--telao-border);
+            border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #screen-timer-score.show-score .score-display-container { 
+            display: grid;
+            opacity: 1;
+        }
+        
+        .score-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5vw;
+            border-radius: 10px;
+            border: 2px solid;
+            background-color: var(--telao-surface-2);
+        }
+
+        .score-box-label {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            margin-bottom: 0.5vh;
+        }
+        .score-box-value {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            color: var(--text-primary);
+        }
+
+        #score-d-box { background-color: var(--score-d-bg); border-color: var(--score-d-border); }
+        #score-e-box { background-color: var(--score-e-bg); border-color: var(--score-e-border); }
+        #score-p-box { background-color: var(--score-p-bg); border-color: var(--score-p-border); }
+        
+        #score-total-box {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 1.5vw 2.5vw;
+            background-color: var(--score-total-bg);
+            border-color: var(--score-total-border);
+            animation: scoreFlash 0.8s ease-out;
+        }
+        #score-total-box .score-box-label { margin-bottom: 0; }
+        #score-total-box .score-box-value {
+            font-weight: 900;
+            font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+            letter-spacing: -1px;
+        }
+        #rank-display-box {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+            background-color: var(--text-primary);
+            color: var(--text-dark);
+            padding: 0.5vw 1.2vw;
+            border-radius: 8px;
+        }
+        #rank-display-box.rank-1 { background-color: var(--text-accent-gold); }
+        #rank-display-box.rank-2 { background-color: var(--text-accent-silver); }
+        #rank-display-box.rank-3 { background-color: var(--text-accent-bronze); }
+
+
+        /* ==========================================================================
+         TELAS 2 & 3: START LIST / RESULTS
+        ==========================================================================
+        */
+        .list-screen-header {
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            text-transform: uppercase;
+            margin-bottom: 2vh;
+            padding-bottom: 2vh;
+            border-bottom: 2px solid var(--telao-border);
+        }
+
+        .list-container {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 5vw 5vw 8vw 1fr auto;
+            align-items: center;
+            gap: 1.5vw;
+            padding: 1.2vh 1.5vw;
+            margin-bottom: 0.8vh;
+            background-color: var(--telao-surface-1);
+            border-radius: 10px;
+            border-left: 5px solid transparent;
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, opacity 0.5s ease, transform 0.5s ease;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        .list-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .list-item:hover {
+            background-color: var(--telao-surface-2);
+            transform: scale(1.01);
+        }
+
+        .list-item.rank-1 { border-color: var(--text-accent-gold); }
+        .list-item.rank-2 { border-color: var(--text-accent-silver); }
+        .list-item.rank-3 { border-color: var(--text-accent-bronze); }
+
+        .item-rank {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+            color: var(--text-primary);
+            text-align: center;
+        }
+        .list-item.rank-1 .item-rank { color: var(--text-accent-gold); }
+        .list-item.rank-2 .item-rank { color: var(--text-accent-silver); }
+        .list-item.rank-3 .item-rank { color: var(--text-accent-bronze); }
+
+        .item-flag .fi { font-size: clamp(1.5rem, 3vw, 2.5rem); }
+        .item-country {
+            font-weight: 700;
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+            text-transform: uppercase;
+        }
+        
+        .item-name .item-lastname {
+            font-weight: 700;
+            font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+            text-transform: uppercase;
+        }
+        .item-name .item-firstname {
+            font-weight: 400;
+            font-size: clamp(1rem, 1.8vw, 1.6rem);
+            color: var(--text-secondary);
+        }
+        
+        .item-score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .item-score {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.5rem, 2.8vw, 2.5rem);
+            text-align: right;
+        }
+        
+        .item-score-diff {
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-top: 0.5vh;
+        }
+
+        /* ==========================================================================
+         OVERLAYS ESPECIAIS
+        ==========================================================================
+        */
+        .overlay {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(10, 15, 20, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        /* Overlay de Aquecimento */
+        #overlay-warmup .warmup-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+        #overlay-warmup .warmup-timer {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(6rem, 12vw, 10rem);
+            font-weight: 900;
+            color: var(--text-primary);
+            margin: 2vh 0;
+        }
+
+        /* Overlay de Recurso */
+        #overlay-inquiry {
+             gap: 2vh;
+        }
+        #overlay-inquiry .inquiry-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--status-wait-bg);
+        }
+        #overlay-inquiry .inquiry-gymnast {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+        }
+        #overlay-inquiry .inquiry-status {
+             font-size: clamp(1.5rem, 3vw, 2.5rem);
+             font-weight: 600;
+             padding: 1vw 2vw;
+             border-radius: 10px;
+        }
+        #overlay-inquiry .inquiry-status.resolved { background-color: var(--status-go-bg); color: var(--status-text); }
+        #overlay-inquiry .inquiry-status.rejected { background-color: var(--status-stop-bg); color: var(--status-text); }
+        
+        /* Overlay de Boas-Vindas */
+         #overlay-welcome .welcome-title {
+            font-size: clamp(4rem, 8vw, 7rem);
+            font-weight: 900;
+            color: var(--text-accent-gold);
+            text-transform: uppercase;
+            animation: pulse 2s infinite ease-in-out;
+         }
+         #overlay-welcome .welcome-subtitle {
+             font-size: clamp(2rem, 4vw, 3rem);
+             color: var(--text-primary);
+         }
+
+    </style>
+</head>
+<body>
+    <div class="telao-container" id="telao-container">
+        <!-- CABEÇALHO SUPERIOR (SEMPRE VISÍVEL) -->
+        <header class="telao-topbar">
+            <span id="topbar-title">WOMEN'S ALL-AROUND FINAL</span>
+            <span class="topbar-logo">MANAUS 2025</span>
+        </header>
+
+        <main class="main-content">
+            <!-- TELA 1: APRESENTAÇÃO/TIMER/NOTA -->
+            <div id="screen-timer-score" class="screen-view active">
+                <div class="gymnast-presentation">
+                    <div class="apparatus-icon" id="apparatus-icon-display">
+                        <!-- SVG será inserido aqui pelo JS -->
+                    </div>
+                    <div class="gymnast-name-country">
+                        <div id="gymnast-lastname">SOBRENOME</div>
+                        <div id="gymnast-firstname">Nome</div>
+                    </div>
+                    <div class="gymnast-flag-code">
+                        <span class="fi" id="gymnast-flag"></span>
+                        <span id="gymnast-country-code">---</span>
+                    </div>
+                </div>
+
+                <div class="status-timer-container">
+                    <div id="status-box">WAIT</div>
+                    <div id="timer-display">0:00</div>
+                    <div id="dv-display">DV 0.0</div>
+                </div>
+                
+                <div class="score-display-container">
+                    <div id="score-d-box" class="score-box">
+                        <span class="score-box-label">D</span>
+                        <span id="score-d-value" class="score-box-value">0.0</span>
+                    </div>
+                    <div id="score-e-box" class="score-box">
+                        <span class="score-box-label">E</span>
+                        <span id="score-e-value" class="score-box-value">0.000</span>
+                    </div>
+                    <div id="score-p-box" class="score-box">
+                        <span class="score-box-label">P</span>
+                        <span id="score-p-value" class="score-box-value">0.0</span>
+                    </div>
+                    <div id="score-total-box" class="score-box">
+                        <span class="score-box-label">TOTAL</span>
+                        <div id="rank-display-box">
+                            <span id="rank-value">--</span>
+                        </div>
+                        <span id="score-total-value" class="score-box-value">0.000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TELA 2: START LIST -->
+            <div id="screen-startlist" class="screen-view">
+                <h1 id="startlist-header" class="list-screen-header">Start List</h1>
+                <ul id="startlist-container" class="list-container"></ul>
+            </div>
+
+            <!-- TELA 3: RESULTS -->
+            <div id="screen-results" class="screen-view">
+                <h1 id="results-header" class="list-screen-header">Results</h1>
+                <ul id="results-container" class="list-container"></ul>
+            </div>
+            
+            <!-- TELAS ESPECIAIS (OVERLAYS) -->
+            <div id="overlay-warmup" class="overlay">
+                <div class="warmup-content">
+                    <div class="warmup-title">Aquecimento</div>
+                    <div class="warmup-timer" id="warmup-timer">00:00</div>
+                </div>
+            </div>
+            <div id="overlay-inquiry" class="overlay">
+                <div class="inquiry-title">Recurso Submetido</div>
+                <div id="inquiry-gymnast" class="inquiry-gymnast"></div>
+                <div id="inquiry-status" class="inquiry-status"></div>
+            </div>
+            <div id="overlay-welcome" class="overlay">
+                <div class="welcome-content">
+                    <h1 class="welcome-title">Boas-Vindas</h1>
+                    <h2 class="welcome-subtitle">MANAUS 2025 WORLD CHAMPIONSHIPS</h2>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <button id="enable-audio-btn">Habilitar Áudio</button>
+    <audio id="beep-audio" preload="auto" src="audio/beep.mp3"></audio>
+    <audio id="warmup-start-audio" preload="auto" src="audio/warmup-start.mp3"></audio>
+    <audio id="warmup-music-1min" preload="auto" loop src="audio/warmup-music-1min.mp3"></audio>
+    <audio id="warmup-music-4min" preload="auto" loop src="audio/warmup-music-1min.mp3"></audio>
+    <audio id="warmup-end-audio" preload="auto" src="audio/warmup-end.mp3"></audio>
+    
+    <!-- INCLUSÃO DOS SCRIPTS DE LÓGICA -->
+    <script src="js/countries.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/calculation-logic.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // ========================================================================
+        // ELEMENT SELECTORS (NEW FIG LAYOUT)
+        // ========================================================================
+        const telaoContainer = document.getElementById('telao-container');
+        const topBarTitle = document.getElementById('topbar-title');
+        
+        // Screens & Overlays
+        const screens = {
+            timerScore: document.getElementById('screen-timer-score'),
+            startlist: document.getElementById('screen-startlist'),
+            results: document.getElementById('screen-results'),
+            warmup: document.getElementById('overlay-warmup'),
+            inquiry: document.getElementById('overlay-inquiry'),
+            welcome: document.getElementById('overlay-welcome')
+        };
+        const allViews = [...document.querySelectorAll('.screen-view'), ...document.querySelectorAll('.overlay')];
+        
+        // Timer/Score Screen Elements
+        const apparatusIconDisplay = document.getElementById('apparatus-icon-display');
+        const gymnastLastnameEl = document.getElementById('gymnast-lastname');
+        const gymnastFirstnameEl = document.getElementById('gymnast-firstname');
+        const gymnastFlagEl = document.getElementById('gymnast-flag');
+        const gymnastCountryCodeEl = document.getElementById('gymnast-country-code');
+        const statusBox = document.getElementById('status-box');
+        const timerDisplay = document.getElementById('timer-display');
+        const dvDisplay = document.getElementById('dv-display');
+        const scoreDValue = document.getElementById('score-d-value');
+        const scoreEValue = document.getElementById('score-e-value');
+        const scorePValue = document.getElementById('score-p-value');
+        const scoreTotalValue = document.getElementById('score-total-value');
+        const rankValue = document.getElementById('rank-value');
+
+        // List Screen Elements
+        const startlistHeader = document.getElementById('startlist-header');
+        const startlistContainer = document.getElementById('startlist-container');
+        const resultsHeader = document.getElementById('results-header');
+        const resultsContainer = document.getElementById('results-container');
+
+        // Audio Elements
+        const enableAudioBtn = document.getElementById('enable-audio-btn');
+        const beepAudio = document.getElementById('beep-audio');
+
+        // ========================================================================
+        // STATE MANAGEMENT & LOGIC (FROM ORIGINAL FILE)
+        // ========================================================================
+        let allGymnastData = [];
+        let fxStartListStructure = null;
+        let fxStartList = [];
+        let currentIndex = 0;
+        let currentPhase = 'fx_final';
+        let currentApparatus = 'fx';
+        let currentSubdivIdx = null;
+        let currentRotIdx = null;
+        let elapsedSeconds = 0;
+        let timerInterval = null;
+        let audioEnabled = false;
+        let timerStateStatus = 'wait';
+
+        const apparatusSVGs = {
+            vt: '<svg class="apparatus-svg-icon" viewBox="0 0 100 100"><polygon points="5,35 95,35 85,65 15,65" fill="currentColor"/></svg>',
+            ub: '<svg class="apparatus-svg-icon" viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="8" rx="2" fill="currentColor"/><rect x="10" y="60" width="80" height="8" rx="2" fill="currentColor"/><rect x="25" y="38" width="8" height="30" fill="currentColor"/><rect x="67" y="38" width="8" height="30" fill="currentColor"/></svg>',
+            bb: '<svg class="apparatus-svg-icon" viewBox="0 0 100 100"><rect x="5" y="45" width="90" height="10" rx="2" fill="currentColor"/><rect x="20" y="55" width="10" height="20" rx="2" fill="currentColor"/><rect x="70" y="55" width="10" height="20" rx="2" fill="currentColor"/></svg>',
+            fx: '<svg class="apparatus-svg-icon" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="5" stroke-width="8" stroke="currentColor" fill="none"/></svg>'
+        };
+        
+        // ========================================================================
+        // FIREBASE & DATA LOADING (FROM ORIGINAL FILE)
+        // ========================================================================
+        function initializeWhenReady() {
+            if (window.db) {
+                initializeFirebaseListeners();
+            } else {
+                setTimeout(initializeWhenReady, 100);
+            }
+        }
+        
+        let unsubscribeGymnasts = null;
+        let unsubscribeStructure = null;
+        
+        function initializeFirebaseListeners() {
+            unsubscribeGymnasts = window.db.collection("new_gymnasts").onSnapshot((snapshot) => {
+                allGymnastData = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (!data.id) data.id = doc.id;
+                    allGymnastData.push(data);
+                });
+                syncDisplay();
+            }, (e) => console.error("Error fetching gymnasts:", e));
+
+            listenStartListStructure(currentPhase.split('|')[0]);
+        }
+
+        function listenStartListStructure(phase) {
+            if (unsubscribeStructure) unsubscribeStructure();
+            const basePhase = phase.split('|')[0];
+            const docRef = window.db.collection("start_lists").doc(basePhase);
+            unsubscribeStructure = docRef.onSnapshot((snapshot) => {
+                fxStartListStructure = snapshot.exists ? snapshot.data() : null; // Get full structure
+                syncDisplay();
+            }, (e) => console.error(`Error listening to start list ${basePhase}:`, e));
+        }
+
+        function loadFXStartList() {
+            let list = [];
+            const basePhase = currentPhase.split('|')[0];
+            
+            if (!fxStartListStructure || !fxStartListStructure.structure) {
+                 console.log(`No start list structure for ${basePhase}, using fallback logic.`);
+                 // Add robust fallback logic here if needed, for now we assume structure exists
+                 fxStartList = [];
+                 return;
+            }
+
+            const structure = fxStartListStructure.structure;
+            const structureType = structure.type;
+
+            try {
+                if (structureType === 'apparatus_final' && currentApparatus) {
+                    list = structure.athletes || [];
+                } else if ((structureType === 'qualifiers' || structureType === 'team_final' || structureType === 'aa_final') && currentRotIdx !== null && currentApparatus) {
+                    const rotation = structure.rotations[currentRotIdx];
+                    const appKey = currentApparatus.toUpperCase();
+                    if (rotation && rotation.apparatus && rotation.apparatus[appKey]) {
+                        list = rotation.apparatus[appKey].map(g => ({id: g.id, name: g.name, country: g.country}));
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing start list structure:", e);
+                list = [];
+            }
+            
+            fxStartList = list.filter(g => g && g.id);
+        }
+
+        function syncDisplay() {
+            loadFXStartList();
+            if (currentIndex >= fxStartList.length) currentIndex = fxStartList.length > 0 ? fxStartList.length - 1 : 0;
+            if (currentIndex < 0) currentIndex = 0;
+            
+            const activeScreen = document.querySelector('.screen-view.active, .overlay.active');
+            if (!activeScreen || activeScreen.id === 'screen-timer-score') {
+                updateTimerScoreScreen();
+            } else if (activeScreen.id === 'screen-startlist') {
+                populateStartList();
+            } else if (activeScreen.id === 'screen-results') {
+                populateResultsList();
+            }
+        }
+        
+        // ========================================================================
+        // UI CONTROL & RENDERING (MERGED AND ADAPTED)
+        // ========================================================================
+        function showScreen(screenId) {
+            allViews.forEach(v => v.classList.remove('active'));
+            const activeScreen = document.getElementById(screenId);
+            if (activeScreen) activeScreen.classList.add('active');
+        }
+
+        function updateTelaoState(status) {
+            telaoContainer.className = 'telao-container'; // Reset
+            let stateClass = '';
+            if (status === 'score') stateClass = 'state-score';
+            else if (status === 'wait') stateClass = 'state-wait';
+            else if (status === 'stop') stateClass = 'state-stop';
+            else if (status === 'running') {
+                 const warnTime = (currentApparatus === 'bb' ? 70 : (currentApparatus === 'fx' ? 69 : 50));
+                 const overTime = (currentApparatus === 'bb' ? 90 : (currentApparatus === 'fx' ? 90 : 70));
+                 if (elapsedSeconds <= warnTime) stateClass = 'state-running-ok';
+                 else if (elapsedSeconds <= overTime) stateClass = 'state-running-warn';
+                 else stateClass = 'state-running-over';
+            }
+            if(stateClass) telaoContainer.classList.add(stateClass);
+        }
+
+        function updateTimerScoreScreen() {
+            const gymnastInfo = fxStartList[currentIndex] || {};
+            const gymnastFullData = allGymnastData.find(g => g.id === gymnastInfo.id) || { scores: {} };
+            const phaseScores = gymnastFullData.scores?.[currentPhase.split('|')[0]] || {};
+
+            const { firstName, lastName } = splitName(gymnastInfo.name);
+            gymnastLastnameEl.textContent = lastName || 'SOBRENOME';
+            gymnastFirstnameEl.textContent = firstName || 'Nome';
+            gymnastCountryCodeEl.textContent = gymnastInfo.country || '---';
+            const countryInfo = window.countryData ? (window.countryData[gymnastInfo.country] || {}) : {};
+            gymnastFlagEl.className = `fi fi-${countryInfo.code ? countryInfo.code.toLowerCase() : ''}`;
+            apparatusIconDisplay.innerHTML = apparatusSVGs[currentApparatus] || '';
+
+            const isScoreVisible = timerStateStatus === 'score';
+            screens.timerScore.classList.toggle('show-score', isScoreVisible);
+            screens.timerScore.classList.toggle('show-status', !isScoreVisible);
+
+            if(isScoreVisible) {
+                const score = getAppScore(phaseScores, currentApparatus, gymnastInfo.id, currentPhase.split('|')[0]);
+                scoreDValue.textContent = score.d.toFixed(1);
+                scoreEValue.textContent = score.e.toFixed(3);
+                scorePValue.textContent = score.p.toFixed(1);
+                scoreTotalValue.textContent = score.total.toFixed(3);
+                // Rank logic would go here
+            } else {
+                statusBox.textContent = timerStateStatus === 'running' ? 'GO' : timerStateStatus.toUpperCase();
+                statusBox.className = 'status-box';
+                statusBox.classList.add(`status-${timerStateStatus === 'running' ? 'go' : timerStateStatus}`);
+                timerDisplay.textContent = formatTime(elapsedSeconds);
+                dvDisplay.style.display = currentApparatus === 'vt' ? 'block' : 'none';
+                if(currentApparatus === 'vt') {
+                    const dvKey = `${currentPhase}_vt${activeVaultNum}_d`;
+                    dvDisplay.textContent = `DV ${ (phaseScores[dvKey] || 0.0).toFixed(1) }`;
+                }
+            }
+            updateTelaoState(timerStateStatus);
+        }
+
+        function populateList(container, header, title, items, isResults) {
+            header.textContent = title;
+            container.innerHTML = '';
+            if (!items || items.length === 0) {
+                container.innerHTML = `<li>Aguardando dados...</li>`;
+                return;
+            }
+            
+            const topScore = isResults && items.length > 0 ? (items[0].score || 0) : 0;
+
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'list-item';
+                const rank = index + 1;
+                if (isResults && rank <= 3) li.classList.add(`rank-${rank}`);
+                
+                const gymnastDetails = allGymnastData.find(g => g.id === item.id) || item;
+                const { firstName, lastName } = splitName(gymnastDetails.name);
+                const countryInfo = window.countryData ? (window.countryData[gymnastDetails.country] || {}) : {};
+                const flagClass = countryInfo.code ? `fi fi-${countryInfo.code.toLowerCase()}` : '';
+
+                let scoreHTML = '';
+                if(isResults) {
+                     const scoreValue = item.score ? item.score.toFixed(3) : '-.---';
+                     const diff = (topScore > 0 && item.score > 0 && index > 0) ? `(${(item.score - topScore).toFixed(3)})` : '';
+                     scoreHTML = `<div class="item-score-container"><div class="item-score">${scoreValue}</div><div class="item-score-diff">${diff}</div></div>`;
+                }
+
+                li.innerHTML = `
+                    <div class="item-rank">${rank}</div>
+                    <div class="item-flag"><span class="${flagClass}"></span></div>
+                    <div class="item-country">${gymnastDetails.country || '---'}</div>
+                    <div class="item-name">
+                        <span class="item-lastname">${lastName}</span>
+                        <span class="item-firstname">${firstName}</span>
+                    </div>
+                    ${scoreHTML}
+                `;
+                container.appendChild(li);
+                setTimeout(() => { li.classList.add('visible'); }, index * 100);
+            });
+        }
+        
+        function populateStartList() {
+            populateList(startlistContainer, startlistHeader, `Start List - ${currentPhase.replace('_',' ').toUpperCase()}`, fxStartList, false);
+        }
+
+        function populateResultsList() {
+             const resultsData = calculateConsolidatedResults(currentPhase, currentApparatus).map((res, idx) => ({...res, score: res.total || res.apparatusScore || res.aaTotal}));
+             populateList(resultsContainer, resultsHeader, `Results - ${currentPhase.replace('_',' ').toUpperCase()}`, resultsData, true);
+        }
+
+        // ========================================================================
+        // TIMER & HELPERS (FROM ORIGINAL)
+        // ========================================================================
+        function startTimer() { if(timerStateStatus === 'running') return; timerStateStatus = 'running'; clearInterval(timerInterval); timerInterval = setInterval(() => { elapsedSeconds++; updateTimerScoreScreen(); }, 1000); updateTimerScoreScreen(); }
+        function stopTimer() { clearInterval(timerInterval); if (timerStateStatus === 'running') timerStateStatus = 'stop'; updateTimerScoreScreen(); }
+        function resetTimer() { clearInterval(timerInterval); timerStateStatus = 'wait'; elapsedSeconds = 0; updateTimerScoreScreen(); }
+        function splitName(fullName) { if (!fullName) return { firstName: 'Nome', lastName: 'SOBRENOME' }; const parts = fullName.trim().split(' '); if (parts.length === 1) return { firstName: '', lastName: parts[0].toUpperCase() }; const lastName = parts.shift().toUpperCase(); const firstName = parts.join(' '); return { firstName, lastName }; }
+        function formatTime(seconds) { return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`; }
+
+        // ========================================================================
+        // BROADCAST CHANNEL & INITIALIZATION
+        // ========================================================================
+        let controlChannel = null;
+        try {
+            controlChannel = new BroadcastChannel('fx-control');
+            controlChannel.onmessage = (event) => {
+                const { action, screen, phase, apparatus, index, subdivIdx, rotIdx, activeVaultNum: vaultNum } = event.data;
+                console.log(`[BC] Received:`, event.data);
+                
+                let needsSync = false;
+                if (phase && phase !== currentPhase) { currentPhase = phase; needsSync = true; listenStartListStructure(phase); }
+                if (apparatus && apparatus !== currentApparatus) { currentApparatus = apparatus; needsSync = true; }
+                if (index !== undefined && index !== currentIndex) { currentIndex = index; needsSync = true; }
+                if (subdivIdx !== undefined && subdivIdx !== currentSubdivIdx) { currentSubdivIdx = subdivIdx; needsSync = true; }
+                if (rotIdx !== undefined && rotIdx !== currentRotIdx) { currentRotIdx = rotIdx; needsSync = true; }
+                if (vaultNum !== undefined) activeVaultNum = vaultNum;
+
+                switch (action) {
+                    case 'showScreen': showScreen(screen === 'startlist' ? 'screen-startlist' : screen === 'results' ? 'screen-results' : 'screen-timer-score'); break;
+                    case 'timer-start': startTimer(); break;
+                    case 'timer-stop': stopTimer(); break;
+                    case 'timer-reset': resetTimer(); break;
+                    case 'showScore': timerStateStatus = 'score'; needsSync = true; break;
+                }
+
+                if (needsSync && action !== 'setPhase') {
+                    syncDisplay();
+                }
+            };
+        } catch (e) { console.error("BroadcastChannel API error.", e); }
+
+        enableAudioBtn.addEventListener('click', () => {
+            beepAudio.play().then(() => { beepAudio.pause(); beepAudio.currentTime = 0; audioEnabled = true; enableAudioBtn.style.display = 'none'; }).catch(e => console.error("Audio failed:", e));
+        });
+
+        // Initial setup
+        showScreen('screen-timer-score');
+        initializeWhenReady();
+    });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Overlays - Manaus 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #34d399;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 5px;
+            background: #34d399;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #10b981;
+        }
+        .log {
+            background: #000;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste de Overlays - Manaus 2025</h1>
+        
+        <div class="test-section">
+            <h2>📡 Status dos Canais</h2>
+            <p id="channel-status">Verificando...</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Testar Overlays</h2>
+            <button onclick="testWelcome()">👋 Boas-Vindas</button>
+            <button onclick="testAnthem()">🇧🇷 Hino Nacional</button>
+            <button onclick="testReceptionChina()">🇨🇳 Recepção China</button>
+            <button onclick="testReceptionBrazil()">🇧🇷 Recepção Brasil</button>
+            <button onclick="testReceptionUSA()">🇺🇸 Recepção EUA</button>
+            <button onclick="testReceptionItaly()">🇮🇹 Recepção Itália</button>
+            <button onclick="testInstructions()">⚠️ Instruções Finais</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Log de Mensagens</h2>
+            <button onclick="clearLog()">🗑️ Limpar Log</button>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let controlChannel = null;
+        const logDiv = document.getElementById('log');
+
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'sent' ? '#34d399' : type === 'received' ? '#60a5fa' : '#fbbf24';
+            entry.innerHTML = `<span style="color: ${color}">[${timestamp}]</span> ${message}`;
+            logDiv.insertBefore(entry, logDiv.firstChild);
+        }
+
+        function clearLog() {
+            logDiv.innerHTML = '';
+        }
+
+        // Inicializar BroadcastChannel
+        try {
+            controlChannel = new BroadcastChannel('fx-control');
+            controlChannel.onmessage = (event) => {
+                addLog(`📥 Mensagem recebida: ${JSON.stringify(event.data)}`, 'received');
+            };
+            document.getElementById('channel-status').innerHTML = 
+                '✅ <strong>fx-control</strong> conectado e funcionando!';
+            addLog('✅ BroadcastChannel "fx-control" inicializado', 'info');
+        } catch (error) {
+            document.getElementById('channel-status').innerHTML = 
+                '❌ <strong>Erro:</strong> ' + error.message;
+            addLog('❌ Erro ao inicializar BroadcastChannel: ' + error.message, 'error');
+        }
+
+        function testWelcome() {
+            const message = {
+                action: 'show-welcome',
+                duration: 6000
+            };
+            controlChannel.postMessage(message);
+            addLog(`📤 Enviado: show-welcome`, 'sent');
+        }
+
+        function testAnthem() {
+            const message = {
+                action: 'show-anthem',
+                duration: 8000
+            };
+            controlChannel.postMessage(message);
+            addLog(`📤 Enviado: show-anthem`, 'sent');
+        }
+
+        function testReceptionChina() {
+            const message = {
+                action: 'show-reception',
+                flag: '🇨🇳',
+                text: 'CHINA TEAM',
+                countryCode: 'CHN',
+                duration: 5000
+            };
+            controlChannel.postMessage(message);
+            addLog(`📤 Enviado: show-reception (China)`, 'sent');
+        }
+
+        function testReceptionBrazil() {
+            const message = {
+                action: 'show-reception',
+                flag: '🇧🇷',
+                text: 'BRAZIL TEAM',
+                countryCode: 'BRA',
+                duration: 5000
+            };
+            controlChannel.postMessage(message);
+            addLog(`📤 Enviado: show-reception (Brazil)`, 'sent');
+        }
+
+        function testReceptionUSA() {
+            const message = {
+                action: 'show-reception',
+                flag: '🇺🇸',
+                text: 'USA TEAM',
+                countryCode: 'USA',
+                duration: 5000
+            };
+            controlChannel.postMessage(message);
+            addLog(`📤 Enviado: show-reception (USA)`, 'sent');
+        }
+
+        function testReceptionItaly() {
+            const message = {
+                action: 'show-reception',
+                flag: '🇮🇹',
+                text: 'ITALY TEAM',
+                countryCode: 'ITA',
+                duration: 5000
+            };
+            controlChannel.postMessage(message);
+            addLog(`📤 Enviado: show-reception (Italy)`, 'sent');
+        }
+
+        function testInstructions() {
+            const message = {
+                action: 'show-instructions',
+                duration: 5000
+            };
+            controlChannel.postMessage(message);
+            addLog(`📤 Enviado: show-instructions`, 'sent');
+        }
+    </script>
+</body>
+</html>

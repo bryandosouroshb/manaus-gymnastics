@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug VT2 Scores</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .gymnast { border: 1px solid #ccc; margin: 10px 0; padding: 10px; }
+        .gymnast h3 { margin: 0 0 10px 0; color: #0e7c3a; }
+        .score-line { margin: 5px 0; padding: 5px; background: #f5f5f5; }
+        .missing { background: #ffebee; color: #c62828; }
+        .present { background: #e8f5e9; color: #2e7d32; }
+        pre { background: #263238; color: #aed581; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug VT2 Scores</h1>
+    <p>Verificando se as notas de VT2_E estão sendo salvas corretamente no Firebase...</p>
+    <div id="loading">⏳ Carregando dados...</div>
+    <div id="results"></div>
+
+    <script>
+        function initFirebase() {
+            if (!window.db) {
+                setTimeout(initFirebase, 100);
+                return;
+            }
+            
+            loadGymnasts();
+        }
+
+        async function loadGymnasts() {
+            try {
+                const snapshot = await window.db.collection('new_gymnasts').get();
+                const resultsDiv = document.getElementById('results');
+                const loadingDiv = document.getElementById('loading');
+                
+                loadingDiv.style.display = 'none';
+                
+                let html = '<h2>Ginastas com Notas de VT:</h2>';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const scores = data.scores || {};
+                    
+                    // Verificar qualifiers
+                    const qualifiers = scores.qualifiers || {};
+                    const hasVT1 = qualifiers.qualifiers_vt1_d || qualifiers.qualifiers_vt1_e || qualifiers.qualifiers_vt1_p;
+                    const hasVT2 = qualifiers.qualifiers_vt2_d || qualifiers.qualifiers_vt2_e || qualifiers.qualifiers_vt2_p;
+                    
+                    // Verificar vt_final
+                    const vtFinal = scores.vt_final || {};
+                    const hasVT1Final = vtFinal.vt_final_vt1_d || vtFinal.vt_final_vt1_e || vtFinal.vt_final_vt1_p;
+                    const hasVT2Final = vtFinal.vt_final_vt2_d || vtFinal.vt_final_vt2_e || vtFinal.vt_final_vt2_p;
+                    
+                    if (hasVT1 || hasVT2 || hasVT1Final || hasVT2Final) {
+                        html += `<div class="gymnast">`;
+                        html += `<h3>${data.name} (${data.country}) - ID: ${doc.id}</h3>`;
+                        
+                        if (hasVT1 || hasVT2) {
+                            html += `<h4>📋 Qualifiers:</h4>`;
+                            
+                            // VT1
+                            html += `<div class="score-line ${qualifiers.qualifiers_vt1_e ? 'present' : ''}">`;
+                            html += `VT1: D=${qualifiers.qualifiers_vt1_d || 0} | E=${qualifiers.qualifiers_vt1_e || 0} | P=${qualifiers.qualifiers_vt1_p || 0}`;
+                            html += `</div>`;
+                            
+                            // VT2
+                            html += `<div class="score-line ${qualifiers.qualifiers_vt2_e ? 'present' : 'missing'}">`;
+                            html += `VT2: D=${qualifiers.qualifiers_vt2_d || 0} | <strong>E=${qualifiers.qualifiers_vt2_e || 0}</strong> | P=${qualifiers.qualifiers_vt2_p || 0}`;
+                            if (!qualifiers.qualifiers_vt2_e) {
+                                html += ` ❌ NOTA E AUSENTE!`;
+                            }
+                            html += `</div>`;
+                        }
+                        
+                        if (hasVT1Final || hasVT2Final) {
+                            html += `<h4>🏆 VT Final:</h4>`;
+                            
+                            // VT1
+                            html += `<div class="score-line ${vtFinal.vt_final_vt1_e ? 'present' : ''}">`;
+                            html += `VT1: D=${vtFinal.vt_final_vt1_d || 0} | E=${vtFinal.vt_final_vt1_e || 0} | P=${vtFinal.vt_final_vt1_p || 0}`;
+                            html += `</div>`;
+                            
+                            // VT2
+                            html += `<div class="score-line ${vtFinal.vt_final_vt2_e ? 'present' : 'missing'}">`;
+                            html += `VT2: D=${vtFinal.vt_final_vt2_d || 0} | <strong>E=${vtFinal.vt_final_vt2_e || 0}</strong> | P=${vtFinal.vt_final_vt2_p || 0}`;
+                            if (!vtFinal.vt_final_vt2_e) {
+                                html += ` ❌ NOTA E AUSENTE!`;
+                            }
+                            html += `</div>`;
+                        }
+                        
+                        // Mostrar JSON completo
+                        html += `<details><summary>Ver JSON completo</summary><pre>${JSON.stringify(scores, null, 2)}</pre></details>`;
+                        html += `</div>`;
+                    }
+                });
+                
+                resultsDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('loading').textContent = 'Erro ao carregar: ' + error.message;
+            }
+        }
+
+        initFirebase();
+    </script>
+</body>
+</html>

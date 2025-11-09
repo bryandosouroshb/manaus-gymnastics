@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Pontuações - Final AA | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 1001;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem; }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase { font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .header-nav .nav-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer; }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        .main-container { display: flex; flex-grow: 1; padding-bottom: 80px; }
+        
+        .scores-sidebar {
+            width: 320px; background: #ffffff; border-right: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: calc(100vh - 67px);
+        }
+        .sidebar-header { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem; }
+        .rotation-nav-list { list-style: none; margin-bottom: 2rem; }
+        .rotation-nav-item { padding: 1rem; cursor: pointer; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+        .rotation-nav-item:hover { background-color: #f0fdf4; color: var(--primary-green-dark); }
+        .rotation-nav-item.active { background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light)); color: white; box-shadow: 0 4px 12px var(--shadow-color); transform: translateX(5px); }
+        .sidebar-controls { margin-top: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .manaus-button { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); color: white; padding: 0.8rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .manaus-button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+        .manaus-button.secondary { background: #e2e8f0; color: var(--text-dark); border: 1px solid #cbd5e0; }
+        .manaus-button.danger { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;}
+        
+        .content-area { flex-grow: 1; padding: 2rem 3rem; }
+        .view-panel { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .panel-title { font-size: 2rem; font-weight: 800; color: var(--primary-green-dark); }
+        
+        .apparatus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
+        .apparatus-card { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); border: 1px solid var(--border-color); }
+        .apparatus-header { font-size: 1.2rem; font-weight: 700; color: var(--primary-green-dark); padding: 1.5rem; border-bottom: 2px solid var(--accent-gold); }
+        .gymnast-list { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;}
+        .gymnast-item-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .gymnast-name { font-weight: 700; font-size: 1.1rem; }
+        .gymnast-country { color: var(--text-light); }
+        .fi { font-size: 1.5rem; }
+        
+        .score-inputs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; align-items: end; }
+        .score-group { display: flex; flex-direction: column; }
+        .score-label { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.8rem; text-align: center;}
+        .score-input { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-weight: 500; text-align: center; font-family: 'Montserrat', sans-serif; }
+        .score-total-display { display: block; width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); background-color: #f0fdf4; border-radius: 8px; font-size: 1.2rem; font-weight: 700; color: var(--primary-green-dark); text-align: center;}
+
+        .action-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 1rem 2rem; border-top: 1px solid var(--border-color); box-shadow: 0 -4px 20px var(--shadow-color); display: flex; justify-content: center; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-edit"></i>
+            <span>Painel de Edição de Notas</span>
+            <span class="header-phase">Final Individual Geral</span>
+        </div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <button id="logout-btn" class="nav-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="scores-sidebar">
+            <h2 class="sidebar-header">Rotações</h2>
+            <ul id="rotation-nav-list" class="rotation-nav-list"></ul>
+            <div class="sidebar-controls">
+                <button id="generate-random-btn" class="manaus-button secondary"><i class="fas fa-dice"></i> Gerar Aleatórias</button>
+                <button id="clear-scores-btn" class="manaus-button danger"><i class="fas fa-trash"></i> Limpar Notas</button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div id="loading" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+            <div id="rotations-container"></div>
+        </main>
+    </div>
+
+    <footer class="action-footer">
+        <button id="save-scores-btn" class="manaus-button"><i class="fas fa-save"></i> Salvar Todas as Pontuações</button>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/countries.js"></script>
+    <script>
+        // Funções auxiliares, caso não estejam no countries.js
+        if (typeof getCountryCode !== 'function') { function getCountryCode(country) { const codes = { 'BRA': 'br', 'USA': 'us', 'CHN': 'cn', 'ITA': 'it' }; return codes[country] || 'xx'; } }
+        if (typeof getApparatusName !== 'function') { function getApparatusName(code) { const names = { 'VT': 'Salto', 'UB': 'Barras Assimétricas', 'BB': 'Trave', 'FX': 'Solo' }; return names[code] || code; } }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let gymnastsData = [];
+            let qualifiedGymnasts = [];
+            let aaStartList = { rotations: [] };
+
+            const loadingPanel = document.getElementById('loading');
+            const rotationsContainer = document.getElementById('rotations-container');
+            const rotationNavList = document.getElementById('rotation-nav-list');
+
+            async function loadData() {
+                try {
+                    const db = window.db;
+                    const gymnastsSnapshot = await db.collection('new_gymnasts').get();
+                    gymnastsData = gymnastsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    await calculateQualified();
+                    
+                    const startListDoc = await db.collection('start_lists').doc('aa_final').get();
+                    if (startListDoc.exists && startListDoc.data().rotations && Array.isArray(startListDoc.data().rotations)) {
+                        const data = startListDoc.data();
+                        
+                        // Detectar formato antigo (apparatus como array) e converter para novo (apparatus como object)
+                        if (data.rotations[0]?.apparatus && Array.isArray(data.rotations[0].apparatus)) {
+                            console.log('[AA Final] Detectado formato antigo, convertendo...');
+                            aaStartList = { rotations: [] };
+                            data.rotations.forEach(rot => {
+                                const newRotation = { number: rot.number, apparatus: {} };
+                                rot.apparatus.forEach(app => {
+                                    newRotation.apparatus[app.code] = app.gymnasts;
+                                });
+                                aaStartList.rotations.push(newRotation);
+                            });
+                            // Salvar no novo formato
+                            await db.collection('start_lists').doc('aa_final').set(aaStartList);
+                            console.log('[AA Final] Formato convertido e salvo');
+                        } else {
+                            aaStartList = data;
+                        }
+                    } else {
+                        generateAAStartList();
+                    }
+
+                    renderAll();
+                    loadingPanel.style.display = 'none';
+
+                } catch (error) {
+                    console.error("Erro ao carregar dados:", error);
+                    loadingPanel.textContent = "Erro ao carregar dados.";
+                }
+            }
+
+            async function calculateQualified() {
+                const withScores = gymnastsData.map(g => {
+                    const scores = g.scores?.qualifiers;
+                    if (!scores) return {...g, totalAA: 0};
+                    const vt1 = (scores.qualifiers_vt1_d || 0) + (scores.qualifiers_vt1_e || 0) - (scores.qualifiers_vt1_p || 0);
+                    const ub = (scores.qualifiers_ub_d || 0) + (scores.qualifiers_ub_e || 0) - (scores.qualifiers_ub_p || 0);
+                    const bb = (scores.qualifiers_bb_d || 0) + (scores.qualifiers_bb_e || 0) - (scores.qualifiers_bb_p || 0);
+                    const fx = (scores.qualifiers_fx_d || 0) + (scores.qualifiers_fx_e || 0) - (scores.qualifiers_fx_p || 0);
+                    return {...g, totalAA: vt1 + ub + bb + fx};
+                }).sort((a,b) => b.totalAA - a.totalAA);
+
+                qualifiedGymnasts = [];
+                const countryCount = {};
+                for (const gymnast of withScores) {
+                    if (qualifiedGymnasts.length >= 8) break;
+                    const country = gymnast.country;
+                    countryCount[country] = countryCount[country] || 0;
+                    if (countryCount[country] < 2) {
+                        qualifiedGymnasts.push(gymnast);
+                        countryCount[country]++;
+                    }
+                }
+            }
+            
+            function generateAAStartList() {
+                const shuffled = [...qualifiedGymnasts].sort(() => 0.5 - Math.random());
+                const groups = [[], [], [], []];
+                shuffled.forEach((gymnast, i) => groups[i % 4].push(gymnast));
+
+                const apparatusOrder = ['VT', 'UB', 'BB', 'FX'];
+                aaStartList.rotations = [];
+                for (let i = 0; i < 4; i++) {
+                    const rotation = { 
+                        number: i + 1, 
+                        apparatus: {} // Mudado de array para object
+                    };
+                    for (let j = 0; j < 4; j++) {
+                        const groupIndex = (j + i) % 4;
+                        const code = apparatusOrder[j];
+                        rotation.apparatus[code] = groups[groupIndex]; // Criar propriedade do objeto
+                    }
+                    aaStartList.rotations.push(rotation);
+                }
+            }
+            
+            function renderAll() {
+                renderRotationNav();
+                renderRotationPanels();
+                setupNavEvents();
+                loadExistingScores();
+                setupDynamicCalculations();
+            }
+
+            function renderRotationNav() {
+                if (!aaStartList || !Array.isArray(aaStartList.rotations)) return;
+                rotationNavList.innerHTML = aaStartList.rotations.map((rot, index) => `
+                    <li><a class="rotation-nav-item ${index === 0 ? 'active' : ''}" data-target="rotation-${rot.number}-panel">
+                        <i class="fas fa-sync-alt"></i> Rotação ${rot.number}
+                    </a></li>`).join('');
+            }
+
+            function renderRotationPanels() {
+                if (!aaStartList || !Array.isArray(aaStartList.rotations)) return;
+                rotationsContainer.innerHTML = aaStartList.rotations.map((rot, index) => `
+                    <div id="rotation-${rot.number}-panel" class="view-panel ${index > 0 ? 'hidden' : ''}">
+                        <div class="panel-header"><h1 class="panel-title">Rotação ${rot.number}</h1></div>
+                        <div class="apparatus-grid">
+                            ${Object.entries(rot.apparatus).map(([code, gymnasts]) => `
+                                <div class="apparatus-card">
+                                    <div class="apparatus-header">${getApparatusName(code)}</div>
+                                    <div class="gymnast-list">
+                                        ${gymnasts.map(gymnast => `
+                                            <div class="gymnast-item">
+                                                <div class="gymnast-item-header">
+                                                    <span class="fi fi-${getCountryCode(gymnast.country)}"></span>
+                                                    <div>
+                                                        <div class="gymnast-name">${gymnast.name}</div>
+                                                        <div class="gymnast-country">${gymnast.country}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="score-inputs-grid">
+                                                    <div class="score-group"><label class="score-label">Nota D</label><input type="number" class="score-input" id="${gymnast.id}_${code}_d" placeholder="0.000"></div>
+                                                    <div class="score-group"><label class="score-label">Nota E</label><input type="number" class="score-input" id="${gymnast.id}_${code}_e" placeholder="0.000"></div>
+                                                    <div class="score-group"><label class="score-label">Penalidade</label><input type="number" class="score-input" id="${gymnast.id}_${code}_p" placeholder="0.000"></div>
+                                                    <div class="score-group"><label class="score-label">Total</label><span class="score-total-display" id="${gymnast.id}_${code}_total">0.000</span></div>
+                                                </div>
+                                            </div>`).join('')}
+                                    </div>
+                                </div>`).join('')}
+                        </div>
+                    </div>`).join('');
+            }
+
+            function setupNavEvents() {
+                 document.querySelectorAll('.rotation-nav-item').forEach(link => {
+                    link.addEventListener('click', () => {
+                        document.querySelectorAll('.rotation-nav-item').forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        const targetId = link.dataset.target;
+                        document.querySelectorAll('.view-panel').forEach(panel => {
+                            panel.id === targetId ? panel.classList.remove('hidden') : panel.classList.add('hidden');
+                        });
+                    });
+                });
+            }
+            
+            function setupDynamicCalculations() {
+                document.querySelectorAll('.score-input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        const [gymnastId, apparatus] = input.id.split('_');
+                        updateTotalScore(gymnastId, apparatus);
+                    });
+                });
+            }
+
+            function updateTotalScore(gymnastId, apparatus) {
+                const d = parseFloat(document.getElementById(`${gymnastId}_${apparatus}_d`)?.value) || 0;
+                const e = parseFloat(document.getElementById(`${gymnastId}_${apparatus}_e`)?.value) || 0;
+                const p = parseFloat(document.getElementById(`${gymnastId}_${apparatus}_p`)?.value) || 0;
+                const totalDisplay = document.getElementById(`${gymnastId}_${apparatus}_total`);
+                if(totalDisplay) totalDisplay.textContent = (d + e - p).toFixed(3);
+            }
+
+            function loadExistingScores() {
+                qualifiedGymnasts.forEach(gymnast => {
+                    const finalScores = gymnast.scores?.aa_final || {};
+                    ['VT', 'UB', 'BB', 'FX'].forEach(app => {
+                        const d = finalScores[`aa_final_${app.toLowerCase()}_d`];
+                        const e = finalScores[`aa_final_${app.toLowerCase()}_e`];
+                        const p = finalScores[`aa_final_${app.toLowerCase()}_p`];
+                        
+                        const dInput = document.getElementById(`${gymnast.id}_${app}_d`);
+                        const eInput = document.getElementById(`${gymnast.id}_${app}_e`);
+                        const pInput = document.getElementById(`${gymnast.id}_${app}_p`);
+
+                        if(dInput && d) dInput.value = d;
+                        if(eInput && e) eInput.value = e;
+                        if(pInput && p) pInput.value = p;
+                        updateTotalScore(gymnast.id, app);
+                    });
+                });
+            }
+            
+            document.getElementById('save-scores-btn').onclick = async () => {
+                const db = window.db;
+                const batch = db.batch();
+                qualifiedGymnasts.forEach(gymnast => {
+                    const gymnastRef = db.collection('new_gymnasts').doc(gymnast.id);
+                    const scoresToUpdate = {};
+                    ['VT', 'UB', 'BB', 'FX'].forEach(app => {
+                        const d = document.getElementById(`${gymnast.id}_${app}_d`)?.value;
+                        const e = document.getElementById(`${gymnast.id}_${app}_e`)?.value;
+                        const p = document.getElementById(`${gymnast.id}_${app}_p`)?.value;
+                        if (d && e) {
+                            scoresToUpdate[`scores.aa_final.aa_final_${app.toLowerCase()}_d`] = parseFloat(d);
+                            scoresToUpdate[`scores.aa_final.aa_final_${app.toLowerCase()}_e`] = parseFloat(e);
+                            scoresToUpdate[`scores.aa_final.aa_final_${app.toLowerCase()}_p`] = parseFloat(p) || 0;
+                        }
+                    });
+                    if (Object.keys(scoresToUpdate).length > 0) {
+                        batch.update(gymnastRef, scoresToUpdate);
+                    }
+                });
+
+                try {
+                    await batch.commit();
+                    await db.collection('start_lists').doc('aa_final').set(aaStartList);
+                    alert('Pontuações salvas com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao salvar:', error);
+                    alert('Erro ao salvar pontuações.');
+                }
+            };
+
+            function initializeApp() {
+                if (!window.db || !window.auth) { setTimeout(initializeApp, 100); return; }
+                const auth = window.auth;
+                auth.onAuthStateChanged(user => {
+                    if (user) { loadData(); } else { window.location.href = 'login.html'; }
+                });
+                document.getElementById('logout-btn').onclick = () => auth.signOut().then(() => window.location.href = 'login.html');
+            }
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
+

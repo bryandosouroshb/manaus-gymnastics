@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de IDs - Manaus 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+        // Firebase config inline
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxUEcAze739pFzE_T9O_plNb_jWOMRowI",
+            authDomain: "cozygymnastics.firebaseapp.com",
+            projectId: "cozygymnastics",
+            storageBucket: "cozygymnastics.appspot.com",
+            messagingSenderId: "977608365901",
+            appId: "1:977608365901:web:3040bf9cb269e7363e4904",
+            measurementId: "G-FYRCES6W8Y"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        window.db = db;
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8fcf9;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #0e7c3a;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #0b5d2b;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #f7c948;
+            padding-bottom: 0.5rem;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .status.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #0e7c3a;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f0f0f0;
+        }
+        .missing {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        .found {
+            color: #28a745;
+            font-weight: 600;
+        }
+        button {
+            background: linear-gradient(135deg, #0e7c3a, #009f3d);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 1rem;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 124, 58, 0.3);
+        }
+        #loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #0e7c3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico de IDs - Ginastas vs Start Lists</h1>
+        
+        <div id="loading">Carregando dados do Firebase...</div>
+        
+        <div id="results" style="display: none;">
+            <div class="section">
+                <h2>📊 Resumo Geral</h2>
+                <div id="summary"></div>
+            </div>
+            
+            <div class="section">
+                <h2>📂 Collections de Start Lists</h2>
+                <div id="collections-info"></div>
+            </div>
+            
+            <div class="section">
+                <h2>🔍 Estrutura da Start List (qualifiers)</h2>
+                <div id="startlist-structure"></div>
+            </div>
+
+            <div class="section">
+                <h2>👭 Ginastas no Firebase (new_gymnasts)</h2>
+                <div id="gymnasts-list"></div>
+            </div>
+
+            <div class="section">
+                <h2>📝 IDs nas Start Lists (qualifiers)</h2>
+                <div id="startlist-ids"></div>
+            </div>
+
+            <div class="section">
+                <h2>⚠️ Problemas Encontrados</h2>
+                <div id="problems"></div>
+            </div>
+
+            <div class="section">
+                <h2>✅ Soluções</h2>
+                <div id="solutions"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function diagnosticar() {
+            try {
+                // 0. Verificar ambas as collections de start lists
+                console.log('🔍 Verificando collections de start lists...');
+                
+                const startListsUnderscore = await db.collection('start_lists').get();
+                const startListsCamelCase = await db.collection('startLists').get();
+                
+                const underscoreCount = startListsUnderscore.docs.length;
+                const camelCaseCount = startListsCamelCase.docs.length;
+                
+                console.log(`start_lists (underscore): ${underscoreCount} documentos`);
+                console.log(`startLists (camelCase): ${camelCaseCount} documentos`);
+                
+                // Adicionar alerta no topo se houver duplicação
+                if (underscoreCount > 0 && camelCaseCount > 0) {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'section';
+                    alertDiv.innerHTML = `
+                        <div class="status error">
+                            <strong>⚠️ ATENÇÃO: Duas collections de Start Lists encontradas!</strong>
+                        </div>
+                        <p style="margin-top: 1rem;">
+                            • <code>start_lists</code> (underscore): <strong>${underscoreCount} documentos</strong><br>
+                            • <code>startLists</code> (camelCase): <strong>${camelCaseCount} documentos</strong>
+                        </p>
+                        <div class="status warning" style="margin-top: 1rem;">
+                            <strong>📌 Collection correta:</strong> <code>start_lists</code> (com underscore)<br>
+                            Todos os arquivos do sistema usam <code>start_lists</code>
+                        </div>
+                    `;
+                    document.getElementById('results').prepend(alertDiv);
+                }
+                
+                // Usar a collection correta
+                const correctCollection = 'start_lists';
+                
+                // 1. Buscar todas as ginastas
+                const gymnastsSnapshot = await db.collection('new_gymnasts').get();
+                const gymnasts = {};
+                gymnastsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    gymnasts[doc.id] = {
+                        id: doc.id,
+                        name: data.name,
+                        country: data.country
+                    };
+                });
+
+                // 2. Buscar start list de qualifiers
+                const startListDoc = await db.collection(correctCollection).doc('qualifiers').get();
+                const startListData = startListDoc.data();
+                
+                console.log('📋 Start List Data:', startListData);
+                console.log('📋 Start List Structure:', JSON.stringify(startListData, null, 2));
+                
+                // 2b. Listar todos os documentos em ambas collections
+                const underscoreDocs = [];
+                startListsUnderscore.forEach(doc => {
+                    underscoreDocs.push({
+                        id: doc.id,
+                        exists: doc.exists,
+                        hasData: doc.data() ? Object.keys(doc.data()).length > 0 : false
+                    });
+                });
+                
+                const camelCaseDocs = [];
+                startListsCamelCase.forEach(doc => {
+                    camelCaseDocs.push({
+                        id: doc.id,
+                        exists: doc.exists,
+                        hasData: doc.data() ? Object.keys(doc.data()).length > 0 : false
+                    });
+                });
+                
+                // 3. Extrair todos os IDs da start list
+                const startListIds = new Set();
+                const gymnastsByRotation = {};
+                
+                if (startListData) {
+                    // Verificar diferentes formatos possíveis
+                    let rotationsToProcess = null;
+                    
+                    // Formato 1: { rotations: [...] }
+                    if (startListData.rotations) {
+                        rotationsToProcess = startListData.rotations;
+                        console.log('✅ Formato encontrado: { rotations: [...] }');
+                    }
+                    // Formato 2: { structure: { rotations: [...] } }
+                    else if (startListData.structure && startListData.structure.rotations) {
+                        rotationsToProcess = startListData.structure.rotations;
+                        console.log('✅ Formato encontrado: { structure: { rotations: [...] } }');
+                    }
+                    // Formato 3: { subdivisions: [{ rotations: [...] }] }
+                    else if (startListData.subdivisions && startListData.subdivisions[0]?.rotations) {
+                        rotationsToProcess = startListData.subdivisions[0].rotations;
+                        console.log('✅ Formato encontrado: { subdivisions: [{ rotations: [...] }] }');
+                    }
+                    // Formato 4: { structure: { subdivisions: [{ rotations: [...] }] } }
+                    else if (startListData.structure?.subdivisions && startListData.structure.subdivisions[0]?.rotations) {
+                        rotationsToProcess = startListData.structure.subdivisions[0].rotations;
+                        console.log('✅ Formato encontrado: { structure: { subdivisions: [{ rotations: [...] }] } }');
+                    }
+                    
+                    if (rotationsToProcess && rotationsToProcess.length > 0) {
+                        console.log(`✅ ${rotationsToProcess.length} rotações encontradas`);
+                        rotationsToProcess.forEach((rotation, rotIdx) => {
+                            if (rotation.apparatus) {
+                                Object.keys(rotation.apparatus).forEach(app => {
+                                    const athletes = rotation.apparatus[app] || [];
+                                    console.log(`Rotação ${rotIdx + 1}, ${app.toUpperCase()}: ${athletes.length} atletas`);
+                                    athletes.forEach(athlete => {
+                                        startListIds.add(athlete.id);
+                                        if (!gymnastsByRotation[athlete.id]) {
+                                            gymnastsByRotation[athlete.id] = {
+                                                name: athlete.name,
+                                                country: athlete.country,
+                                                rotations: []
+                                            };
+                                        }
+                                        gymnastsByRotation[athlete.id].rotations.push(`R${rotIdx + 1}-${app.toUpperCase()}`);
+                                    });
+                                });
+                            }
+                        });
+                    } else {
+                        console.warn('⚠️ Nenhuma rotação encontrada na start list!');
+                        console.log('Estrutura completa:', startListData);
+                    }
+                }
+
+                // 4. Comparar
+                const missingInFirebase = [];
+                const foundInBoth = [];
+                
+                startListIds.forEach(id => {
+                    if (gymnasts[id]) {
+                        foundInBoth.push({
+                            id: id,
+                            name: gymnasts[id].name,
+                            country: gymnasts[id].country,
+                            rotations: gymnastsByRotation[id].rotations
+                        });
+                    } else {
+                        missingInFirebase.push({
+                            id: id,
+                            name: gymnastsByRotation[id].name,
+                            country: gymnastsByRotation[id].country,
+                            rotations: gymnastsByRotation[id].rotations
+                        });
+                    }
+                });
+
+                // 5. Ginastas no Firebase que não estão na start list
+                const notInStartList = [];
+                Object.keys(gymnasts).forEach(id => {
+                    if (!startListIds.has(id)) {
+                        notInStartList.push(gymnasts[id]);
+                    }
+                });
+
+                // 6. Exibir resultados
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+                
+                displaySummary(gymnasts, startListIds, missingInFirebase, foundInBoth, notInStartList);
+                displayCollectionsInfo(underscoreDocs, camelCaseDocs, correctCollection);
+                displayStartListStructure(startListData);
+                displayGymnasts(gymnasts);
+                displayStartListIds(gymnastsByRotation);
+                displayProblems(missingInFirebase, notInStartList);
+                displaySolutions(missingInFirebase);
+                
+            } catch (error) {
+                console.error('Erro no diagnóstico:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="status error">
+                        ❌ Erro ao carregar dados: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displaySummary(gymnasts, startListIds, missingInFirebase, foundInBoth, notInStartList) {
+            const total = Object.keys(gymnasts).length;
+            const totalInStartList = startListIds.size;
+            
+            let html = `
+                <div class="status ${missingInFirebase.length === 0 ? 'ok' : 'error'}">
+                    <strong>Total de ginastas no Firebase:</strong> ${total}
+                </div>
+                <div class="status ${missingInFirebase.length === 0 ? 'ok' : 'warning'}">
+                    <strong>Total de IDs nas Start Lists:</strong> ${totalInStartList}
+                </div>
+                <div class="status ${foundInBoth.length === totalInStartList ? 'ok' : 'error'}">
+                    <strong>IDs encontrados em ambos:</strong> ${foundInBoth.length}
+                </div>
+                <div class="status ${missingInFirebase.length === 0 ? 'ok' : 'error'}">
+                    <strong>⚠️ IDs faltando no Firebase:</strong> ${missingInFirebase.length}
+                </div>
+                <div class="status ${notInStartList.length === 0 ? 'ok' : 'warning'}">
+                    <strong>Ginastas não usadas nas Start Lists:</strong> ${notInStartList.length}
+                </div>
+            `;
+            
+            document.getElementById('summary').innerHTML = html;
+        }
+        
+        function displayCollectionsInfo(underscoreDocs, camelCaseDocs, correctCollection) {
+            let html = '';
+            
+            if (underscoreDocs.length === 0 && camelCaseDocs.length === 0) {
+                html = `<div class="status error">❌ Nenhuma start list encontrada em nenhuma collection!</div>`;
+            } else {
+                html += `<div class="status ${correctCollection === 'start_lists' ? 'ok' : 'warning'}">
+                    <strong>✅ Collection CORRETA sendo usada pelo sistema:</strong> <code>start_lists</code>
+                </div>`;
+                
+                if (underscoreDocs.length > 0) {
+                    html += `
+                        <div style="margin-top: 1rem;">
+                            <strong>📁 start_lists (underscore) - ${underscoreDocs.length} documentos:</strong>
+                            <ul style="margin-left: 2rem; margin-top: 0.5rem;">`;
+                    underscoreDocs.forEach(doc => {
+                        html += `<li><code>${doc.id}</code> ${doc.hasData ? '✅' : '⚠️ vazio'}</li>`;
+                    });
+                    html += `</ul></div>`;
+                }
+                
+                if (camelCaseDocs.length > 0) {
+                    html += `
+                        <div style="margin-top: 1rem;">
+                            <strong>📁 startLists (camelCase) - ${camelCaseDocs.length} documentos:</strong>
+                            <ul style="margin-left: 2rem; margin-top: 0.5rem;">`;
+                    camelCaseDocs.forEach(doc => {
+                        html += `<li><code>${doc.id}</code> ${doc.hasData ? '✅' : '⚠️ vazio'}</li>`;
+                    });
+                    html += `</ul>
+                        <div class="status warning" style="margin-top: 0.5rem;">
+                            ⚠️ Esta collection NÃO é usada pelo sistema. Você pode deletá-la se quiser.
+                        </div>
+                    </div>`;
+                }
+            }
+            
+            document.getElementById('collections-info').innerHTML = html;
+        }
+        
+        function displayStartListStructure(startListData) {
+            let html = '';
+            
+            if (!startListData) {
+                html = `<div class="status error">❌ A start list 'qualifiers' está VAZIA ou não existe!</div>`;
+            } else {
+                const keys = Object.keys(startListData);
+                html += `<div class="status ${keys.length > 0 ? 'ok' : 'error'}">
+                    <strong>Campos encontrados na start list:</strong> ${keys.join(', ')}
+                </div>`;
+                
+                // Mostrar estrutura detalhada
+                html += `<div style="margin-top: 1rem; background: #f5f5f5; padding: 1rem; border-radius: 8px; overflow-x: auto;">
+                    <strong>Estrutura JSON:</strong>
+                    <pre style="margin-top: 0.5rem; font-size: 0.85rem; white-space: pre-wrap;">${JSON.stringify(startListData, null, 2)}</pre>
+                </div>`;
+                
+                // Diagnóstico de formato
+                let formatFound = false;
+                let rotationsCount = 0;
+                
+                if (startListData.rotations) {
+                    formatFound = true;
+                    rotationsCount = startListData.rotations.length;
+                    html += `<div class="status ok" style="margin-top: 1rem;">
+                        ✅ Formato: <code>{ rotations: [...] }</code> - ${rotationsCount} rotações
+                    </div>`;
+                } else if (startListData.structure?.rotations) {
+                    formatFound = true;
+                    rotationsCount = startListData.structure.rotations.length;
+                    html += `<div class="status ok" style="margin-top: 1rem;">
+                        ✅ Formato: <code>{ structure: { rotations: [...] } }</code> - ${rotationsCount} rotações
+                    </div>`;
+                } else if (startListData.subdivisions) {
+                    formatFound = true;
+                    rotationsCount = startListData.subdivisions[0]?.rotations?.length || 0;
+                    html += `<div class="status ok" style="margin-top: 1rem;">
+                        ✅ Formato: <code>{ subdivisions: [{ rotations: [...] }] }</code> - ${rotationsCount} rotações
+                    </div>`;
+                } else if (startListData.structure?.subdivisions) {
+                    formatFound = true;
+                    rotationsCount = startListData.structure.subdivisions[0]?.rotations?.length || 0;
+                    html += `<div class="status ok" style="margin-top: 1rem;">
+                        ✅ Formato: <code>{ structure: { subdivisions: [...] } }</code> - ${rotationsCount} rotações
+                    </div>`;
+                }
+                
+                if (!formatFound) {
+                    html += `<div class="status error" style="margin-top: 1rem;">
+                        ❌ Formato não reconhecido! A start list não tem a estrutura esperada.
+                    </div>`;
+                } else if (rotationsCount === 0) {
+                    html += `<div class="status warning" style="margin-top: 1rem;">
+                        ⚠️ Start list encontrada, mas está VAZIA (0 rotações)
+                    </div>`;
+                }
+            }
+            
+            document.getElementById('startlist-structure').innerHTML = html;
+        }
+
+        function displayGymnasts(gymnasts) {
+            const sorted = Object.values(gymnasts).sort((a, b) => a.name.localeCompare(b.name));
+            
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>País</th>
+                        <th>ID do Firebase</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            
+            sorted.forEach(g => {
+                html += `
+                    <tr>
+                        <td>${g.name}</td>
+                        <td>${g.country}</td>
+                        <td><code>${g.id}</code></td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            document.getElementById('gymnasts-list').innerHTML = html;
+        }
+
+        function displayStartListIds(gymnastsByRotation) {
+            const sorted = Object.entries(gymnastsByRotation).sort((a, b) => a[1].name.localeCompare(b[1].name));
+            
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Nome (da Start List)</th>
+                        <th>País</th>
+                        <th>ID</th>
+                        <th>Rotações</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            
+            sorted.forEach(([id, data]) => {
+                html += `
+                    <tr>
+                        <td>${data.name}</td>
+                        <td>${data.country}</td>
+                        <td><code>${id}</code></td>
+                        <td>${data.rotations.join(', ')}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            document.getElementById('startlist-ids').innerHTML = html;
+        }
+
+        function displayProblems(missingInFirebase, notInStartList) {
+            let html = '';
+            
+            if (missingInFirebase.length > 0) {
+                html += `<div class="status error">
+                    <strong>❌ ${missingInFirebase.length} ginastas estão na Start List mas NÃO existem no Firebase:</strong>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>País</th>
+                            <th>ID Esperado</th>
+                            <th>Rotações</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                
+                missingInFirebase.forEach(g => {
+                    html += `
+                        <tr>
+                            <td class="missing">${g.name}</td>
+                            <td>${g.country}</td>
+                            <td><code>${g.id}</code></td>
+                            <td>${g.rotations.join(', ')}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table>`;
+            }
+            
+            if (notInStartList.length > 0) {
+                html += `<div class="status warning" style="margin-top: 1rem;">
+                    <strong>⚠️ ${notInStartList.length} ginastas existem no Firebase mas NÃO estão em nenhuma Start List:</strong>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>País</th>
+                            <th>ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                
+                notInStartList.forEach(g => {
+                    html += `
+                        <tr>
+                            <td>${g.name}</td>
+                            <td>${g.country}</td>
+                            <td><code>${g.id}</code></td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table>`;
+            }
+            
+            if (missingInFirebase.length === 0 && notInStartList.length === 0) {
+                html = `<div class="status ok">✅ Nenhum problema encontrado! Todos os IDs estão sincronizados.</div>`;
+            }
+            
+            document.getElementById('problems').innerHTML = html;
+        }
+
+        function displaySolutions(missingInFirebase) {
+            let html = '';
+            
+            if (missingInFirebase.length > 0) {
+                html = `
+                    <div class="status warning">
+                        <strong>💡 Você precisa:</strong>
+                    </div>
+                    <ol style="margin-left: 2rem; margin-top: 1rem; line-height: 1.8;">
+                        <li><strong>OPÇÃO 1 (Recomendado):</strong> Gerar novas Start Lists usando as ginastas atuais do Firebase
+                            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                                <li>Vá para a página de Start Lists (qualifiers)</li>
+                                <li>Clique em "Gerar Start List"</li>
+                                <li>Isso irá criar uma nova start list com os IDs corretos</li>
+                            </ul>
+                        </li>
+                        <li style="margin-top: 1rem;"><strong>OPÇÃO 2:</strong> Recriar as ginastas com os IDs específicos da Start List
+                            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                                <li>⚠️ Mais trabalhoso e pode causar outros problemas</li>
+                                <li>Você precisaria deletar e recriar cada ginasta com o ID exato</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <div class="status error" style="margin-top: 1.5rem;">
+                        <strong>⚠️ IMPORTANTE:</strong> O problema aconteceu porque quando você adiciona ginastas pelo gymnasts.html,
+                        o Firebase gera IDs aleatórios automaticamente. As Start Lists antigas têm referências aos IDs antigos.
+                    </div>
+                `;
+            } else {
+                // Se não há IDs faltando, mas a start list está vazia
+                html = `
+                    <div class="status error">
+                        <strong>❌ Problema:</strong> A start list de qualifiers está VAZIA!
+                    </div>
+                    <div style="margin-top: 1rem; line-height: 1.8;">
+                        <strong>🔧 Solução:</strong>
+                        <ol style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <li>Abra: <code>start-list-qualifiers.html</code></li>
+                            <li>Clique no botão <strong>"Gerar Start List"</strong></li>
+                            <li>Configure as rotações e distribua as ginastas</li>
+                            <li>Clique em <strong>"Salvar Start List"</strong></li>
+                        </ol>
+                        
+                        <div class="status warning" style="margin-top: 1rem;">
+                            <strong>📝 Nota:</strong> Você tem 16 ginastas disponíveis no Firebase prontas para serem adicionadas à start list!
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('solutions').innerHTML = html;
+        }
+
+        // Iniciar diagnóstico quando carregar
+        setTimeout(() => {
+            if (typeof window.db !== 'undefined') {
+                diagnosticar();
+            } else {
+                document.getElementById('loading').innerHTML = '❌ Erro: Firebase não inicializado';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

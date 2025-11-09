@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Firebase Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .debug-data { background: #f5f5f5; padding: 10px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+    <link rel="stylesheet" href="css/theme-manaus.css">
+</head>
+<body>
+    <h1>Debug Firebase Data</h1>
+    
+    <div class="debug-section">
+        <h2>Collection: new_gymnasts</h2>
+        <div id="new-gymnasts-data" class="debug-data">Carregando...</div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Collection: scores</h2>
+        <div id="scores-data" class="debug-data">Carregando...</div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Collection: gymnasts (antiga)</h2>
+        <div id="gymnasts-data" class="debug-data">Carregando...</div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Collection: start_lists</h2>
+        <div id="start-lists-data" class="debug-data">Carregando...</div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Teste de Salvamento</h2>
+        <button onclick="testSaveTeamFinal()">Testar Salvar Team Final</button>
+        <div id="test-result" class="debug-data">Clique no botão para testar</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script>
+        const db = window.db;
+
+        async function loadCollection(collectionName, elementId) {
+            try {
+                const snapshot = await db.collection(collectionName).get();
+                const data = [];
+                
+                snapshot.forEach((doc) => {
+                    data.push({
+                        id: doc.id,
+                        data: doc.data()
+                    });
+                });
+                
+                document.getElementById(elementId).textContent = JSON.stringify(data, null, 2);
+                console.log(`Collection ${collectionName}:`, data);
+                
+            } catch (error) {
+                document.getElementById(elementId).textContent = `Erro: ${error.message}`;
+                console.error(`Erro ao carregar ${collectionName}:`, error);
+            }
+        }
+
+        // Carregar todas as collections
+        loadCollection('new_gymnasts', 'new-gymnasts-data');
+        loadCollection('scores', 'scores-data');
+        loadCollection('gymnasts', 'gymnasts-data');
+        loadCollection('start_lists', 'start-lists-data');
+        
+        // Função de teste para salvar team final
+        window.testSaveTeamFinal = async function() {
+            const resultDiv = document.getElementById('test-result');
+            try {
+                resultDiv.textContent = 'Testando salvamento...';
+                
+                const testData = {
+                    structure: {
+                        type: 'team_final',
+                        rotation1: {
+                            VT: { 'BRA': ['test1', 'test2', 'test3'] },
+                            UB: { 'USA': ['test4', 'test5', 'test6'] }
+                        }
+                    },
+                    lastUpdated: new Date(),
+                    testSave: true
+                };
+                
+                await db.collection('start_lists').doc('team_final').set(testData);
+                resultDiv.textContent = 'Salvamento realizado com sucesso!';
+                
+                // Recarregar a coleção start_lists
+                setTimeout(() => loadCollection('start_lists', 'start-lists-data'), 1000);
+                
+            } catch (error) {
+                resultDiv.textContent = `Erro: ${error.message}`;
+                console.error('Erro no teste:', error);
+            }
+        };
+    </script>
+</body>
+</html>

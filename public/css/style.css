@@ -1,0 +1,1068 @@
+/* Global Styles */
+html { font-size: 62.5%; box-sizing: border-box; }
+*, *:before, *:after { box-sizing: inherit; }
+body { padding-top: 65px; font-family: 'Montserrat', sans-serif; color: #e0e0e0; background-color: #080915; line-height: 1.6; margin: 0; }
+/* ... (Estilos de Inputs, Grid, Header, Buttons, etc. - Mantidos Inalterados) ... */
+input[type="text"], input[type="number"], select { font-family: 'Montserrat', sans-serif; padding: 0.8rem 1.2rem; font-size: 1.4rem; border-radius: 4px; border: 1px solid #4a4a7a; background-color: #2a2a4a; color: #e0e0e0; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+input[type="text"]:focus, input[type="number"]:focus, select:focus { outline: none; border-color: #0a8bec; box-shadow: 0 0 0 2px rgba(10, 139, 236, 0.3); }
+input::placeholder { color: #777; opacity: 1; }
+.grid-container { max-width: 1200px; margin-left: auto; margin-right: auto; padding-left: 15px; padding-right: 15px; }
+.olympic-header { background-color: #1a1635; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border-bottom: 1px solid #3a3a5e; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; }
+.header-container { max-width: 1200px; margin-left: auto; margin-right: auto; padding-left: 15px; padding-right: 15px; }
+.main-nav { display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0; }
+.header-title { font-size: 1.7rem; font-weight: 300; color: #bdbddb; letter-spacing: 0.2px; }
+.header-location { font-weight: 600; color: #ffffff; margin-left: 8px; }
+.olympic-button { padding: 0.8rem 1.6rem; font-size: 1.4rem; font-weight: 500; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: inline-block; text-align: center; border: 1px solid transparent; }
+.olympic-button { background-color: #0a8bec; color: #ffffff; border-color: #0a8bec; }
+.olympic-button:hover { background-color: #0073cc; border-color: #0073cc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.olympic-button.secondary-button { background-color: transparent; color: #adb5bd; border: 1px solid #adb5bd; box-shadow: none; }
+.olympic-button.secondary-button:hover { background-color: rgba(173, 181, 189, 0.1); color: #ffffff; border-color: #ffffff; }
+.olympic-button.danger-button { background-color: transparent; color: #dc3545; border: 1px solid #dc3545; }
+.olympic-button.danger-button:hover { background-color: #dc3545; color: #ffffff; border-color: #dc3545; }
+.olympic-button.black-button { background-color: #343a40; color: #ffffff; border-color: #343a40; }
+.olympic-button.black-button:hover { background-color: #23272b; border-color: #1d2124; }
+.distributive-header { padding-top: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #3a3a5e; margin-bottom: 2rem; background-color: #1a1635; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.distributive-header h1 { font-size: 2.4rem; font-weight: 600; color: #ffffff; margin-bottom: 0.3rem; margin-top: 0; }
+.distributive-header p#competition-phase-title { font-size: 1.6rem; color: #bdbddb; margin-top: 0; }
+.scoreboard-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.phase-selector label { font-weight: bold; margin-right: 0.8rem; font-size: 1.5rem; color: #bdbddb; }
+.phase-selector select { padding: 0.8rem 1.2rem; font-size: 1.5rem; border-radius: 4px; border: 1px solid #4a4a7a; background-color: #2a2a4a; color: #e0e0e0; font-family: 'Montserrat', sans-serif; cursor: pointer; transition: border-color 0.2s ease; }
+.phase-selector select:hover { border-color: #6a21f4; }
+.phase-selector select:focus { outline: none; border-color: #0a8bec; box-shadow: 0 0 0 2px rgba(10, 139, 236, 0.3); }
+.table-container { overflow-x: auto; margin-bottom: 3rem; background-color: #1f1f35; border: 1px solid #3a3a5e; border-radius: 6px; padding: 1rem; }
+.scoreboard-table { width: 100%; border-collapse: collapse; font-size: 1.1rem; table-layout: fixed; border: none; }
+.scoreboard-table th, .scoreboard-table td {
+    border: 1px solid #3a3a5e;
+    padding: 0.7rem 0.4rem;
+    vertical-align: middle;
+    white-space: nowrap;
+    color: #e0e0e0; /* Default color, will be overridden where specified */
+    text-align: center; /* Center all text by default */
+    font-weight: bold;   /* Make all text bold by default */
+}
+.scoreboard-table thead th {
+    background-color: #2a2a4a;
+    color: #a0a0c0;
+    font-weight: 600; /* Headers have specific weight */
+    text-align: center;
+}
+
+/* Aumentar fonte das tabelas de resumo */
+.summary-table {
+    font-size: 15px !important;
+}
+
+.summary-table th,
+.summary-table td {
+    font-size: 15px !important;
+}
+
+/* Gymnast name and country: left-aligned, normal weight, white text */
+.scoreboard-table th:nth-child(2), /* Gymnast Header */
+.scoreboard-table td.gymnast-name,
+.scoreboard-table td.country {
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: left;
+    color: #ffffff;
+    font-weight: normal; /* Override bold for these columns */
+}
+
+/* Rank column: specific color and bold (already bold from general td but explicit) */
+.scoreboard-table th:nth-child(1), .scoreboard-table td.rank {
+    width: 4%;
+    text-align: center;
+    font-weight: bold;
+    color: #a0a0c0;
+}
+
+.scoreboard-table th:nth-child(2), .scoreboard-table td.gymnast-name, .scoreboard-table td.country { width: 17%; } /* Width for gymnast/country */
+
+/* Individual Score columns (D, E, P): white, bold, centered */
+.scoreboard-table th.score-col-d, .scoreboard-table td.score-d,
+.scoreboard-table th.score-col-e, .scoreboard-table td.score-e,
+.scoreboard-table th.score-col-p, .scoreboard-table td.score-p,
+.scoreboard-table td.score /* Add generic .score class here */ {
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+}
+.scoreboard-table th.score-col-d, .scoreboard-table td.score-d { width: 2.0%; }
+.scoreboard-table th.score-col-e, .scoreboard-table td.score-e { width: 5.0%; }
+.scoreboard-table th.score-col-p, .scoreboard-table td.score-p { width: 4.0%; }
+
+/* Total Score columns (Apparatus Total, Overall Total): green, bold, centered */
+.scoreboard-table th.score-col-app-total, .scoreboard-table td.score-total-apparatus,
+.scoreboard-table th:last-child, .scoreboard-table td.score-total-overall {
+    text-align: center;
+    font-weight: bold;
+    color: #32cd32; /* Green for total scores */
+}
+
+/* Also make sure any .score-bold class gets green color for totals */
+.scoreboard-table td.score-bold {
+    color: #32cd32 !important; /* Green for all bold scores (totals) */
+}
+.scoreboard-table th.score-col-app-total, .scoreboard-table td.score-total-apparatus { width: 8%; }
+.scoreboard-table th:last-child, .scoreboard-table td.score-total-overall { width: 6%; }
+
+/* REMOVE General .score class from here as it's merged above */
+
+/* Ensure specific total scores override the general .score if both are applied to a TD */
+.scoreboard-table td.score-total-apparatus,
+.scoreboard-table td.score-total-overall {
+    color: #32cd32 !important; /* Ensure green for totals, overriding a potential .score class */
+}
+
+/* Styles for summary tables - ensure consistency */
+/* ... (existing summary table styles can be reviewed separately if needed) ... */
+
+/* Qualification Summaries Styling */
+#qualification-summaries {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#qualification-summaries h2 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.summary-section {
+    margin-bottom: 2.5rem;
+}
+
+.summary-section h3 {
+    color: #4CAF50;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 0.5rem;
+}
+
+.summary-section h4 {
+    color: #fff;
+    margin-bottom: 0.8rem;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.summary-table th {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    padding: 0.8rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.summary-table td {
+    padding: 0.6rem 0.8rem;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+}
+
+.summary-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.apparatus-final-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.apparatus-final-grid > div {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure summary table scores have proper styling */
+.summary-table .score-total-overall {
+    color: #4CAF50 !important;
+    font-weight: bold;
+}
+
+.summary-table .rank {
+    text-align: center;
+    font-weight: bold;
+}
+
+.summary-table .gymnast-name {
+    min-width: 200px;
+}
+
+/* ========================================== */
+/* === FX Scoreboard Display Styles (v3) ==== */
+/* ========================================== */
+
+body.fx-scoreboard-page { width: 100vw; height: 100vh; margin: 0; padding: 0 !important; overflow: hidden; background-color: #15182a; display: flex; justify-content: center; align-items: center; }
+.fx-telao-container { width: 100%; height: 100%; display: flex; flex-direction: column; background-color: #181c2f; color: #ffffff; font-family: 'Montserrat', sans-serif; }
+.fx-telao-topbar { 
+    background: linear-gradient(135deg, #c00 0%, #a00 50%, #800 100%); 
+    color: #fff; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 3vw; 
+    height: 5vh; 
+    font-size: clamp(12px, 1.4vw, 18px); 
+    flex-shrink: 0; 
+    font-weight: 600; 
+    box-shadow: 0 4px 15px rgba(192, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.fx-telao-topbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: topbarShimmer 3s ease-in-out infinite;
+}
+
+@keyframes topbarShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.fx-telao-topbar span:first-child {
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    position: relative;
+}
+
+.fx-telao-topbar span:last-child {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    opacity: 0.9;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    position: relative;
+}
+.fx-main-content { flex-grow: 1; position: relative; display: flex; overflow: hidden; }
+.fx-main-content::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(24, 28, 47, 0.7), transparent); pointer-events: none; z-index: 1; transition: background 0.3s ease; }
+.fx-main-content.gradient-wait::after { background: linear-gradient(to top, rgba(192, 0, 0, 0.6), transparent); }
+.fx-main-content.gradient-stop::after { background: linear-gradient(to top, rgba(138, 43, 226, 0.6), transparent); }
+.fx-main-content.gradient-go-ok::after { background: linear-gradient(to top, rgba(30, 199, 115, 0.6), transparent); }
+.fx-main-content.gradient-go-warn::after { background: linear-gradient(to top, rgba(255, 152, 0, 0.6), transparent); }
+.fx-main-content.gradient-go-over::after { background: linear-gradient(to top, rgba(192, 0, 0, 0.7), transparent); }
+
+/* Telas principais */
+.screen-view { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; padding: 0; box-sizing: border-box; z-index: 2; overflow: hidden; }
+.fx-telao-main#fx-timer-score-screen { display: flex; flex-direction: row; align-items: stretch; justify-content: stretch; transition: background-color 0.3s ease; padding: 3vh 3vw; }
+.fx-startlist-screen, .fx-results-screen { display: none; flex-direction: column; align-items: stretch; background-color: #181c2f; }
+
+/* Screen content area for lists */
+.fx-screen-content { flex-grow: 1; padding: 2vh 3vw; overflow-y: auto; }
+
+/* Títulos das Telas de Lista */
+.fx-startlist-screen .fx-telao-topbar, .fx-results-screen .fx-telao-topbar { 
+    background: linear-gradient(135deg, #c00 0%, #a00 50%, #800 100%); 
+    color: #fff; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 3vw; 
+    height: 5vh; 
+    font-size: clamp(12px, 1.4vw, 18px); 
+    flex-shrink: 0; 
+    font-weight: 600; 
+    box-shadow: 0 4px 15px rgba(192, 0, 0, 0.4);
+}
+
+/* Container dos itens da lista */
+.list-items-container { list-style: none; padding: 0; margin: 0; width: 100%; max-width: none; overflow: visible; flex-grow: 1; }
+
+/* Itens da Lista (Start List e Results) */
+.list-item { background-color: rgba(42, 42, 74, 0.6); padding: 1.2vh 2vw; margin-bottom: 0.8vh; border-radius: 8px; display: flex; align-items: center; gap: 1.5vw; border: 1px solid #2a2a4a; opacity: 0; transform: translateY(15px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; }
+.list-item.visible { opacity: 1; transform: translateY(0); }
+.list-item-empty { color: #a0a0c0; text-align: center; font-style: italic; padding: 3vh 0; font-size: clamp(16px, 2vw, 22px); }
+.item-order { font-size: clamp(16px, 2.2vw, 30px); font-weight: bold; color: #a0a0c0; text-align: center; flex-basis: 5%; flex-shrink: 0; }
+.item-flag.fi { font-size: clamp(20px, 3vw, 40px); line-height: 1; flex-shrink: 0; }
+.item-country { font-size: clamp(14px, 2vw, 28px); font-weight: bold; color: #bdbddb; flex-basis: 8%; flex-shrink: 0; }
+.item-name { flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; overflow: hidden; }
+.item-lastname { font-size: clamp(32px, 6vw, 100px); font-weight: 700; letter-spacing: 0.05em; color: #ffffff; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-firstname { font-size: clamp(14px, 2vw, 28px); font-weight: 400; color: #bdbddb; line-height: 1.1; }
+.item-bib { font-size: clamp(14px, 1.8vw, 24px); color: #a0a0c0; background-color: #1f1f35; padding: 0.3vh 0.8vw; border-radius: 4px; margin-left: auto; flex-shrink: 0; }
+.item-score { font-size: clamp(18px, 2.8vw, 38px); font-weight: bold; color: #32cd32; flex-basis: 15%; flex-shrink: 0; text-align: right; margin-left: 1vw; }
+
+/* Bloco Status/Timer */
+.fx-status-block { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 35vw; height: 100%; padding: 2vh 2vw; box-sizing: border-box; gap: 4vh; transition: opacity 0.3s ease, display 0s linear 0.3s; }
+.score-display-active .fx-status-block { display: none; opacity: 0; }
+.fx-status-indicator, .fx-status-timer { color: #fff; font-weight: bold; border-radius: 1.5vw; padding: 2vw 3vw; text-align: center; width: 85%; min-height: 10vh; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); transition: background-color 0.3s ease; line-height: 1.1; }
+.fx-status-indicator { font-size: clamp(40px, 7.5vw, 110px); letter-spacing: 0.08em; }
+.fx-status-timer { font-size: clamp(30px, 6vw, 100px); }
+.status-wait-bg{background-color:#c00;} 
+.status-stop-bg{background-color:#8a2be2;} 
+.status-running-ok-bg{background-color:#1ec773;} 
+.status-running-warn-bg{background-color:#ff9800;} 
+.status-running-over-bg{background-color:#c00;}
+.timer-wait-bg{background-color:#1e90e6;} 
+.timer-stop-bg{background-color:#8a2be2;} 
+.timer-running-ok-bg{background-color:#1ec773;} 
+.timer-running-warn-bg{background-color:#ff9800;} 
+.timer-running-over-bg{background-color:#c00;}
+
+/* Bloco Info Ginasta */
+.fx-info-block { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 65vw; height: 100%; padding: 2vh 2vw; box-sizing: border-box; gap: 2vh; transition: width 0.3s ease, align-items 0.3s ease; }
+.score-display-active .fx-info-block { width: 55%; align-items: flex-start; padding-left: 5vw; }
+.fx-gymnast-id-row { display: flex; align-items: center; justify-content: center; gap: 1.5vw; width: 100%; margin-bottom: 1vh; }
+.score-display-active .fx-gymnast-id-row { justify-content: flex-start; }
+.fx-apparatus-icon { background-color: #3a3a5e; color: #e0e0e0; font-size: clamp(14px, 2vw, 35px); font-weight: bold; border-radius: 50%; width: clamp(35px, 5.5vw, 70px); height: clamp(35px, 5.5vw, 70px); display: inline-flex; align-items: center; justify-content: center; line-height: 1; box-shadow: inset 0 0 6px rgba(0,0,0,0.2); flex-shrink: 0; }
+.fx-country { display: flex; align-items: center; gap: 1vw; font-size: clamp(18px, 3vw, 45px); font-weight: bold; color: #bdbddb; }
+.fx-country-flag.fi { font-size: clamp(26px, 4vw, 60px); line-height: 1; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: inline-block; }
+.fx-gymnast-name-display { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 1vh; }
+.score-display-active .fx-gymnast-name-display { align-items: flex-start; }
+.fx-gymnast-lastname { font-size: clamp(32px, 6vw, 100px); font-weight: 700; letter-spacing: 0.05em; color: #ffffff; text-transform: uppercase; margin-bottom: 0.5vh; line-height: 1.1; }
+.fx-gymnast-firstname { font-size: clamp(22px, 3.5vw, 60px); font-weight: 400; color: #bdbddb; line-height: 1.1; }
+
+/* Bloco Detalhes Notas */
+.fx-score-details { display: none; flex-direction: column; align-items: flex-start; justify-content: center; width: 0; height: 100%; padding: 2vh 5vw 2vh 2vw; box-sizing: border-box; gap: 2vh; opacity: 0; transition: width 0.3s ease, opacity 0.3s ease 0.1s; }
+.score-display-active .fx-score-details { display: flex; width: 45%; opacity: 1; }
+.score-detail-item { display: flex; align-items: baseline; gap: 1.5vw; width: 100%; }
+.score-detail-item.total { margin-top: 1vh; border-top: 1px solid #3a3a5e; padding-top: 2vh; }
+.score-detail-label { color: #a0a0c0; font-size: clamp(20px, 3.5vw, 55px); font-weight: 600; width: 40px; text-align: right; flex-shrink: 0; }
+.score-detail-item.total .score-detail-label { width: auto; text-align: left; }
+.score-detail-value { color: #ffffff; font-size: clamp(26px, 5vw, 80px); font-weight: bold; line-height: 1.1; }
+.score-detail-value.total { color: #ffe066; font-size: clamp(30px, 6vw, 90px); }
+
+/* Rank Display */
+.fx-rank-display { position: absolute; top: 10vh; right: 3vw; background-color: rgba(42, 42, 74, 0.8); color: #1ec773; font-size: clamp(18px, 2.8vw, 45px); font-weight: bold; padding: 0.8vw 1.5vw; border-radius: 1vw; z-index: 10; display: none; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+
+/* Controles ocultos */
+.fx-controls { display: none !important; }
+
+/* ========================================== */
+/* == FIM FX Scoreboard Display Styles (v3) = */
+/* ========================================== */
+
+/* ========================================== */
+/* === Start List Formatting Styles ======= */
+/* ========================================== */
+
+.start-list-section {
+    margin-bottom: 3rem;
+}
+
+.rotation-block {
+    margin-bottom: 3rem;
+    background-color: #1f1f35;
+    border: 1px solid #3a3a5e;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.rotation-block h2 {
+    color: #4CAF50;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 0.5rem;
+}
+
+.rotation-apparatus-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.apparatus-column {
+    background-color: #2a2a4a;
+    border: 1px solid #3a3a5e;
+    border-radius: 6px;
+    padding: 1.5rem;
+    min-height: 200px;
+}
+
+.apparatus-column h3 {
+    color: #87CEEB;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    border-bottom: 1px solid #87CEEB;
+    padding-bottom: 0.5rem;
+}
+
+.athlete-start-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.athlete-start-list li {
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border-left: 3px solid #4CAF50;
+    color: #e0e0e0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.athlete-start-list li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.athlete-start-list.ordered {
+    counter-reset: athlete-counter;
+}
+
+.athlete-start-list.ordered li {
+    counter-increment: athlete-counter;
+    position: relative;
+    padding-left: 3rem;
+}
+
+.athlete-start-list.ordered li::before {
+    content: counter(athlete-counter);
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #4CAF50;
+    color: white;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.athlete-start-list .fi {
+    font-size: 1.2em;
+    margin-right: 0.5rem;
+}
+
+.athlete-start-list small {
+    color: #a0a0c0;
+    font-size: 0.85em;
+    margin-left: auto;
+}
+
+.no-athletes {
+    color: #777;
+    text-align: center;
+    font-style: italic;
+    padding: 2rem 1rem;
+    font-size: 1.1rem;
+}
+
+.apparatus-final-list-block {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #1f1f35;
+    border: 1px solid #3a3a5e;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+/* Responsive adjustments for Start List */
+@media (max-width: 768px) {
+    .rotation-apparatus-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .apparatus-column {
+        padding: 1rem;
+        min-height: 150px;
+    }
+    
+    .athlete-start-list li {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rotation-apparatus-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .rotation-block {
+        padding: 1rem;
+    }
+    
+    .apparatus-column {
+        padding: 0.8rem;
+    }
+}
+
+/* --- START: PRINT STYLES --- */
+@media print {
+    /* Force landscape orientation */
+    @page {
+        size: A4 landscape !important;
+        margin: 0.5in !important;
+    }
+    
+    /* Reset and basic styling */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    body {
+        background: white !important;
+        color: #000 !important;
+        font-family: 'Montserrat', sans-serif !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Hide non-essential elements */
+    .olympic-header,
+    .olympic-footer,
+    #start-list-controls,
+    .nav-extra,
+    .phase-selector {
+        display: none !important;
+    }
+    
+    /* Main container */
+    .page-wrapper {
+        background: white !important;
+    }
+    
+    .grid-container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 20pt !important;
+    }
+      /* Title styling */
+    .distributive-header h1 {
+        color: #1a1635 !important;
+        font-size: 20pt !important;
+        text-align: center !important;
+        margin-bottom: 20pt !important;
+        border-bottom: 3pt solid #4CAF50 !important;
+        padding-bottom: 8pt !important;
+    }
+    
+    #start-list-container h2 {
+        color: #1a1635 !important;
+        font-size: 16pt !important;
+        text-align: center !important;
+        margin: 15pt 0 !important;
+        background: linear-gradient(135deg, #4CAF50, #2E7D32) !important;
+        color: white !important;
+        padding: 8pt !important;
+        border-radius: 6pt !important;
+    }
+    
+    #start-list-container h3 {
+        color: #1a1635 !important;
+        font-size: 14pt !important;
+        text-align: center !important;
+        margin: 12pt 0 !important;
+        background: #f5f5f5 !important;
+        padding: 6pt !important;
+        border-left: 3pt solid #4CAF50 !important;
+    }
+    
+    /* Rotation blocks - each on new page */
+    .rotation-block {
+        page-break-before: always !important;
+        background: white !important;
+        border: 2pt solid #4CAF50 !important;
+        border-radius: 12pt !important;
+        padding: 20pt !important;
+        margin-bottom: 30pt !important;
+        box-shadow: 0 4pt 8pt rgba(76, 175, 80, 0.2) !important;
+    }
+    
+    .rotation-block:first-child {
+        page-break-before: auto !important;
+    }
+    
+    .rotation-block h2 {
+        background: linear-gradient(135deg, #4CAF50, #2E7D32) !important;
+        color: white !important;
+        text-align: center !important;
+        font-size: 16pt !important;
+        padding: 12pt !important;
+        margin: -20pt -20pt 20pt -20pt !important;
+        border-radius: 10pt 10pt 0 0 !important;
+        font-weight: bold !important;
+    }
+      /* Grid layout for apparatus */
+    .rotation-apparatus-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 12pt !important;
+        margin-top: 15pt !important;
+        width: 100% !important;
+    }
+    
+    /* Apparatus columns */
+    .apparatus-column {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+        border: 1.5pt solid #87CEEB !important;
+        border-radius: 6pt !important;
+        padding: 12pt !important;
+        min-height: 180pt !important;
+        max-height: 300pt !important;
+        overflow: hidden !important;
+        box-shadow: 0 2pt 4pt rgba(135, 206, 235, 0.3) !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .apparatus-column h3 {
+        background: linear-gradient(135deg, #87CEEB, #4682B4) !important;
+        color: white !important;
+        text-align: center !important;
+        font-size: 14pt !important;
+        font-weight: bold !important;
+        padding: 8pt !important;
+        margin: -15pt -15pt 15pt -15pt !important;
+        border-radius: 6pt 6pt 0 0 !important;
+        letter-spacing: 1pt !important;
+    }
+      /* Athletes list */
+    .athlete-start-list {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .athlete-start-list li {
+        background: white !important;
+        border: 1pt solid #dee2e6 !important;
+        border-left: 3pt solid #4CAF50 !important;
+        padding: 6pt 8pt !important;
+        margin-bottom: 4pt !important;
+        border-radius: 3pt !important;
+        font-size: 9pt !important;
+        color: #212529 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4pt !important;
+        box-shadow: 0 1pt 2pt rgba(0, 0, 0, 0.1) !important;
+        line-height: 1.2 !important;
+    }
+    
+    .athlete-start-list li:nth-child(even) {
+        background: #f8f9fa !important;
+    }
+    
+    .athlete-start-list li:hover {
+        background: #e3f2fd !important;
+    }
+    
+    /* Ordered list for apparatus finals */
+    .athlete-start-list.ordered li {
+        counter-increment: athlete-counter !important;
+        position: relative !important;
+        padding-left: 35pt !important;
+    }
+    
+    .athlete-start-list.ordered li::before {
+        content: counter(athlete-counter) !important;
+        position: absolute !important;
+        left: 8pt !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background: linear-gradient(135deg, #4CAF50, #2E7D32) !important;
+        color: white !important;
+        width: 20pt !important;
+        height: 20pt !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 8pt !important;
+        font-weight: bold !important;
+        box-shadow: 0 2pt 4pt rgba(76, 175, 80, 0.3) !important;
+    }
+    
+    /* Flags */
+    .fi {
+        font-size: 12pt !important;
+        margin-right: 6pt !important;
+        border-radius: 2pt !important;
+        box-shadow: 0 1pt 2pt rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    /* No athletes message */
+    .no-athletes {
+        color: #6c757d !important;
+        text-align: center !important;
+        font-style: italic !important;
+        padding: 20pt !important;
+        font-size: 10pt !important;
+        background: #f8f9fa !important;
+        border-radius: 4pt !important;
+        border: 1pt dashed #dee2e6 !important;
+    }
+    
+    /* Apparatus finals special styling */
+    .apparatus-final-list-block {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+        border: 2pt solid #4CAF50 !important;
+        border-radius: 12pt !important;
+        padding: 20pt !important;
+        margin: 20pt auto !important;
+        max-width: 500pt !important;
+        box-shadow: 0 4pt 8pt rgba(76, 175, 80, 0.2) !important;
+    }
+    
+    /* Page break helpers */
+    .page-break-before {
+        page-break-before: always !important;
+    }
+    
+    .page-break-after {
+        page-break-after: always !important;
+    }
+    
+    /* Footer for each page */
+    @page {
+        margin: 1in !important;
+        @bottom-center {
+            content: "Start List - Ginástica Artística Feminina - Manaus 2025" !important;
+            font-size: 8pt !important;
+            color: #6c757d !important;
+        }
+    }
+}
+
+/* Edit Scores WAG Specific Styles */
+.edit-form {
+    background: #2a2a3a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    color: white;
+}
+
+.gymnast-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #444;
+}
+
+.gymnast-info .fi {
+    font-size: 1.5rem;
+}
+
+.gymnast-name-input,
+.country-input {
+    background: #3a3a4a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 0.5rem;
+    color: white;
+    font-size: 1rem;
+}
+
+.gymnast-name-input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.country-input {
+    width: 80px;
+    text-transform: uppercase;
+}
+
+.remove-gymnast-btn {
+    background: #dc3545;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    height: 30px;
+    margin-left: auto;
+    width: 30px;
+}
+
+.remove-gymnast-btn:hover {
+    background: #c82333;
+}
+
+.apparatus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.apparatus-scores {
+    background: #3a3a4a;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.apparatus-scores h4 {
+    color: #4CAF50;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0 0 1rem 0;
+    text-align: center;
+}
+
+.score-inputs-wrapper,
+.score-inputs-wrapper-inline {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.score-inputs-wrapper-inline {
+    flex-wrap: wrap;
+}
+
+.score-input-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 60px;
+}
+
+.score-input-group label {
+    color: #ccc;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    text-align: center;
+}
+
+.score-input-group input {
+    background: #2a2a3a;
+    border: 1px solid #666;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.9rem;
+    padding: 0.4rem;
+    text-align: center;
+}
+
+.score-input-group input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.vault-inputs {
+    margin-bottom: 1rem;
+}
+
+.vault-inputs:last-child {
+    margin-bottom: 0;
+}
+
+.vault-inputs > label {
+    color: #4CAF50;
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.country-group-header {
+    background: #4a4a5a;
+    border-radius: 6px;
+    color: white;
+    margin: 2rem 0 1rem 0;
+    padding: 1rem;
+}
+
+.country-group-header .fi {
+    margin-right: 0.5rem;
+}
+
+.form-actions {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin: 2rem 0;
+    padding: 1rem 0;
+}
+
+.right-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.save-button-container {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+/* ========================================== */
+/* === FX Scoreboard Display List Improvements === */
+/* ========================================== */
+
+.fx-startlist-screen.visible, .fx-results-screen.visible {
+    display: flex !important;
+}
+
+/* Enhanced list items for FX display */
+.fx-startlist-screen .list-item, .fx-results-screen .list-item {
+    background: linear-gradient(135deg, rgba(42, 42, 74, 0.8), rgba(58, 58, 94, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5vh 2vw;
+    margin-bottom: 1vh;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fx-startlist-screen .list-item:hover, .fx-results-screen .list-item:hover {
+    transform: translateY(-2px) scale(1.02);
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(42, 42, 74, 0.8));
+    box-shadow: 0 6px 25px rgba(76, 175, 80, 0.2);
+}
+
+.fx-startlist-screen .item-order, .fx-results-screen .item-order {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+    width: clamp(30px, 4vw, 50px);
+    height: clamp(30px, 4vw, 50px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: clamp(14px, 2vw, 24px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+    flex-shrink: 0;
+}
+
+.fx-startlist-screen .item-lastname, .fx-results-screen .item-lastname {
+    font-size: clamp(18px, 3.5vw, 48px);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.fx-startlist-screen .item-firstname, .fx-results-screen .item-firstname {
+    font-size: clamp(12px, 2.2vw, 28px);
+    opacity: 0.9;
+    margin-top: 0.2vh;
+}
+
+.fx-startlist-screen .item-country, .fx-results-screen .item-country {
+    font-size: clamp(14px, 2.5vw, 32px);
+    font-weight: 600;
+    color: #87CEEB;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.fx-startlist-screen .item-score, .fx-results-screen .item-score {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: clamp(16px, 3vw, 40px);
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+}
+
+/* Animation for list items appearing */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.fx-startlist-screen .list-item.visible, .fx-results-screen .list-item.visible {
+    animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Enhanced empty state */
+.fx-startlist-screen .list-item-empty, .fx-results-screen .list-item-empty {
+    background: rgba(220, 53, 69, 0.1);
+    border: 2px dashed rgba(220, 53, 69, 0.3);
+    border-radius: 12px;
+    color: #dc3545;
+    font-size: clamp(16px, 2.5vw, 32px);
+    font-style: italic;
+    padding: 3vh 2vw;
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* Beep Visual Feedback */
+.beep-flash {
+    animation: beepFlash 0.4s ease-in-out;
+}
+
+@keyframes beepFlash {
+    0% { 
+        box-shadow: 0 0 0 0 rgba(255, 255, 0, 0.8);
+        border-color: #ffff00;
+        background-color: rgba(255, 255, 0, 0.3) !important;
+    }
+    50% { 
+        box-shadow: 0 0 30px 15px rgba(255, 255, 0, 0.6);
+        border-color: #ffff00;
+        background-color: rgba(255, 255, 0, 0.5) !important;
+    }
+    100% { 
+        box-shadow: 0 0 0 0 rgba(255, 255, 0, 0);
+        border-color: initial;
+        background-color: initial;
+    }
+}
+
+/* Timer specific beep flash */
+.fx-status-timer.beep-flash,
+.fx-status-indicator.beep-flash {
+    animation: beepFlash 0.4s ease-in-out;
+}

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar - Final do Salto | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1001;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem; }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase { font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .live-indicator { background: #e74c3c; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; animation: livePulse 1.5s infinite; }
+        @keyframes livePulse { 
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(231, 76, 60, 0); }
+        }
+        .header-nav .nav-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer; }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        /* --- ESTRUTURA PRINCIPAL --- */
+        .main-container { display: flex; flex-grow: 1; }
+        
+        /* --- SIDEBAR --- */
+        .scoreboard-sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 67px);
+        }
+        .sidebar-header { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem; }
+        .view-nav-list { list-style: none; }
+        .view-nav-item { padding: 1rem; cursor: pointer; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+        .view-nav-item:hover { background-color: #f0fdf4; color: var(--primary-green-dark); }
+        .view-nav-item.active { background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light)); color: white; box-shadow: 0 4px 12px var(--shadow-color); transform: translateX(5px); }
+
+        /* --- ÁREA DE CONTEÚDO --- */
+        .content-area {
+            flex-grow: 1;
+            padding: 2rem 3rem;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><pattern id="hexagon" width="60" height="60" patternUnits="userSpaceOnUse"><polygon points="30,2 52,17 52,43 30,58 8,43 8,17" fill="none" stroke="rgba(14,124,58,0.03)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23hexagon)"/></svg>') repeat;
+        }
+        .view-panel { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        /* --- ESTILOS COMUNS PARA PAINEIS --- */
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .panel-title { font-size: 2rem; font-weight: 800; color: var(--primary-green-dark); }
+        .refresh-btn { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); color: white; padding: 0.8rem 1.8rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'Montserrat', sans-serif; }
+        .refresh-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+        .data-container { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); overflow: hidden; border: 1px solid var(--border-color); }
+        .table-wrapper { overflow-x: auto; }
+        .scoreboard-table { width: 100%; border-collapse: collapse; }
+        .scoreboard-table th { background: #f8f9fa; color: var(--primary-green-dark); padding: 1rem; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.8rem; }
+        .scoreboard-table td { padding: 1rem; text-align: center; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        .scoreboard-table tbody tr:hover { background-color: #f0fdf4; }
+        .rank-cell { font-weight: 700; font-size: 1.1rem; }
+        .gymnast-cell { display: flex; align-items: center; gap: 1rem; text-align: left; font-weight: 600; }
+        .fi { font-size: 1.2rem; }
+        .total-score { font-weight: 800; font-size: 1.1rem; color: var(--primary-green-dark); }
+        .rank-cell.rank-1::after { content: '🥇'; margin-left: 0.5rem; }
+        .rank-cell.rank-2::after { content: '🥈'; margin-left: 0.5rem; }
+        .rank-cell.rank-3::after { content: '🥉'; margin-left: 0.5rem; }
+        
+        .score-breakdown { font-size: 0.85rem; color: var(--text-light); }
+        .score-breakdown strong { color: var(--text-dark); }
+
+        /* PÓDIO */
+        .podium-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .podium-card { background: white; border-radius: 16px; padding: 2rem; text-align: center; box-shadow: 0 15px 40px var(--shadow-color); border: 1px solid var(--border-color); transition: all 0.3s ease; }
+        .podium-card:hover { transform: translateY(-8px); box-shadow: 0 20px 45px var(--shadow-color); }
+        .podium-card .medal { font-size: 3rem; margin-bottom: 1rem; }
+        .podium-card .gymnast-name { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem; }
+        .podium-card .gymnast-country { display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-light); margin-bottom: 1rem; }
+        .podium-card .total-score { font-size: 1.8rem; font-weight: 800; color: var(--primary-green-dark); }
+        .podium-card.gold { border-top: 5px solid var(--accent-gold); }
+        .podium-card.silver { border-top: 5px solid #c0c0c0; }
+        .podium-card.bronze { border-top: 5px solid #cd7f32; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-person-running"></i>
+            <span>Placar ao Vivo</span>
+            <span class="header-phase">Final do Salto</span>
+        </div>
+        <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="edit-scores-vt-final.html" class="nav-btn"><i class="fas fa-edit"></i> Editar Notas</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="scoreboard-sidebar">
+            <h2 class="sidebar-header">Visualizar</h2>
+            <ul class="view-nav-list">
+                <li><a class="view-nav-item active"><i class="fas fa-person-running"></i> Final do Salto</a></li>
+            </ul>
+        </aside>
+
+        <main class="content-area">
+            <div id="loading" style="text-align: center; font-size: 1.2rem; color: var(--primary-green);">
+                <i class="fas fa-spinner fa-spin"></i> Carregando resultados...
+            </div>
+
+            <div id="results-view" class="view-panel hidden">
+                <div class="panel-header">
+                    <h1 class="panel-title">Pódio</h1>
+                </div>
+
+                <div id="podium-container" class="podium-grid">
+                    <!-- Pódio será inserido aqui -->
+                </div>
+
+                <div class="panel-header" style="margin-top: 2rem;">
+                    <h1 class="panel-title">Classificação Completa</h1>
+                    <button id="refresh-scores-btn" class="refresh-btn"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                </div>
+
+                <div class="data-container">
+                    <div class="table-wrapper">
+                        <table class="scoreboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos.</th>
+                                    <th style="text-align: left;">Ginasta</th>
+                                    <th>1º Salto</th>
+                                    <th>2º Salto</th>
+                                    <th>Nota Final</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-tbody">
+                                <!-- Resultados serão inseridos aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="js/countries.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let gymnastsData = [];
+            let unsubscribe = null;
+
+            function renderPodium() {
+                const container = document.getElementById('podium-container');
+                if (!container) return;
+
+                const topThree = gymnastsData.slice(0, 3);
+                const medals = ['🥇', '🥈', '🥉'];
+                const medalClasses = ['gold', 'silver', 'bronze'];
+
+                container.innerHTML = topThree.map((gymnast, index) => `
+                    <div class="podium-card ${medalClasses[index]}">
+                        <div class="medal">${medals[index]}</div>
+                        <div class="gymnast-name">${gymnast.name}</div>
+                        <div class="gymnast-country">
+                            <span class="fi fi-${getCountryCode(gymnast.country)}"></span>
+                            <span>${gymnast.country}</span>
+                        </div>
+                        <div class="total-score">${gymnast.average.toFixed(3)}</div>
+                    </div>
+                `).join('');
+            }
+
+            function displayResults() {
+                const tbody = document.getElementById('results-tbody');
+                tbody.innerHTML = '';
+
+                if (gymnastsData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">Nenhum resultado encontrado</td></tr>';
+                    return;
+                }
+
+                gymnastsData.forEach((gymnast, index) => {
+                    const rank = index + 1;
+                    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td class="rank-cell ${rankClass}">${rank}</td>
+                        <td class="gymnast-cell">
+                            <span class="fi fi-${getCountryCode(gymnast.country)}"></span>
+                            <span>${gymnast.name}</span>
+                        </td>
+                        <td>
+                            <strong>${gymnast.vault1.toFixed(3)}</strong>
+                            <div class="score-breakdown">
+                                D: ${(gymnast.vt_d_1 || 0).toFixed(3)} | E: ${(gymnast.vt_e_1 || 0).toFixed(3)} | P: -${(gymnast.vt_p_1 || 0).toFixed(3)}
+                            </div>
+                        </td>
+                        <td>
+                            <strong>${gymnast.vault2.toFixed(3)}</strong>
+                            <div class="score-breakdown">
+                                D: ${(gymnast.vt_d_2 || 0).toFixed(3)} | E: ${(gymnast.vt_e_2 || 0).toFixed(3)} | P: -${(gymnast.vt_p_2 || 0).toFixed(3)}
+                            </div>
+                        </td>
+                        <td class="total-score">${gymnast.average.toFixed(3)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                renderPodium();
+            }
+
+            function loadResults() {
+                const loadingEl = document.getElementById('loading');
+                const resultsView = document.getElementById('results-view');
+                
+                loadingEl.classList.remove('hidden');
+                resultsView.classList.add('hidden');
+                
+                try {
+                    if (unsubscribe) unsubscribe();
+
+                    unsubscribe = window.db.collection('new_gymnasts')
+                        .onSnapshot((snapshot) => {
+                            const allGymnasts = [];
+                            snapshot.forEach((doc) => {
+                                const data = doc.data();
+                                const qualifiersScores = data.scores?.qualifiers;
+                                if (qualifiersScores && (qualifiersScores.qualifiers_vt1_d !== undefined || qualifiersScores.qualifiers_vt_d !== undefined)) {
+                                    let vt1 = Math.max(0, (qualifiersScores.qualifiers_vt1_d || 0) + (qualifiersScores.qualifiers_vt1_e || 0) - (qualifiersScores.qualifiers_vt1_p || 0));
+                                    let vt2 = Math.max(0, (qualifiersScores.qualifiers_vt2_d || 0) + (qualifiersScores.qualifiers_vt2_e || 0) - (qualifiersScores.qualifiers_vt2_p || 0));
+                                    let vtScore = (vt1 > 0 && vt2 > 0) ? (vt1 + vt2) / 2 : Math.max(vt1, vt2);
+                                    allGymnasts.push({ ...data, id: doc.id, vtAverage: vtScore });
+                                }
+                            });
+
+                            allGymnasts.sort((a, b) => b.vtAverage - a.vtAverage);
+
+                            const qualifiedGymnastsIds = new Set();
+                            const countryCount = {};
+                            for (const gymnast of allGymnasts) {
+                                if (qualifiedGymnastsIds.size >= 8) break;
+                                const country = gymnast.country;
+                                countryCount[country] = countryCount[country] || 0;
+                                if (countryCount[country] < 2) {
+                                    qualifiedGymnastsIds.add(gymnast.id);
+                                    countryCount[country]++;
+                                }
+                            }
+                            
+                            const results = [];
+                            snapshot.forEach((doc) => {
+                                if(qualifiedGymnastsIds.has(doc.id)){
+                                    const data = doc.data();
+                                    const vtFinalScores = data.scores?.vt_final || {};
+                                    const vault1 = (vtFinalScores.vt_final_vt1_d || 0) + (vtFinalScores.vt_final_vt1_e || 0) - (vtFinalScores.vt_final_vt1_p || 0);
+                                    const vault2 = (vtFinalScores.vt_final_vt2_d || 0) + (vtFinalScores.vt_final_vt2_e || 0) - (vtFinalScores.vt_final_vt2_p || 0);
+                                    
+                                    if(vault1 > 0 || vault2 > 0) {
+                                        results.push({
+                                            name: data.name,
+                                            country: data.country,
+                                            vault1: vault1,
+                                            vault2: vault2,
+                                            average: (vault1 > 0 && vault2 > 0) ? (vault1 + vault2) / 2 : Math.max(vault1, vault2),
+                                            vt_d_1: vtFinalScores.vt_final_vt1_d || 0,
+                                            vt_e_1: vtFinalScores.vt_final_vt1_e || 0,
+                                            vt_p_1: vtFinalScores.vt_final_vt1_p || 0,
+                                            vt_d_2: vtFinalScores.vt_final_vt2_d || 0,
+                                            vt_e_2: vtFinalScores.vt_final_vt2_e || 0,
+                                            vt_p_2: vtFinalScores.vt_final_vt2_p || 0
+                                        });
+                                    }
+                                }
+                            });
+
+                            results.sort((a, b) => b.average - a.average);
+                            gymnastsData = results;
+
+                            displayResults();
+                            
+                            loadingEl.classList.add('hidden');
+                            resultsView.classList.remove('hidden');
+                        }, (error) => {
+                            console.error('Erro ao carregar resultados:', error);
+                            loadingEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar dados';
+                        });
+                } catch (error) {
+                    console.error('Erro ao inicializar listeners:', error);
+                    loadingEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar dados';
+                }
+            }
+
+            function initializeWhenReady() {
+                if (window.db) {
+                    loadResults();
+                } else {
+                    setTimeout(initializeWhenReady, 100);
+                }
+            }
+            
+            document.getElementById('refresh-scores-btn').addEventListener('click', loadResults);
+            initializeWhenReady();
+        });
+    </script>
+</body>
+</html>

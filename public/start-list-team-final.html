@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start List - Final por Equipes | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 1001;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem; }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase { font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .header-nav .nav-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer; }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        /* --- ESTRUTURA PRINCIPAL --- */
+        .main-container { display: flex; flex-grow: 1; }
+        
+        /* --- SIDEBAR DE CONTROLES --- */
+        .startlist-sidebar {
+            width: 320px; background: #ffffff; border-right: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: calc(100vh - 67px);
+        }
+        .sidebar-header { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem; }
+        .rotation-nav-list { list-style: none; margin-bottom: 2rem; }
+        .rotation-nav-item { padding: 1rem; cursor: pointer; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+        .rotation-nav-item:hover { background-color: #f0fdf4; color: var(--primary-green-dark); }
+        .rotation-nav-item.active { background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light)); color: white; box-shadow: 0 4px 12px var(--shadow-color); transform: translateX(5px); }
+        
+        .sidebar-controls { margin-top: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .manaus-button { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); color: white; padding: 0.8rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; }
+        .manaus-button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+        .manaus-button.secondary { background: #e2e8f0; color: var(--text-dark); border: 1px solid #cbd5e0; }
+        .manaus-button.secondary:hover { background: #cbd5e0; }
+        
+        /* --- ÁREA DE CONTEÚDO --- */
+        .content-area { flex-grow: 1; padding: 2rem 3rem; }
+        .view-panel { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .panel-title { font-size: 2rem; font-weight: 800; color: var(--primary-green-dark); }
+        
+        /* --- ESTILOS DOS CARDS --- */
+        .apparatus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .apparatus-card { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .apparatus-header { font-size: 1.2rem; font-weight: 700; color: var(--primary-green-dark); padding: 1.5rem; border-bottom: 2px solid var(--accent-gold); }
+        
+        .gymnast-list { padding: 1.5rem; flex-grow: 1;}
+        .team-info { font-size: 1rem; font-weight: 600; color: var(--text-dark); padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); display:flex; align-items:center; gap: 0.5rem;}
+
+        .gymnast-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid #f0f0f0; }
+        .gymnast-list .gymnast-item:last-child { border-bottom: none; }
+        .gymnast-order { font-weight: 700; flex-shrink: 0; width: 30px; text-align: center; color: var(--text-dark); }
+        .gymnast-details { flex-grow: 1; min-width: 0; }
+        .gymnast-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fi { font-size: 1.2rem; vertical-align: middle; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Lista de Largada</span>
+            <span class="header-phase">Final por Equipes</span>
+        </div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="scoreboard-team-final.html" class="nav-btn"><i class="fas fa-trophy"></i> Placar</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="startlist-sidebar">
+            <h2 class="sidebar-header">Rotações</h2>
+            <ul id="rotation-nav-list" class="rotation-nav-list">
+                <!-- Links de Rotação serão inseridos via JS -->
+            </ul>
+            <div class="sidebar-controls">
+                <a href="edit-scores-team-final.html" class="manaus-button secondary"><i class="fas fa-edit"></i> Gerar/Editar Sorteio</a>
+                <button id="save-start-list" class="manaus-button"><i class="fas fa-save"></i> Salvar Ordem</button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div id="loading" style="text-align: center; padding: 2rem; font-size: 1.2rem; color: var(--primary-green);">
+                <i class="fas fa-spinner fa-spin"></i> Carregando lista de largada...
+            </div>
+            <div id="rotations-container">
+                <!-- Painéis de Rotação serão inseridos via JS -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Scripts customizados -->
+    <script src="js/firebase-init.js"></script>
+    <script src="js/countries.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let gymnastsData = [];
+            let teamFinalDraw = {};
+
+            const loadingPanel = document.getElementById('loading');
+            const rotationsContainer = document.getElementById('rotations-container');
+            const rotationNavList = document.getElementById('rotation-nav-list');
+            
+            const apparatus = ['VT', 'UB', 'BB', 'FX'];
+            const apparatusNames = { 'VT': 'Salto', 'UB': 'Barras Assimétricas', 'BB': 'Trave', 'FX': 'Solo' };
+
+            async function loadStartList() {
+                loadingPanel.classList.remove('hidden');
+                rotationsContainer.innerHTML = '';
+
+                try {
+                    const db = window.db;
+                    const gymnastsSnapshot = await db.collection('new_gymnasts').get();
+                    gymnastsData = gymnastsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    const drawDoc = await db.collection('start_lists').doc('team_final').get();
+                    if (drawDoc.exists) {
+                        const data = drawDoc.data();
+                        teamFinalDraw = data.structure || data;
+                    } else {
+                        teamFinalDraw = {}; // Sorteio vazio
+                    }
+                    
+                    renderAll();
+                    loadingPanel.classList.add('hidden');
+
+                } catch (error) {
+                    console.error("Erro ao carregar:", error);
+                    loadingPanel.textContent = "Erro ao carregar dados.";
+                }
+            }
+            
+            function renderAll() {
+                renderRotationNav();
+                renderRotationPanels();
+                setupNavEvents();
+            }
+
+            function renderRotationNav() {
+                if (!teamFinalDraw.rotations || teamFinalDraw.rotations.length === 0) {
+                     rotationNavList.innerHTML = '<li><span class="rotation-nav-item" style="cursor: default; color: var(--text-light); background: #f9fafb;">Sorteio não gerado</span></li>';
+                    return;
+                }
+                rotationNavList.innerHTML = teamFinalDraw.rotations.map((rot, index) => `
+                    <li><a class="rotation-nav-item ${index === 0 ? 'active' : ''}" data-target="rotation-${rot.number}-panel">
+                        <i class="fas fa-sync-alt"></i> Rotação ${rot.number}
+                    </a></li>
+                `).join('');
+            }
+
+            function renderRotationPanels() {
+                if (!teamFinalDraw.rotations || teamFinalDraw.rotations.length === 0) {
+                    rotationsContainer.innerHTML = `
+                        <div class="view-panel" style="text-align: center; color: var(--text-light); padding: 3rem;">
+                            <i class="fas fa-info-circle fa-3x" style="margin-bottom: 1rem; color: var(--primary-green); opacity: 0.5;"></i>
+                            <h2 style="margin-bottom: 1rem;">Nenhum Sorteio Encontrado</h2>
+                            <p style="margin-bottom: 2rem;">O sorteio para a Final por Equipes precisa ser gerado e <strong>salvo</strong> na página de Edição de Notas.</p>
+                            <a href="edit-scores-team-final.html" class="manaus-button">
+                                <i class="fas fa-dice"></i> Ir para Gerar Sorteio
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                rotationsContainer.innerHTML = teamFinalDraw.rotations.map((rot, index) => {
+                    const rotationNumber = rot.number;
+                    
+                    const apparatusGridHtml = apparatus.map(appCode => {
+                        // Nova estrutura: rot.apparatus[APPCODE] = [athletes]
+                        const athletesOnApparatus = rot.apparatus?.[appCode] || [];
+                        
+                        let cardContentHtml = '';
+
+                        if (athletesOnApparatus.length > 0) {
+                            // Agrupar por país
+                            const byCountry = {};
+                            athletesOnApparatus.forEach(athlete => {
+                                const country = athlete.country || 'N/A';
+                                if (!byCountry[country]) byCountry[country] = [];
+                                byCountry[country].push(athlete);
+                            });
+                            
+                            // Renderizar cada equipe
+                            cardContentHtml = Object.keys(byCountry).map(country => {
+                                const teamAthletes = byCountry[country];
+                                
+                                // Remove duplicatas para exibição (mostra apenas nomes únicos)
+                                const uniqueIds = new Set();
+                                const uniqueAthletes = [];
+                                teamAthletes.forEach(athlete => {
+                                    if (!uniqueIds.has(athlete.id)) {
+                                        uniqueIds.add(athlete.id);
+                                        // Conta quantas vezes aparece
+                                        const count = teamAthletes.filter(a => a.id === athlete.id).length;
+                                        uniqueAthletes.push({ ...athlete, count });
+                                    }
+                                });
+                                
+                                const gymnastsHtml = uniqueAthletes.map((athlete, i) => {
+                                    const multiplier = athlete.count > 1 ? ` <strong style="color: var(--primary-green);">(×${athlete.count})</strong>` : '';
+                                    return `
+                                    <div class="gymnast-item">
+                                        <div class="gymnast-order">${i + 1}.</div>
+                                        <div class="gymnast-details">
+                                            <div class="gymnast-name" title="${athlete.name}">${athlete.name}${multiplier}</div>
+                                        </div>
+                                    </div>
+                                    `;
+                                }).join('');
+                                
+                                return `
+                                    <div class="team-info">
+                                        <span class="fi fi-${getCountryCode(country)}"></span> ${country}
+                                    </div>
+                                    ${gymnastsHtml}
+                                `;
+                            }).join('<hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--border-color);">');
+                        } else {
+                            cardContentHtml = '<p style="padding: 1rem; text-align: center; color: var(--text-light);">—</p>';
+                        }
+
+                        return `
+                        <div class="apparatus-card">
+                            <div class="apparatus-header">
+                                <span>${apparatusNames[appCode]}</span>
+                            </div>
+                            <div class="gymnast-list">
+                               ${cardContentHtml}
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+
+                    return `
+                    <div id="rotation-${rotationNumber}-panel" class="view-panel ${index > 0 ? 'hidden' : ''}">
+                        <div class="panel-header"><h1 class="panel-title">Rotação ${rotationNumber}</h1></div>
+                        <div class="apparatus-grid">
+                            ${apparatusGridHtml}
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
+
+
+            function setupNavEvents() {
+                const navLinks = document.querySelectorAll('.rotation-nav-item');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        const targetId = link.dataset.target;
+                        document.querySelectorAll('.view-panel').forEach(panel => {
+                            panel.id === targetId ? panel.classList.remove('hidden') : panel.classList.add('hidden');
+                        });
+                    });
+                });
+            }
+            
+            async function saveStartList() {
+                if (!teamFinalDraw || !teamFinalDraw.rotations) {
+                    alert("Não há sorteio para salvar. Por favor, gere um primeiro.");
+                    return;
+                }
+                try {
+                    await window.db.collection('start_lists').doc('team_final').set({ structure: teamFinalDraw, lastUpdated: new Date() });
+                    const saveBtn = document.getElementById('save-start-list');
+                    const originalText = saveBtn.innerHTML;
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+                    saveBtn.disabled = true;
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.disabled = false;
+                    }, 2000);
+                } catch (error) {
+                    console.error("Erro ao salvar start list:", error);
+                    alert("Erro ao salvar a ordem.");
+                }
+            }
+
+            document.getElementById('save-start-list').addEventListener('click', saveStartList);
+
+            function initializePage() {
+                if(window.db && window.auth) {
+                    window.auth.onAuthStateChanged(user => {
+                        if (user) {
+                            loadStartList();
+                        } else {
+                            window.location.href = 'login.html';
+                        }
+                    });
+                } else {
+                    setTimeout(initializePage, 100);
+                }
+            }
+
+            initializePage();
+        });
+    </script>
+</body>
+</html>
+

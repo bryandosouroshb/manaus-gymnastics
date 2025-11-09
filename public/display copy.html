@@ -1,0 +1,3194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/theme-manaus.css">
+    <title>Manaus 2025 - FX Scoreboard Display</title>
+    <style>
+        #enable-audio-btn { position: fixed; bottom: 20px; right: 20px; z-index: 1001; padding: 8px 12px; cursor: pointer; background-color: rgba(42, 42, 74, 0.8); color: #e0e0e0; border: 1px solid #4a4a7a; border-radius: 5px; font-weight: bold; font-size: 0.9em; box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: background-color 0.2s ease; }
+        #enable-audio-btn:hover { background-color: rgba(60, 60, 100, 0.9); border-color: #6a6aaf; }
+
+        .fx-telao-main { gap: 1vw; /* Reduzido */ }
+        /* FASE 2: Melhor design para VT - Código e DV - APRIMORADO */
+        .fx-vault-pre-score-info { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            width: 35vw; 
+            height: 100%; 
+            padding: 2vh 1vw; 
+            box-sizing: border-box; 
+            gap: 2vh; 
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(67, 56, 202, 0.15));
+            border-radius: 25px;
+            border: 2px solid rgba(102, 126, 234, 0.4);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fx-vault-pre-score-info::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            animation: vaultRotate 20s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes vaultRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fx-vault-pre-score-info .fx-status-indicator { 
+            font-size: clamp(32px, 6vw, 80px); 
+            width: 90%; 
+            min-height: 10vh; 
+            padding: 2vw 2.5vw; 
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(56, 142, 60, 0.25));
+            border: 3px solid rgba(76, 175, 80, 0.6);
+            border-radius: 20px;
+            text-shadow: 0 3px 15px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+            z-index: 2;
+            position: relative;
+            font-weight: 900;
+            letter-spacing: 2px;
+            backdrop-filter: blur(8px);
+        }
+        
+        .fx-vault-code-display { 
+            padding: 2.5vw 3vw; 
+            width: 90%; 
+            min-height: 14vh; 
+            background: linear-gradient(135deg, rgba(255, 224, 102, 0.2), rgba(255, 193, 7, 0.2));
+            border: 3px solid rgba(255, 224, 102, 0.7);
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
+
+        .fx-vault-code-display::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: vaultShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes vaultShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .fx-vault-code-value { 
+            font-size: clamp(28px, 5.5vw, 70px); 
+            color: #ffe066; 
+            font-weight: 900;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+            letter-spacing: 3px;
+            font-family: 'Montserrat', sans-serif;
+            z-index: 2;
+            position: relative;
+            text-transform: uppercase;
+        }
+
+        .fx-vault-score-details {
+            display: none; flex-direction: column; align-items: stretch; justify-content: space-around;
+            width: 48vw;
+            height: 100%; padding: 1vh 1vw; box-sizing: border-box;
+            gap: 1vh;
+        }
+        .vault-score-group { background-color: rgba(31, 31, 53, 0.7); padding: 1vh 1.5vw; border-radius: 8px; border: 1px solid #3a3a5e; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .vault-score-group h4 { color: #bdbddb; font-size: clamp(14px, 2.2vw, 26px); margin: 0 0 0.8vh 0; text-align: center; border-bottom: 1px solid #4a4a7a; padding-bottom: 0.5vh; flex-shrink: 0; }
+
+        .fx-vault-score-details .score-detail-item { display: flex; align-items: baseline; gap: 0.5vw; width: 100%; margin-bottom: 0.3vh; }
+        .fx-vault-score-details .score-detail-item.total { margin-top: 0.5vh; padding-top: 0.5vh; }
+        .fx-vault-score-details .score-detail-label { color: #a0a0c0; font-size: clamp(12px, 2vw, 22px); font-weight: 500; width: 30px; text-align: right; flex-shrink: 0;}
+        .fx-vault-score-details .score-detail-item.total .score-detail-label { width: auto; text-align: left; font-size: clamp(13px, 2.2vw, 24px); }
+        .fx-vault-score-details .score-detail-value { color: #ffffff; font-size: clamp(14px, 2.8vw, 30px); font-weight: bold; line-height: 1.1; }
+        .fx-vault-score-details .score-detail-value.total { color: #ffe066; font-size: clamp(16px, 3.2vw, 34px); }
+
+        .vault-score-average { margin-top: 1vh; padding: 1vh 1.5vw; border-radius: 8px; background-color: rgba(42, 42, 74, 0.85); border: 1px solid #0a8bec; text-align: center; flex-shrink: 0; }
+        .vault-score-average .score-detail-label.average-label { color: #e0e0e0; font-size: clamp(16px, 2.5vw, 30px); margin-bottom: 0.3vh; }
+        .vault-score-average .score-detail-value.average-value { color: #32cd32; font-size: clamp(20px, 3.8vw, 45px); }
+
+        /* Default vault mode: pre-score */
+        .fx-telao-main.vault-mode-pre-score .fx-status-block,
+        .fx-telao-main.vault-mode-pre-score .fx-score-details,
+        .fx-telao-main.vault-mode-pre-score .fx-vault-score-details  { display: none !important; }
+        .fx-telao-main.vault-mode-pre-score .fx-vault-pre-score-info { display: flex !important; }
+        .fx-telao-main.vault-mode-pre-score .fx-info-block { width: 60vw; }
+
+        /* Vault mode: post-score (for QF, VT Final - showing VT1, VT2, Avg) */
+        .fx-telao-main.vault-mode-post-score .fx-status-block,
+        .fx-telao-main.vault-mode-post-score .fx-score-details, /* Hide standard score block */
+        .fx-telao-main.vault-mode-post-score .fx-vault-pre-score-info { display: none !important; }
+        .fx-telao-main.vault-mode-post-score .fx-vault-score-details { display: flex !important; } /* Show full vault details */
+        .fx-telao-main.vault-mode-post-score .fx-info-block { width: 48vw; align-items: flex-start; padding-left: 1vw; }
+        .fx-telao-main.vault-mode-post-score #fx-rank-display { display: block !important; }
+
+        /* Vault mode: single-score-post (for AA Final, Team Final VT - showing only one vault score) */
+        .fx-telao-main.vault-mode-single-score-post .fx-status-block,
+        .fx-telao-main.vault-mode-single-score-post .fx-vault-pre-score-info,
+        .fx-telao-main.vault-mode-single-score-post .fx-vault-score-details { display: none !important; } /* Hide pre-info and multi-vault details */
+        .fx-telao-main.vault-mode-single-score-post .fx-score-details { display: flex !important; } /* Show standard single score block */
+        .fx-telao-main.vault-mode-single-score-post .fx-info-block { width: 55%; align-items: flex-start; padding-left: 5vw; } /* Adjust info block width like standard score display */
+        .fx-telao-main.vault-mode-single-score-post #fx-rank-display { display: block !important; }
+
+
+        /* Standard mode (UB, BB, FX) */
+        .fx-telao-main.standard-mode .fx-vault-pre-score-info,
+        .fx-telao-main.standard-mode .fx-vault-score-details { display: none !important; }
+
+        /* Timer de Aquecimento */
+        .warmup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.95), rgba(255, 82, 82, 0.95));
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .warmup-overlay.active {
+            display: flex;
+        }
+
+        .warmup-content {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4rem 6rem;
+            border-radius: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .warmup-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .warmup-timer {
+            font-size: 8rem;
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+            margin: 2rem 0;
+            text-shadow: 0 6px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .warmup-status {
+            font-size: 2rem;
+            font-weight: 600;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .warmup-progress {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+
+        .warmup-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            border-radius: 5px;
+            transition: width 1s ease;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+        }
+
+        /* Sistema de Recursos */
+        .inquiry-overlay {
+            position: fixed;
+            top: 15vh;
+            right: 3vw;
+            width: 450px;
+            max-width: 90vw;
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.95), rgba(245, 127, 23, 0.95));
+            color: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            z-index: 8000;
+            display: none;
+            animation: slideInRight 0.5s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .inquiry-overlay.active {
+            display: block;
+        }
+
+        .inquiry-overlay.resolved {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.95), rgba(25, 118, 210, 0.95));
+        }
+
+        .inquiry-overlay.rejected {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.95), rgba(211, 47, 47, 0.95));
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .inquiry-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .inquiry-content {
+            margin-bottom: 1rem;
+        }
+
+        .inquiry-gymnast {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .inquiry-type {
+            font-size: 1rem;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .inquiry-reason {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .inquiry-timestamp {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 1rem;
+        }
+
+        /* Seções de Resolução/Rejeição */
+        .inquiry-resolution {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .resolution-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .resolution-decision {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .resolution-justification {
+            font-style: italic;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .inquiry-overlay.resolved .resolution-title {
+            color: #90EE90;
+        }
+
+        .inquiry-overlay.rejected .resolution-title {
+            color: #FFB6C1;
+        }
+        .fx-telao-main.standard-mode .fx-status-block { display: flex !important; }
+        .fx-telao-main.standard-mode .fx-info-block { width: 65vw; }
+        /* Standard mode when score is active */
+        .fx-telao-main.standard-mode.score-display-active .fx-status-block { display: none !important; }
+        .fx-telao-main.standard-mode.score-display-active .fx-score-details { display: flex !important; }
+        .fx-telao-main.standard-mode.score-display-active .fx-info-block { width: 55%; align-items: flex-start; padding-left: 5vw; }
+        .fx-telao-main.standard-mode.score-display-active #fx-rank-display { display: block !important; }        /* Added style for empty list message for better visibility during debugging */
+        .list-item-empty {
+            color: #f0f0f0 !important; /* Brighter color */
+            text-align: center;
+            font-style: italic;
+            padding: 5vh 2vw !important; /* Increased padding */
+            font-size: clamp(20px, 3vw, 30px) !important; /* Larger font */
+            width: 100%;
+            display: block;
+            border: 1px dashed #4CAF50; /* Green dashed border */
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(42, 42, 74, 0.1));
+            border-radius: 12px;
+        }
+
+        /* FASE 2: Enhanced List Item Styles for TV Broadcasting */
+        .fx-startlist-screen .list-item,
+        .fx-results-screen .list-item { 
+            background: linear-gradient(135deg, rgba(42, 42, 74, 0.95), rgba(31, 31, 53, 0.98)); 
+            border: 2px solid rgba(76, 175, 80, 0.4); 
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transform: translateX(-80px) scale(0.95); 
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            gap: 15px;
+        }
+        
+        .fx-startlist-screen .list-item::before,
+        .fx-results-screen .list-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(135, 206, 235, 0.3), transparent);
+            transition: left 1.2s ease-in-out;
+            z-index: 1;
+        }
+        
+        .fx-startlist-screen .list-item.visible,
+        .fx-results-screen .list-item.visible { 
+            transform: translateX(0) scale(1); 
+        }
+        
+        .fx-startlist-screen .list-item.visible::before,
+        .fx-results-screen .list-item.visible::before {
+            left: 100%;
+        }
+        
+        .fx-startlist-screen .list-item:hover,
+        .fx-results-screen .list-item:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border-color: rgba(76, 175, 80, 0.8);
+        }
+
+        .fx-startlist-screen .item-order,
+        .fx-results-screen .item-order {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border-radius: 50%;
+            width: clamp(40px, 5vw, 60px);
+            height: clamp(40px, 5vw, 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: clamp(16px, 2.5vw, 24px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+            z-index: 2;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* FASE 2: Medalhas olímpicas - Agora controladas via JavaScript inline */
+
+        .fx-startlist-screen .item-flag,
+        .fx-results-screen .item-flag {
+            font-size: clamp(24px, 3vw, 36px);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .fx-startlist-screen .item-country,
+        .fx-results-screen .item-country {
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 700;
+            color: #4fd1c7;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+            position: relative;
+            width: 80px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .fx-startlist-screen .item-name,
+        .fx-results-screen .item-name {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 2;
+            position: relative;
+            min-width: 0;
+        }
+
+        .fx-startlist-screen .item-lastname,
+        .fx-results-screen .item-lastname {
+            font-size: clamp(20px, 3vw, 32px);
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            line-height: 1.1;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .fx-startlist-screen .item-firstname,
+        .fx-results-screen .item-firstname {
+            font-size: clamp(16px, 2.2vw, 24px);
+            font-weight: 500;
+            color: #a0a0c0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            line-height: 1.1;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .fx-startlist-screen .item-bib,
+        .fx-results-screen .item-bib {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: clamp(14px, 2vw, 20px);
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 2;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .fx-startlist-screen .item-score,
+        .fx-results-screen .item-score {
+            background: linear-gradient(135deg, rgba(30, 199, 115, 1), rgba(76, 175, 80, 1));
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 2px solid rgba(30, 199, 115, 1);
+            z-index: 10;
+            position: relative;
+            font-size: clamp(16px, 2.5vw, 24px);
+            font-weight: 900;
+            color: white !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            min-width: 80px;
+            text-align: center;
+            flex-shrink: 0;
+            box-shadow: 0 3px 12px rgba(30, 199, 115, 0.5);
+            margin: 0;
+            /* Nota principal - compacta e bem definida */
+        }
+
+        .fx-results-screen .item-score-diff {
+            color: #ff8c69;
+            font-size: clamp(12px, 1.8vw, 18px);
+            font-weight: 600;
+            opacity: 0.95;
+            background: rgba(255, 140, 105, 0.15);
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 140, 105, 0.3);
+            text-align: center;
+            width: fit-content;
+        }
+
+        .fx-results-screen .item-score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            min-width: 120px;
+            position: relative; /* Para posicionar o badge AA */
+        }
+
+        /* FASE 2: Badge AA Qualification */
+        .fx-results-screen .item-aa-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a1a;
+            font-size: clamp(9px, 1.4vw, 12px);
+            font-weight: 800;
+            padding: 3px 6px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(255, 215, 0, 0.4);
+            letter-spacing: 0.5px;
+            display: none;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            z-index: 15;
+            border: 1px solid rgba(255, 215, 0, 0.8);
+        }
+
+        .fx-results-screen .item-aa-badge.qualified {
+            display: block;
+        }
+
+        /* FASE 2: Header principal melhorado - estilo transmissão TV profissional */
+        .fx-telao-topbar {
+            background: linear-gradient(135deg, #c00 0%, #a00 50%, #800 100%);
+            background-size: 200% 200%;
+            animation: topbarGradient 15s ease infinite;
+            padding: 8px 3vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(192, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(192, 0, 0, 0.3);
+            height: 5vh;
+            font-size: clamp(12px, 1.4vw, 18px);
+            font-weight: 600;
+        }
+
+        @keyframes topbarGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .fx-telao-topbar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            animation: topbarShine 4s ease-in-out infinite;
+        }
+
+        @keyframes topbarShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .fx-telao-topbar span {
+            font-size: clamp(12px, 1.4vw, 18px);
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 2;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* Estilo específico para telas de lista (mantém centralizado) */
+        .fx-startlist-screen .fx-telao-topbar,
+        .fx-results-screen .fx-telao-topbar {
+            text-align: center;
+            justify-content: center;
+            padding: 25px 5vw;
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 35%, #3182ce 65%, #4299e1 100%);
+        }
+
+        .fx-startlist-screen .fx-telao-topbar span,
+        .fx-results-screen .fx-telao-topbar span {
+            background: linear-gradient(45deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* FASE 2: Responsividade aprimorada */
+        @media (max-width: 1200px) {
+            .fx-startlist-screen .list-item,
+            .fx-results-screen .list-item {
+                padding: 8px 15px;
+                gap: 10px;
+            }
+            
+            .fx-startlist-screen .item-country,
+            .fx-results-screen .item-country {
+                width: 60px;
+            }
+        }
+
+        /* FASE 2: Rank display elegante e melhorado */
+        .fx-rank-display {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.95), rgba(56, 142, 60, 0.95));
+            border: 2px solid rgba(76, 175, 80, 0.9);
+            border-radius: 15px;
+            padding: 12px 20px;
+            position: fixed;
+            top: 12vh;
+            right: 2vw;
+            min-width: auto;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            display: none !important;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            font-size: 16px;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+        }
+
+        .fx-rank-display::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .fx-rank-display:hover::before {
+            left: 100%;
+        }
+
+        .fx-rank-display.rank-update-animation {
+            animation: rankPulseEnhanced 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes rankPulseEnhanced {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.12) rotate(-2deg); box-shadow: 0 12px 35px rgba(255, 193, 7, 0.7); }
+            50% { transform: scale(1.08) rotate(1deg); }
+            75% { transform: scale(1.12) rotate(-1deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .fx-rank-display span:first-child {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            z-index: 2;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .fx-rank-display span:last-child {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 900;
+            font-family: 'Montserrat', sans-serif;
+            z-index: 2;
+            position: relative;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* FASE 2: Indicador de cálculo de notas */
+        .fx-calculating-indicator {
+            position: fixed;
+            top: 15vh;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.95), rgba(255, 193, 7, 0.95));
+            border: 2px solid rgba(255, 193, 7, 0.8);
+            border-radius: 15px;
+            padding: 15px 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: #1a365d;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            animation: calculatingPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes calculatingPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        .calculating-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .calculating-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(26, 54, 93, 0.3);
+            border-top: 3px solid #1a365d;
+            border-radius: 50%;
+            animation: calculatingSpinAnimation 1s linear infinite;
+        }
+
+        @keyframes calculatingSpinAnimation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* FASE 2: Flash visual para mudanças importantes */
+        .beep-flash {
+            animation: flashEffect 0.4s ease-out !important;
+        }
+
+        @keyframes flashEffect {
+            0% { background-color: rgba(255, 255, 255, 0.1); }
+            50% { background-color: rgba(255, 193, 7, 0.4); }
+            100% { background-color: transparent; }
+        }
+
+        /* FASE 2: Melhor adaptação para diferentes tamanhos de tela */
+        @media (max-width: 1600px) {
+            .fx-main-content {
+                padding: 15px;
+            }
+            
+            .fx-rank-display {
+                right: 2vw;
+                top: 10vh;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .fx-telao-main {
+                gap: 0.8vw;
+            }
+            
+            .fx-info-block {
+                padding: 1.5vh 1vw;
+            }
+            
+            .fx-rank-display {
+                position: fixed;
+                top: 8vh;
+                right: 2vw;
+                font-size: 12px;
+            }
+            
+            .fx-telao-topbar {
+                padding: 20px 3vw; /* Reduzido em telas médias */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .fx-telao-main {
+                flex-direction: column;
+                gap: 2vh;
+            }
+            
+            .fx-status-block,
+            .fx-vault-pre-score-info,
+            .fx-info-block,
+            .fx-score-details,
+            .fx-vault-score-details {
+                width: 100% !important;
+            }
+            
+            .fx-rank-display {
+                position: fixed;
+                top: 5vh;
+                right: 1vw;
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            
+            .fx-rank-display span:last-child {
+                font-size: 14px;
+            }
+            
+            .fx-telao-topbar {
+                padding: 15px 2vw; /* Ainda mais reduzido em mobile */
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .fx-telao-topbar span {
+                font-size: clamp(20px, 5vw, 36px);
+            }
+        }
+
+        /* ===== TELAS ESPECIAIS PARA EFEITOS SONOROS ===== */
+        .special-screen {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Tela de Boas-vindas */
+        .welcome-container {
+            text-align: center;
+            color: #ffffff;
+            z-index: 2;
+        }
+
+        .welcome-title {
+            font-size: clamp(2rem, 8vw, 8rem);
+            font-weight: 900;
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: welcomeGradient 3s ease-in-out infinite;
+            margin: 0;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .welcome-subtitle {
+            font-size: clamp(1.5rem, 6vw, 6rem);
+            font-weight: 700;
+            color: #ffd700;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            animation: welcomePulse 2s ease-in-out infinite;
+        }
+
+        .welcome-manaus-rings {
+            font-size: clamp(1rem, 4vw, 4rem);
+            margin-top: 40px;
+            animation: welcomeFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes welcomeGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes welcomePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes welcomeFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Tela do Hino da Bélgica */
+        .anthem-container {
+            text-align: center;
+            color: #ffffff;
+            z-index: 2;
+        }
+
+        .belgium-flag {
+            width: 40vw;
+            height: 25vh;
+            margin: 0 auto 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: flagWave 4s ease-in-out infinite;
+        }
+
+        .flag-stripe {
+            height: 33.33%;
+            width: 100%;
+        }
+
+        .flag-stripe.black { background: #000000; }
+        .flag-stripe.yellow { background: #FFD100; }
+        .flag-stripe.red { background: #FF0000; }
+
+        .anthem-title {
+            font-size: clamp(1.5rem, 5vw, 5rem);
+            font-weight: 700;
+            margin: 20px 0;
+            color: #FFD100;
+            text-shadow: 0 0 30px rgba(255, 209, 0, 0.8);
+        }
+
+        .anthem-subtitle {
+            font-size: clamp(1rem, 4vw, 4rem);
+            font-weight: 500;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes flagWave {
+            0%, 100% { transform: scale(1) rotateY(0deg); }
+            50% { transform: scale(1.02) rotateY(2deg); }
+        }
+
+        /* Tela de Recepção de Países */
+        .reception-container {
+            text-align: center;
+            color: #ffffff;
+            z-index: 2;
+            width: 90%;
+        }
+
+        .country-flag {
+            width: 35vw;
+            height: 20vh;
+            margin: 0 auto 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: flagWave 4s ease-in-out infinite;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .reception-title {
+            font-size: clamp(2rem, 8vw, 8rem);
+            font-weight: 700;
+            margin: 20px 0;
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+
+        .athletes-list {
+            font-size: clamp(0.8rem, 2.5vw, 2.5rem);
+            line-height: 1.6;
+            color: #ffffff;
+            max-height: 30vh;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Tela de Instruções Finais */
+        .instructions-container {
+            text-align: center;
+            color: #ffffff;
+            z-index: 2;
+        }
+
+        .instructions-title {
+            font-size: clamp(4rem, 15vw, 15rem);
+            font-weight: 900;
+            font-family: 'Orbitron', monospace;
+            color: #ff0000;
+            text-shadow: 0 0 50px rgba(255, 0, 0, 1);
+            animation: attentionBlink 1s ease-in-out infinite;
+            margin: 0;
+        }
+
+        @keyframes attentionBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+    </style>
+</head>
+<body class="fx-scoreboard-page">
+    <div class="fx-telao-container">
+    <!-- Top Bar with MANAUS 2025 and OMEGA -->
+        <div class="fx-telao-topbar">
+            <span>MANAUS 2025</span>
+            <span>OMEGA</span>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="fx-main-content" id="fx-main-content">
+            <!-- Timer de Aquecimento Overlay -->
+            <div class="warmup-overlay" id="warmup-overlay">
+                <div class="warmup-content">
+                    <div class="warmup-title">Aquecimento</div>
+                    <div class="warmup-timer" id="warmup-timer-display">00:00</div>
+                    <div class="warmup-status" id="warmup-status-display">Preparando...</div>
+                    <div class="warmup-progress">
+                        <div class="warmup-progress-bar" id="warmup-progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sistema de Recursos Overlay -->
+            <div class="inquiry-overlay" id="inquiry-overlay">
+                <div class="inquiry-title" id="inquiry-title">
+                    <span>⚖️ Recurso Submetido</span>
+                </div>
+                <div class="inquiry-content">
+                    <div class="inquiry-gymnast" id="inquiry-gymnast">Nome da Ginasta</div>
+                    <div class="inquiry-type" id="inquiry-type-display">Tipo de Recurso</div>
+                    <div class="inquiry-reason" id="inquiry-reason-display">Motivo do recurso...</div>
+                    
+                    <!-- NOVA SEÇÃO: Resolução/Rejeição -->
+                    <div class="inquiry-resolution" id="inquiry-resolution" style="display: none;">
+                        <div class="resolution-title" id="resolution-title">✅ Recurso Resolvido</div>
+                        <div class="resolution-content" id="resolution-content">
+                            <div class="resolution-decision" id="resolution-decision"></div>
+                            <div class="resolution-justification" id="resolution-justification"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="inquiry-timestamp" id="inquiry-timestamp">--:--</div>
+            </div>
+
+            <!-- FASE 2: Indicador de cálculo de notas -->
+            <div class="fx-calculating-indicator" id="fx-calculating-indicator">
+                <div class="calculating-content">
+                    <div class="calculating-spinner"></div>
+                    <span>NOTAS SENDO CALCULADAS...</span>
+                </div>
+            </div>
+
+            <!-- Timer/Score Screen (Main Display) -->
+            <div class="screen-view fx-telao-main" id="fx-timer-score-screen">
+                <!-- Status Block (Timer/Status) -->
+                <div class="fx-status-block" id="fx-status-block">
+                    <div class="fx-status-indicator" id="fx-status-indicator">WAIT</div>
+                    <div class="fx-status-timer" id="fx-timer">0:00</div>
+                </div>
+
+                <!-- Vault Pre-Score Info Block -->
+                <div class="fx-vault-pre-score-info" id="fx-vault-pre-score-info">
+                    <div class="fx-status-indicator" id="fx-vault-status-indicator-alt">WAIT</div>
+                    <div class="fx-vault-code-display">
+                        <div class="fx-vault-code-value" id="fx-vault-code-value">DV 0.00</div>
+                    </div>
+                </div>
+
+                <!-- Info Block (Gymnast Info) -->
+                <div class="fx-info-block" id="fx-info-block">
+                    <div class="fx-gymnast-id-row">
+                        <div class="fx-apparatus-icon" id="fx-apparatus-icon">FX</div>
+                        <div class="fx-country" id="fx-country">
+                            <span class="fx-country-flag fi" id="fx-country-flag"></span>
+                            <span id="fx-country-code">---</span>
+                        </div>
+                    </div>
+                    <div class="fx-gymnast-name-display">
+                        <div class="fx-gymnast-lastname" id="fx-gymnast-lastname">SOBRENOME</div>
+                        <div class="fx-gymnast-firstname" id="fx-gymnast-firstname">Nome</div>
+                    </div>
+                </div>
+
+                <!-- Score Details Block (Standard) -->
+                <div class="fx-score-details" id="fx-score-details">
+                    <div class="score-detail-item">
+                        <div class="score-detail-label">D</div>
+                        <div class="score-detail-value" id="fx-score-d">0.00</div>
+                    </div>
+                    <div class="score-detail-item">
+                        <div class="score-detail-label">E</div>
+                        <div class="score-detail-value" id="fx-score-e">0.000</div>
+                    </div>
+                    <div class="score-detail-item">
+                        <div class="score-detail-label">P</div>
+                        <div class="score-detail-value" id="fx-score-p">0.00</div>
+                    </div>
+                    <div class="score-detail-item total">
+                        <div class="score-detail-label">TOTAL</div>
+                        <div class="score-detail-value total" id="fx-score-total">0.000</div>
+                    </div>
+                </div>
+
+                <!-- Vault Score Details Block -->
+                <div class="fx-vault-score-details" id="fx-vault-score-details">
+                    <div class="vault-score-group">
+                        <h4>SALTO 1</h4>
+                        <div class="score-detail-item">
+                            <div class="score-detail-label">D</div>
+                            <div class="score-detail-value" id="fx-vault-vt1-d">0.00</div>
+                        </div>
+                        <div class="score-detail-item">
+                            <div class="score-detail-label">E</div>
+                            <div class="score-detail-value" id="fx-vault-vt1-e">0.000</div>
+                        </div>
+                        <div class="score-detail-item">
+                            <div class="score-detail-label">P</div>
+                            <div class="score-detail-value" id="fx-vault-vt1-p">0.00</div>
+                        </div>
+                        <div class="score-detail-item total">
+                            <div class="score-detail-label">TOTAL</div>
+                            <div class="score-detail-value total" id="fx-vault-vt1-total">0.000</div>
+                        </div>
+                    </div>
+                    <div class="vault-score-group">
+                        <h4>SALTO 2</h4>
+                        <div class="score-detail-item">
+                            <div class="score-detail-label">D</div>
+                            <div class="score-detail-value" id="fx-vault-vt2-d">0.00</div>
+                        </div>
+                        <div class="score-detail-item">
+                            <div class="score-detail-label">E</div>
+                            <div class="score-detail-value" id="fx-vault-vt2-e">0.000</div>
+                        </div>
+                        <div class="score-detail-item">
+                            <div class="score-detail-label">P</div>
+                            <div class="score-detail-value" id="fx-vault-vt2-p">0.00</div>
+                        </div>
+                        <div class="score-detail-item total">
+                            <div class="score-detail-label">TOTAL</div>
+                            <div class="score-detail-value total" id="fx-vault-vt2-total">0.000</div>
+                        </div>
+                    </div>
+                    <div class="vault-score-average">
+                        <div class="score-detail-label average-label">MÉDIA</div>
+                        <div class="score-detail-value average-value" id="fx-vault-average-total">0.000</div>
+                    </div>
+                </div>
+
+                <!-- Rank Display -->
+                <div class="fx-rank-display" id="fx-rank-display">
+                    <span>RANK</span>
+                    <span id="fx-rank-value">--</span>
+                </div>
+            </div>
+            
+            <!-- Start List Screen -->
+            <div class="screen-view fx-startlist-screen" id="fx-startlist-screen">
+                <div class="fx-telao-topbar">
+                    <span id="startlist-title">Start List</span>
+                </div>
+                <div class="fx-screen-content">
+                    <ul class="list-items-container" id="startlist-items"></ul>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="screen-view fx-results-screen" id="fx-results-screen">
+                <div class="fx-telao-topbar">
+                    <span id="results-title">Results</span>
+                </div>
+                <div class="fx-screen-content">
+                    <ul class="list-items-container" id="results-items"></ul>
+                </div>
+            </div>
+
+            <!-- TELAS ESPECIAIS PARA EFEITOS SONOROS -->
+            <!-- Tela de Boas-vindas -->
+            <div class="screen-view special-screen" id="welcome-screen" style="display: none;">
+                <div class="welcome-container">
+                    <h1 class="welcome-title">BOAS-VINDAS A</h1>
+                    <h2 class="welcome-subtitle">MANAUS 2025</h2>
+                    <div class="welcome-manaus-rings">🤸‍♀️ 🏆 🥇</div>
+                </div>
+            </div>
+
+            <!-- Tela do HINO BRASIL -->
+            <div class="screen-view special-screen" id="brazil-anthem-screen" style="display: none;">
+                <div class="anthem-container">
+                    <div class="belgium-flag">
+                        <div class="flag-stripe black"></div>
+                        <div class="flag-stripe yellow"></div>
+                        <div class="flag-stripe red"></div>
+                    </div>
+                    <h2 class="anthem-title">HINO NACIONAL</h2>
+                    <h3 class="anthem-subtitle">BÉLGICA</h3>
+                </div>
+            </div>
+
+            <!-- Tela de Recepção de Países -->
+            <div class="screen-view special-screen" id="country-reception-screen" style="display: none;">
+                <div class="reception-container">
+                    <div class="country-flag" id="reception-flag"></div>
+                    <h2 class="reception-title" id="reception-country">CHINA</h2>
+                    <div class="athletes-list" id="reception-athletes"></div>
+                </div>
+            </div>
+
+            <!-- Tela de Instruções Finais -->
+            <div class="screen-view special-screen" id="final-instructions-screen" style="display: none;">
+                <div class="instructions-container">
+                    <h1 class="instructions-title">ATENÇÃO</h1>
+                </div>
+            </div>
+        </div>
+        
+        <audio id="gymnast-audio" preload="auto"></audio>
+        <audio id="beep-audio" preload="auto">
+            <source src="audio/beep.mp3" type="audio/mpeg">
+            <source src="audio/beep.wav" type="audio/wav">
+            <source src="audio/beep.ogg" type="audio/ogg">
+        </audio>
+        <!-- Warmup Audio Elements -->
+        <audio id="warmup-start-audio" preload="auto">
+            <source src="audio/warmup-start.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="warmup-music-1min" preload="auto" loop>
+            <source src="audio/warmup-music-1min.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="warmup-music-4min" preload="auto" loop>
+            <source src="audio/warmup-music-1min.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="warmup-end-audio" preload="auto">
+            <source src="audio/warmup-end.mp3" type="audio/mpeg">
+        </audio>
+        <button id="enable-audio-btn">Habilitar Áudio</button>
+        <div class="fx-controls" style="display: none !important;"></div>
+    </div>
+
+    <script src="js/countries.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/calculation-logic.js"></script>
+    <script>
+        // Use Firebase v8 syntax - variables are available globally from firebase-init.js
+        // calculation-logic.js functions are available globally
+        const db = window.db;
+        
+        let allGymnastData = [];let fxStartListStructure = null; let fxStartList = [];
+        let currentIndex = 0; let currentPhase = 'fx_final'; let currentApparatus = 'fx'; let activeVaultNum = 1;
+        let currentSubdivIdx = null; let currentRotIdx = null;
+        let timerState = 'wait'; 
+        let elapsedSeconds = 0; 
+        let timerInterval = null;
+        let lastBeepTime = 0; // Track last beep to avoid duplicates
+        let audioEnabled = false; // Track audio permission
+        
+        let visibleScreen = 'timer'; // Initial screen
+        let currentDisplayVaultCode = 'DV 0.00'; let currentDisplayVaultDV = '0.00';        const mainContent = document.getElementById('fx-main-content'); const timerScoreScreen = document.getElementById('fx-timer-score-screen'); const startListScreen = document.getElementById('fx-startlist-screen'); const resultsScreen = document.getElementById('fx-results-screen'); const statusIndicator = document.getElementById('fx-status-indicator'); const timerDisplay = document.getElementById('fx-timer'); const statusBlock = document.getElementById('fx-status-block'); const infoBlock = document.getElementById('fx-info-block'); const scoresBlock = document.getElementById('fx-score-details'); const lastNameEl = document.getElementById('fx-gymnast-lastname'); const firstNameEl = document.getElementById('fx-gymnast-firstname'); const apparatusIconEl = document.getElementById('fx-apparatus-icon'); const countryCodeEl = document.getElementById('fx-country-code'); const countryFlagEl = document.getElementById('fx-country-flag'); const rankDisplayEl = document.getElementById('fx-rank-display'); const rankValueEl = document.getElementById('fx-rank-value'); const scoreDEl = document.getElementById('fx-score-d'); const scoreEEl = document.getElementById('fx-score-e'); const scorePEl = document.getElementById('fx-score-p'); const scoreTotalEl = document.getElementById('fx-score-total');
+        const vaultPreScoreInfo = document.getElementById('fx-vault-pre-score-info'); const vaultStatusIndicatorAlt = document.getElementById('fx-vault-status-indicator-alt'); const vaultCodeValueEl = document.getElementById('fx-vault-code-value'); const vaultScoreDetails = document.getElementById('fx-vault-score-details'); const vaultVt1DEl = document.getElementById('fx-vault-vt1-d'); const vaultVt1EEl = document.getElementById('fx-vault-vt1-e'); const vaultVt1PEl = document.getElementById('fx-vault-vt1-p'); const vaultVt1TotalEl = document.getElementById('fx-vault-vt1-total'); const vaultVt2DEl = document.getElementById('fx-vault-vt2-d'); const vaultVt2EEl = document.getElementById('fx-vault-vt2-e'); const vaultVt2PEl = document.getElementById('fx-vault-vt2-p'); const vaultVt2TotalEl = document.getElementById('fx-vault-vt2-total'); const vaultAverageTotalEl = document.getElementById('fx-vault-average-total');
+        const startListItemsUl = document.getElementById('startlist-items'); const startListTitleEl = document.getElementById('startlist-title'); const resultsItemsUl = document.getElementById('results-items'); const resultsTitleEl = document.getElementById('results-title');
+        const gymnastAudioElement = document.getElementById('gymnast-audio');
+        const beepAudioElement = document.getElementById('beep-audio');
+        const enableAudioBtn = document.getElementById('enable-audio-btn');
+        const warmupStartAudio = document.getElementById('warmup-start-audio');
+        const warmupMusic1Min = document.getElementById('warmup-music-1min');
+        const warmupMusic4Min = document.getElementById('warmup-music-4min');
+        const warmupEndAudio = document.getElementById('warmup-end-audio');
+
+        // Aguardar Firebase estar pronto antes de inicializar listeners
+        function initializeDisplayWhenReady() {
+            if (window.db) {
+                initializeFirebaseListeners();
+            } else {
+                setTimeout(initializeDisplayWhenReady, 100);
+            }
+        }
+
+        function initializeFirebaseListeners() {
+            const unsubscribeGymnasts = window.db.collection("new_gymnasts").onSnapshot((snapshot)=>{ let d=[]; snapshot.forEach((doc)=>{const a=doc.data(); if(!a.id)a.id=doc.id; d.push(a);}); allGymnastData=d; if(fxStartListStructure)syncDisplay(); },(e)=>console.error("Err G:",e));
+            
+            // Listener específico para dados de duplicação da Final por Equipes
+            window.teamFinalDrawGlobal = null;
+            const unsubscribeTeamFinalDraw = window.db.collection("start_lists").doc("team_final").onSnapshot((doc) => {
+                if (doc.exists) {
+                    window.teamFinalDrawGlobal = doc.data();
+                    console.log("[TEAM FINAL DRAW] Updated:", window.teamFinalDrawGlobal);
+                }
+            }, (error) => console.error("Err Team Final Draw:", error));
+            
+            // Inicializar estrutura de start list
+            listenStartListStructure(currentPhase.split('|')[0]);
+        }
+
+        // Inicializar quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDisplayWhenReady);
+        } else {
+            initializeDisplayWhenReady();
+        }
+        
+        let unsubscribeStructure = null; function listenStartListStructure(phase){ if(unsubscribeStructure)unsubscribeStructure(); const bP=phase.split('|')[0]; const r=window.db.collection("start_lists").doc(bP); unsubscribeStructure=r.onSnapshot((s)=>{fxStartListStructure=s.exists?s.data().structure:null; if(!fxStartListStructure)console.warn(`Str ${bP} NF.`); syncDisplay();},(e)=>console.error(`Err L Str ${bP}:`,e)); }        function loadFXStartList(){ 
+            console.log(`[loadFXStartList] P=${currentPhase},A=${currentApparatus},S=${currentSubdivIdx},R=${currentRotIdx},VT=${activeVaultNum},I=${currentIndex}`); 
+            console.log(`[loadFXStartList] fxStartListStructure:`, fxStartListStructure);
+            
+            if (!fxStartListStructure) { 
+                console.log(`[loadFXStartList] No structure available, using fallback logic for apparatus ${currentApparatus}`);
+                // USAR A MESMA LÓGICA DOS OUTROS ARQUIVOS
+                const basePhase = currentPhase.split('|')[0];
+                
+                if (basePhase.endsWith('_final') && currentApparatus) {
+                    // Apparatus finals fallback: use same logic as control.html
+                    const qualifiersGymnasts = allGymnastData.filter(gymnast => {
+                        const qualifiersScores = gymnast.scores?.qualifiers;
+                        if (!qualifiersScores) return false;
+                        if (currentApparatus === 'vt') {
+                            return qualifiersScores.qualifiers_vt1_d !== undefined || qualifiersScores.qualifiers_vt_d !== undefined;
+                        } else {
+                            return qualifiersScores[`qualifiers_${currentApparatus}_d`] !== undefined;
+                        }
+                    }).map(gymnast => {
+                        const qualifiersScores = gymnast.scores.qualifiers;
+                        let score = 0;
+                        if (currentApparatus === 'vt') {
+                            if (qualifiersScores.qualifiers_vt1_d !== undefined) {
+                                const vt1Total = Math.max(0, (qualifiersScores.qualifiers_vt1_d || 0) + (qualifiersScores.qualifiers_vt1_e || 0) - (qualifiersScores.qualifiers_vt1_p || 0));
+                                const vt2Total = Math.max(0, (qualifiersScores.qualifiers_vt2_d || 0) + (qualifiersScores.qualifiers_vt2_e || 0) - (qualifiersScores.qualifiers_vt2_p || 0));
+                                score = (vt1Total + vt2Total) / 2;
+                            } else {
+                                score = Math.max(0, (qualifiersScores.qualifiers_vt_d || 0) + (qualifiersScores.qualifiers_vt_e || 0) - (qualifiersScores.qualifiers_vt_p || 0));
+                            }
+                        } else {
+                            score = Math.max(0, (qualifiersScores[`qualifiers_${currentApparatus}_d`] || 0) + (qualifiersScores[`qualifiers_${currentApparatus}_e`] || 0) - (qualifiersScores[`qualifiers_${currentApparatus}_p`] || 0));
+                        }
+                        return { ...gymnast, [`${currentApparatus}Score`]: score };
+                    });
+                    qualifiersGymnasts.sort((a, b) => b[`${currentApparatus}Score`] - a[`${currentApparatus}Score`]);
+                    // Max 2 per country, top 8
+                    const list = [];
+                    const countryCount = {};
+                    for (const gymnast of qualifiersGymnasts) {
+                        if (list.length >= 8) break;
+                        if (!countryCount[gymnast.country]) countryCount[gymnast.country] = 0;
+                        if (countryCount[gymnast.country] < 2) {
+                            list.push(gymnast);
+                            countryCount[gymnast.country]++;
+                        }
+                    }
+                    fxStartList = list.map(g => ({ id: g.id, name: g.name, country: g.country, bib: g.bib }));
+                } else if (basePhase === 'qualifiers') {
+                    fxStartList = allGymnastData.filter(g => {
+                        const phaseScores = g.scores?.qualifiers || {};
+                        if (currentApparatus === 'vt') {
+                            return phaseScores['qualifiers_vt1_d'] !== undefined || phaseScores['qualifiers_vt_d'] !== undefined;
+                        } else {
+                            return phaseScores[`qualifiers_${currentApparatus}_d`] !== undefined;
+                        }
+                    }).map(g => ({ id: g.id, name: g.name, country: g.country, bib: g.bib }));
+                } else if (basePhase === 'team_final') {
+                    // Top 4 teams qualified
+                    const teamResults = calculateTeamScores(allGymnastData).slice(0, 4);
+                    const qualifyingCountries = teamResults.map(t => t.country);
+                    fxStartList = allGymnastData.filter(a => qualifyingCountries.includes(a.country))
+                        .map(g => ({ id: g.id, name: g.name, country: g.country, bib: g.bib }));
+                } else if (basePhase === 'aa_final') {
+                    // AA finalists
+                    const aaScoresFromQualifiers = calculateAAScores(allGymnastData);
+                    const aaFinalists = applyMaxPerCountry(aaScoresFromQualifiers, 8, 2);
+                    const finalistIds = new Set(aaFinalists.map(f => f.id));
+                    fxStartList = allGymnastData.filter(a => finalistIds.has(a.id))
+                        .map(g => ({ id: g.id, name: g.name, country: g.country, bib: g.bib }));
+                }
+                
+                console.log(`[loadFXStartList] Fallback list created with ${fxStartList.length} gymnasts for ${basePhase}`);
+                return; 
+            }
+            
+            let list = []; 
+            const sT = fxStartListStructure.type; 
+            console.log(`[loadFXStartList] Structure type: ${sT}`);
+            
+            try { 
+                if (sT === 'apparatus_final' && currentApparatus && allGymnastData.length > 0) { 
+                    // Para finais por aparelhos, calcular diretamente das qualificatórias
+                    console.log(`[Display] Calculando ginastas para final de ${currentApparatus}...`);
+                    
+                    if (currentApparatus === 'vt') {
+                        // VT Final - calcular com média dos dois saltos
+                        const qualifiersGymnasts = allGymnastData.filter(gymnast => {
+                            const qualifiersScores = gymnast.scores?.qualifiers;
+                            return qualifiersScores && (
+                                qualifiersScores.qualifiers_vt1_d !== undefined || 
+                                qualifiersScores.qualifiers_vt_d !== undefined
+                            );
+                        }).map(gymnast => {
+                            const qualifiersScores = gymnast.scores.qualifiers;
+                            let vtScore = 0;
+                            
+                            if (qualifiersScores.qualifiers_vt1_d !== undefined) {
+                                const vt1Total = Math.max(0, (qualifiersScores.qualifiers_vt1_d || 0) + (qualifiersScores.qualifiers_vt1_e || 0) - (qualifiersScores.qualifiers_vt1_p || 0));
+                                const vt2Total = Math.max(0, (qualifiersScores.qualifiers_vt2_d || 0) + (qualifiersScores.qualifiers_vt2_e || 0) - (qualifiersScores.qualifiers_vt2_p || 0));
+                                vtScore = (vt1Total + vt2Total) / 2;
+                            } else {
+                                vtScore = Math.max(0, (qualifiersScores.qualifiers_vt_d || 0) + (qualifiersScores.qualifiers_vt_e || 0) - (qualifiersScores.qualifiers_vt_p || 0));
+                            }
+                            
+                            return { ...gymnast, vtAverage: vtScore };
+                        });
+
+                        qualifiersGymnasts.sort((a, b) => b.vtAverage - a.vtAverage);
+
+                        // Aplicar regra de máximo 2 por país
+                        const qualifiedList = [];
+                        const countryCount = {};
+
+                        for (const gymnast of qualifiersGymnasts) {
+                            if (qualifiedList.length >= 8) break;
+                            
+                            if (!countryCount[gymnast.country]) {
+                                countryCount[gymnast.country] = 0;
+                            }
+                            
+                            if (countryCount[gymnast.country] < 2) {
+                                qualifiedList.push(gymnast);
+                                countryCount[gymnast.country]++;
+                            }
+                        }
+                        
+                        list = qualifiedList.map(g => ({ id: g.id, name: g.name, country: g.country, bib: g.bib }));
+                    } else {
+                        // Outras finais (UB, BB, FX)
+                        const qualifiersGymnasts = allGymnastData.filter(gymnast => {
+                            const qualifiersScores = gymnast.scores?.qualifiers;
+                            return qualifiersScores && (
+                                qualifiersScores[`qualifiers_${currentApparatus}_d`] !== undefined
+                            );
+                        }).map(gymnast => {
+                            const qualifiersScores = gymnast.scores.qualifiers;
+                            const apparatusScore = Math.max(0, (qualifiersScores[`qualifiers_${currentApparatus}_d`] || 0) + (qualifiersScores[`qualifiers_${currentApparatus}_e`] || 0) - (qualifiersScores[`qualifiers_${currentApparatus}_p`] || 0));
+                            return { ...gymnast, [`${currentApparatus}Score`]: apparatusScore };
+                        });
+
+                        qualifiersGymnasts.sort((a, b) => b[`${currentApparatus}Score`] - a[`${currentApparatus}Score`]);
+
+                        // Aplicar regra de máximo 2 por país
+                        const qualifiedList = [];
+                        const countryCount = {};
+
+                        for (const gymnast of qualifiersGymnasts) {
+                            if (qualifiedList.length >= 8) break;
+                            
+                            if (!countryCount[gymnast.country]) {
+                                countryCount[gymnast.country] = 0;
+                            }
+                            
+                            if (countryCount[gymnast.country] < 2) {
+                                qualifiedList.push(gymnast);
+                                countryCount[gymnast.country]++;
+                            }
+                        }
+                        
+                        list = qualifiedList.map(g => ({ id: g.id, name: g.name, country: g.country, bib: g.bib }));
+                    }
+                    
+                    console.log(`[Display] ${list.length} ginastas qualificadas para final de ${currentApparatus}:`, list.map(g => `${g.name} (${g.country})`));
+                } else if (sT === 'qualifiers' && currentRotIdx !== null && currentApparatus) { 
+                    // Preserve exact order from saved structure
+                    // Check if using subdivisions (old format) or direct rotations (new format)
+                    const rotationsToProcess = fxStartListStructure.subdivisions ? 
+                        fxStartListStructure.subdivisions[0]?.rotations || [] : 
+                        fxStartListStructure.rotations || [];
+                        
+                    const savedAthletes = rotationsToProcess[currentRotIdx]?.apparatus?.[currentApparatus] || [];
+                    list = savedAthletes.map(savedAthlete => {
+                        const freshData = allGymnastData.find(g => g.id === savedAthlete.id);
+                        return freshData ? { id: freshData.id, name: freshData.name, country: freshData.country, bib: freshData.bib } : 
+                               { id: savedAthlete.id, name: savedAthlete.name, country: savedAthlete.country, bib: savedAthlete.bib };
+                    });
+                    console.log(`[loadFXStartList] Qualifiers R${currentRotIdx} ${currentApparatus}: found ${list.length} athletes with fresh data (order preserved)`);
+                } else if ((sT === 'team_final' || sT === 'aa_final') && currentRotIdx !== null && currentApparatus) { 
+                    // Preserve exact order from saved structure
+                    // Convert apparatus to uppercase to match Firebase structure
+                    const apparatusKey = currentApparatus.toUpperCase();
+                    const savedAthletes = fxStartListStructure.rotations?.[currentRotIdx]?.apparatus?.[apparatusKey] || [];
+                    
+                    // For team final, load ALL athletes from the apparatus (not just first 3)
+                    // This shows all countries' athletes for the selected apparatus, maintaining order
+                    
+                    list = savedAthletes.map(savedAthlete => {
+                        const freshData = allGymnastData.find(g => g.id === savedAthlete.id);
+                        return freshData ? { id: freshData.id, name: freshData.name, country: freshData.country, bib: freshData.bib } : 
+                               { id: savedAthlete.id, name: savedAthlete.name, country: savedAthlete.country, bib: savedAthlete.bib };
+                    });
+                    console.log(`[loadFXStartList] ${sT} R${currentRotIdx} ${currentApparatus}: found ${list.length} athletes with fresh data (order preserved)`);
+                } else {
+                    console.log(`[loadFXStartList] No matching structure path, creating fallback`);
+                    // Fallback for unmatched cases
+                    const basePhase = currentPhase.split('|')[0];
+                    list = allGymnastData.filter(g => {
+                        if (!g.scores || !g.scores[basePhase]) return false;
+                        const phaseScores = g.scores[basePhase];
+                        
+                        if (currentApparatus === 'vt') {
+                            return phaseScores.vt_d !== undefined || phaseScores.vt1_d !== undefined;
+                        } else {
+                            return phaseScores[`${currentApparatus}_d`] !== undefined;
+                        }
+                    }).map(g => ({ id: g.id, name: g.name, country: g.country, bib: g.bib }));
+                }
+            } catch (e) { 
+                console.error(`[loadFXStartList] Error accessing structure:`,e); 
+                list = []; 
+            } 
+            
+            fxStartList = list.filter(g => g && g.id) || []; 
+            console.log(`[loadFXStartList] Final list has ${fxStartList.length} athletes:`, fxStartList);
+        }
+          function syncDisplay(){
+            console.log("[syncDisplay] Starting sync. allGymnastData length:", allGymnastData.length);
+            loadFXStartList();
+            if (currentIndex >= fxStartList.length) currentIndex = fxStartList.length > 0 ? fxStartList.length - 1 : 0;
+            if (currentIndex < 0) currentIndex = 0;
+
+            updateGymnastInfoOnDisplay();
+            
+            console.log(`[syncDisplay] visibleScreen=${visibleScreen}, fxStartList.length=${fxStartList.length}`);
+            
+            if (visibleScreen === 'startlist') {
+                console.log("[syncDisplay] Calling populateStartList");
+                populateStartList();
+            } else if (visibleScreen === 'results') {
+                console.log("[syncDisplay] Calling populateResultsList");
+                populateResultsList();
+            } else if (visibleScreen === 'timer') {
+                console.log("[syncDisplay] Updating timer mode");
+                updateMainDisplayMode();
+            }
+        }
+
+        function updateRankDisplay() {
+            const g = fxStartList[currentIndex];
+            if (!g) return;
+            
+            const newRank = calculateCurrentRank(g);
+            const currentRankText = rankValueEl?.textContent || '';
+            
+            if (newRank !== currentRankText && newRank !== '--' && newRank !== 'ERR') {
+                // FASE 2: Animação de mudança de rank
+                if (rankDisplayEl) {
+                    rankDisplayEl.classList.add('rank-update-animation');
+                    setTimeout(() => {
+                        rankDisplayEl.classList.remove('rank-update-animation');
+                    }, 800);
+                }
+            }
+            
+            if (rankValueEl) rankValueEl.textContent = newRank;
+            console.log(`[updateRankDisplay] Updated rank for ${g.name}: ${newRank}`);
+        }
+
+        function updateGymnastInfoOnDisplay() {
+            const g = fxStartList[currentIndex];
+
+            if (g && g.name) { const { firstName, lastName } = splitName(g.name); lastNameEl.textContent = lastName; firstNameEl.textContent = firstName; }
+            else { lastNameEl.textContent = 'SOBRENOME'; firstNameEl.textContent = 'Nome'; }
+            countryCodeEl.textContent = g ? g.country : '---';
+            const cI = g ? window.countryData[g.country] : null;
+            if (cI && cI.code) { countryFlagEl.className = `fi fi-${cI.code.toLowerCase()} fx-country-flag`; countryFlagEl.style.display = 'inline-block'; }
+            else { countryFlagEl.className = 'fx-country-flag fi'; countryFlagEl.style.display = 'none'; }
+            if (apparatusIconEl) apparatusIconEl.textContent = currentApparatus ? currentApparatus.toUpperCase() : '??';
+
+            if (currentApparatus === 'vt' && timerState !== 'score') {
+                const bP = currentPhase.split('|')[0]; const pS = g?.scores?.[bP] || {};
+                let vaultCodeKey, vaultDKey;
+                
+                // CRITICAL FIX: Ensure keys match structure for AA/TF VT
+                if (bP === 'aa_final' || bP === 'team_final') {
+                    // For AA/TF, we expect a single vault, keys are like `aa_final_vt_code`
+                    vaultCodeKey = `vt_code`;
+                    vaultDKey = `vt_d`;
+                } else {
+                    // For Qualifiers or VT Final, keys are `qualifiers_vt1_code` or `vt_final_vt1_code`
+                    vaultCodeKey = `vt${activeVaultNum}_code`;
+                    vaultDKey = `vt${activeVaultNum}_d`;
+                }
+                
+                currentDisplayVaultCode = pS[vaultCodeKey] ? `DV ${pS[vaultCodeKey]}` : 'DV 0.00';
+                currentDisplayVaultDV = pS[vaultDKey] ? parseFloat(pS[vaultDKey]).toFixed(2) : '0.00';
+                
+                // FASE 2: Atualizar display VT imediatamente
+                if (vaultCodeValueEl) vaultCodeValueEl.textContent = currentDisplayVaultCode;
+            } else if (currentApparatus !== 'vt') {
+                 currentDisplayVaultCode = 'DV 0.00'; currentDisplayVaultDV = '0.00';
+                 if (vaultCodeValueEl) vaultCodeValueEl.textContent = currentDisplayVaultCode;
+            }
+            
+            // FASE 2: Atualizar rank automaticamente
+            updateRankDisplay();
+        }
+
+
+        function splitName(fullName){ if (!fullName) return { firstName: '', lastName: 'Nome Desconhecido' }; const parts = fullName.trim().split(' '); if (parts.length === 1) return { firstName: '', lastName: parts[0].toUpperCase() }; const lastName = parts.shift().toUpperCase(); const firstName = parts.join(' '); return { firstName, lastName }; }
+        // FASE 2: Função de cálculo de rank melhorada e mais precisa
+        function calculateCurrentRank(targetGymnast){ 
+            if (!targetGymnast || !targetGymnast.id) return '--'; 
+            const bP = currentPhase.split('|')[0]; 
+            const pA = currentApparatus; 
+            let r = '--'; 
+            
+            try { 
+                if (bP === 'qualifiers') { 
+                    if (pA) {
+                        // Rank por aparelho específico no quali
+                        const appScores = calculateApparatusScores(allGymnastData, pA, 'qualifiers');
+                        const i = appScores.findIndex(g => g.id === targetGymnast.id); 
+                        if (i !== -1) r = i + 1; 
+                    } else {
+                        // Rank AA geral no quali
+                        const aaScores = calculateAAScores(allGymnastData);
+                        const i = aaScores.findIndex(g => g.id === targetGymnast.id); 
+                        if (i !== -1) r = i + 1;
+                    }
+                } else if (bP === 'team_final') { 
+                    // Para team final, mostrar rank da equipe
+                    const teamQualifiers = calculateTeamScores(allGymnastData).slice(0, 8); 
+                    const qualifyingCountries = teamQualifiers.map(t => t.country); 
+                    const teamFinalScores = calculateTeamFinalScores(allGymnastData, qualifyingCountries); 
+                    const i = teamFinalScores.findIndex(t => t.country === targetGymnast.country); 
+                    if (i !== -1) r = i + 1; 
+                } else if (bP === 'aa_final') { 
+                    // AA Final rank
+                    const aaQualifiers = calculateAAScores(allGymnastData);
+                    const aaFinalists = applyMaxPerCountry(aaQualifiers, 16, 2);
+                    const finalistIds = new Set(aaFinalists.map(f => f.id));
+                    const finalGymnasts = allGymnastData.filter(g => finalistIds.has(g.id));
+                    
+                    if (pA) {
+                        // Rank por aparelho específico no AA Final
+                        const appScores = finalGymnasts.map(g => {
+                            const phaseScores = g.scores?.[bP] || {};
+                            let score = 0;
+                            
+                            if (pA === 'vt') {
+                                const d = parseFloat(phaseScores[`${bP}_${pA}_d`]) || 0;
+                                const e = parseFloat(phaseScores[`${bP}_${pA}_e`]) || 0;
+                                const p = parseFloat(phaseScores[`${bP}_${pA}_p`]) || 0;
+                                score = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                            } else {
+                                const d = parseFloat(phaseScores[`${bP}_${pA}_d`]) || 0;
+                                const e = parseFloat(phaseScores[`${bP}_${pA}_e`]) || 0;
+                                const p = parseFloat(phaseScores[`${bP}_${pA}_p`]) || 0;
+                                score = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                            }
+                            
+                            return { ...g, apparatusScore: score };
+                        }).filter(g => g.apparatusScore > 0).sort((a, b) => b.apparatusScore - a.apparatusScore);
+                        
+                        const i = appScores.findIndex(g => g.id === targetGymnast.id); 
+                        if (i !== -1) r = i + 1;
+                    } else {
+                        // Rank AA total no AA Final
+                        const aaFinalScores = finalGymnasts.map(g => {
+                            const phaseScores = g.scores?.[bP] || {};
+                            let aaTotal = 0;
+                            
+                            ['vt', 'ub', 'bb', 'fx'].forEach(app => {
+                                const d = parseFloat(phaseScores[`${bP}_${app}_d`]) || 0;
+                                const e = parseFloat(phaseScores[`${bP}_${app}_e`]) || 0;
+                                const p = parseFloat(phaseScores[`${bP}_${app}_p`]) || 0;
+                                aaTotal += (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                            });
+                            
+                            return { ...g, aaTotal };
+                        }).filter(g => g.aaTotal > 0).sort((a, b) => b.aaTotal - a.aaTotal);
+                        
+                        const i = aaFinalScores.findIndex(g => g.id === targetGymnast.id); 
+                        if (i !== -1) r = i + 1;
+                    }
+                } else if (bP.endsWith('_final') && bP !== 'aa_final' && bP !== 'team_final') { 
+                    // Finais de aparelho
+                    const apparatus = bP.replace('_final', '');
+                    const qualifiersForApparatus = calculateApparatusScores(allGymnastData, apparatus, 'qualifiers');
+                    const finalists = applyMaxPerCountry(qualifiersForApparatus, 8, 2);
+                    const finalistIds = new Set(finalists.map(f => f.id));
+                    const finalGymnasts = allGymnastData.filter(g => finalistIds.has(g.id));
+                    
+                    const finalScores = finalGymnasts.map(g => {
+                        const phaseScores = g.scores?.[bP] || {};
+                        let apparatusScore = 0;
+                        
+                        if (apparatus === 'vt') {
+                            const vt1D = parseFloat(phaseScores[`vt_final_vt1_d`]) || 0;
+                            const vt1E = parseFloat(phaseScores[`vt_final_vt1_e`]) || 0;
+                            const vt1P = parseFloat(phaseScores[`vt_final_vt1_p`]) || 0;
+                            const vt1Total = (vt1D > 0 || vt1E > 0) ? Math.max(0, vt1D + vt1E - vt1P) : 0;
+                            
+                            const vt2D = parseFloat(phaseScores[`vt_final_vt2_d`]) || 0;
+                            const vt2E = parseFloat(phaseScores[`vt_final_vt2_e`]) || 0;
+                            const vt2P = parseFloat(phaseScores[`vt_final_vt2_p`]) || 0;
+                            const vt2Total = (vt2D > 0 || vt2E > 0) ? Math.max(0, vt2D + vt2E - vt2P) : 0;
+                            
+                            if (vt1Total > 0 || vt2Total > 0) {
+                                apparatusScore = (vt1Total + vt2Total) / 2; // SEMPRE média
+                            }
+                        } else {
+                            const d = parseFloat(phaseScores[`${bP}_${apparatus}_d`]) || 0;
+                            const e = parseFloat(phaseScores[`${bP}_${apparatus}_e`]) || 0;
+                            const p = parseFloat(phaseScores[`${bP}_${apparatus}_p`]) || 0;
+                            apparatusScore = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                        }
+                        
+                        return { ...g, apparatusScore };
+                    }).filter(g => g.apparatusScore > 0).sort((a, b) => b.apparatusScore - a.apparatusScore);
+                    
+                    const i = finalScores.findIndex(g => g.id === targetGymnast.id); 
+                    if (i !== -1) r = i + 1; 
+                } 
+            } catch(e) { 
+                console.error("Error calculating rank:", e); 
+                r = 'ERR'; 
+            } 
+            
+            console.log(`[calculateCurrentRank] Phase: ${bP}, Apparatus: ${pA}, Gymnast: ${targetGymnast.name}, Rank: ${r}`);
+            return r; 
+        }
+          function populateStartList() {
+            if(!startListItemsUl || !startListTitleEl) { console.error("[Display populateStartList] UL or Title element missing."); return; }
+            startListItemsUl.innerHTML='';
+            const bP = currentPhase.split('|')[0].replace('_',' ').toUpperCase();
+            let det = '';
+            if(currentSubdivIdx !== null) det += ` S${currentSubdivIdx+1}`;
+            if(currentRotIdx !== null) det += ` R${currentRotIdx+1}`;
+            if(currentApparatus && !bP.includes(currentApparatus.toUpperCase())) det += ` ${currentApparatus.toUpperCase()}`;
+            startListTitleEl.textContent = `Start List - ${bP}${det}`;
+            
+            console.log(`[Display populateStartList] Populating for ${bP}${det}. fxStartList length: ${fxStartList.length}`);
+            console.log(`[Display populateStartList] fxStartList content:`, fxStartList);
+
+            if (fxStartList.length === 0) {
+                startListItemsUl.innerHTML='<li class="list-item-empty">Aguardando dados da start list...</li>';
+                console.log(`[Display populateStartList] fxStartList is empty. Displaying empty message.`);
+                return;
+            }            
+            
+            fxStartList.forEach((ath,idx)=>{
+                try {
+                    const li=document.createElement('li');
+                    li.classList.add('list-item');
+                    li.style.opacity='0';li.style.transform='translateX(-60px) scale(0.9)';
+                    let flC='';const cI=window.countryData[ath.country]||{};if(cI.code)flC=cI.code.toLowerCase();
+                    const{firstName,lastName}=splitName(ath.name);
+                    const bibN=ath.bib?`<span class="item-bib">${ath.bib}</span>`:'';
+                    li.innerHTML=`<span class="item-order">${idx+1}</span> <span class="item-flag fi fi-${flC}"></span> <span class="item-country">${ath.country||'---'}</span> <span class="item-name"><span class="item-lastname">${lastName}</span> <span class="item-firstname">${firstName}</span></span> ${bibN}`;
+                    startListItemsUl.appendChild(li);
+                    setTimeout(()=>{requestAnimationFrame(()=>{li.classList.add('visible');});},idx*80);
+                } catch(e) {
+                    console.error(`[Display populateStartList] Error creating list item ${idx}:`, ath, e);
+                }
+            });
+        }        function populateResultsList() {
+            console.log(`[populateResultsList] DEBUG: Iniciando com currentPhase=${currentPhase}, currentApparatus=${currentApparatus}`);
+            if (!resultsItemsUl || !resultsTitleEl) { console.error("[Display populateResultsList] UL or Title element missing."); return; }
+            resultsItemsUl.innerHTML = ''; 
+            const bP = currentPhase.split('|')[0]; 
+            const pA = currentApparatus; 
+            let rR = []; 
+            const validApparatusList = ['vt', 'ub', 'bb', 'fx'];
+            
+            // FASE 2 CORREÇÃO: Melhor determinação do título e tipo de resultado
+            let titleText = `Results - ${bP.replace('_',' ').toUpperCase()}`;
+            let isConsolidatedResults = true; // Por padrão, sempre mostrar resultados consolidados
+            
+            if (bP === 'qualifiers') {
+                titleText = 'Results - QUALIFICATION';  // Sempre por fase, não por aparelho
+            } else if (bP === 'aa_final') {
+                titleText = 'Results - ALL-AROUND FINAL';
+            } else if (bP === 'team_final') {
+                titleText = 'Results - TEAM FINAL';
+            } else if (bP.endsWith('_final') && bP !== 'aa_final' && bP !== 'team_final') {
+                const apparatus = bP.replace('_final', '').toUpperCase();
+                titleText = `Results - ${apparatus} FINAL`;
+            }
+            
+            resultsTitleEl.textContent = titleText;
+            console.log(`[Display populateResultsList] Populating results for: ${titleText}, consolidated: ${isConsolidatedResults}`);
+
+            try {
+                // FASE 2 CORREÇÃO: Sempre usar resultados consolidados da fase completa
+                console.log(`[populateResultsList] Chamando calculateConsolidatedResults com bP=${bP}, pA=${pA}`);
+                rR = calculateConsolidatedResults(bP, pA);
+                console.log(`[populateResultsList] calculateConsolidatedResults retornou ${rR.length} resultados`);
+                
+                // Fallback para resultados de rotação se consolidados não existirem
+                if (rR.length === 0 && fxStartList.length > 0) {
+                    console.log(`[Display populateResultsList] No consolidated results, falling back to rotation data`);
+                    rR = fxStartList.map(athlete => {
+                        const phaseScores = athlete.scores?.[bP] || {};
+                        let calculatedScore = 0;
+                        if (pA && validApparatusList.includes(pA)) {
+                            if (pA === 'vt') {
+                                const d = parseFloat(phaseScores[`${bP}_${pA}_d`]) || 0;
+                                const e = parseFloat(phaseScores[`${bP}_${pA}_e`]) || 0;
+                                const p = parseFloat(phaseScores[`${bP}_${pA}_p`]) || 0;
+                                calculatedScore = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                            } else {
+                                const d = parseFloat(phaseScores[`${bP}_${pA}_d`]) || 0;
+                                const e = parseFloat(phaseScores[`${bP}_${pA}_e`]) || 0;
+                                const p = parseFloat(phaseScores[`${bP}_${pA}_p`]) || 0;
+                                calculatedScore = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                            }
+                        }
+                        
+                        return { ...athlete, apparatusScore: calculatedScore };
+                    }).filter(item => item !== null && item.apparatusScore > 0).sort((a, b) => b.apparatusScore - a.apparatusScore);
+                }
+            } catch(e) { 
+                console.error("[Display populateResultsList] Error calculating results:", e); 
+                resultsItemsUl.innerHTML='<li class="list-item-empty">Erro ao calcular resultados.</li>'; 
+                return; 
+            }
+            
+            console.log(`[Display populateResultsList] Results calculated. Length: ${rR.length}`);
+
+            if (rR.length === 0) {
+                resultsItemsUl.innerHTML = '<li class="list-item-empty">Nenhum resultado para exibir.</li>';
+                return;
+            }
+            
+            // FASE 2 MELHORIA: Melhor cálculo de diferença para o primeiro lugar
+            const topScore = rR.length > 0 ? (rR[0].aaTotal ?? rR[0].apparatusScore ?? rR[0].total ?? 0) : 0;
+            
+            rR.forEach((item, idx) => {
+                try {
+                    const li = document.createElement('li'); 
+                    li.classList.add('list-item'); 
+                    li.style.opacity = '0'; 
+                    li.style.transform = 'translateX(-50px) scale(0.9)';
+                    
+                    let flC='',cC='',lN='---',fN='',sc=0; 
+                    let isTeamResult = item.hasOwnProperty('total') && item.hasOwnProperty('country') && !item.hasOwnProperty('name');
+                    
+                    if(isTeamResult){
+                        cC=item.country; 
+                        const cI=window.countryData[cC]||{}; 
+                        flC=cI.code?cI.code.toLowerCase():''; 
+                        lN=cI.name||cC; 
+                        fN=''; 
+                        sc=item.total;
+                    } else {
+                        cC=item.country; 
+                        const cI=window.countryData[cC]||{}; 
+                        flC=cI.code?cI.code.toLowerCase():''; 
+                        const nms=splitName(item.name); 
+                        lN=nms.lastName; 
+                        fN=nms.firstName;
+                        sc = item.aaTotal ?? item.apparatusScore ?? 0;
+                    }
+                    
+                    const sTxt = sc.toFixed(3);
+                    
+                    // FASE 2 MELHORIA: Melhor cálculo de diferença com cores olímpicas
+                    let diffText = '';
+                    if (idx > 0 && topScore > 0 && sc > 0) {
+                        const diff = sc - topScore;
+                        const diffColor = idx === 1 ? '#C0C0C0' : (idx === 2 ? '#CD7F32' : '#ff6b6b');
+                        diffText = `<span class="item-score-diff" style="color: ${diffColor}; font-weight: 700;">${diff.toFixed(3)}</span>`;
+                    }
+                    
+                    // FASE 2 MELHORIA: Cores olímpicas para os pódios
+                    let positionColor = '#4CAF50';
+                    if (idx === 0) positionColor = '#FFD700'; // Ouro
+                    else if (idx === 1) positionColor = '#C0C0C0'; // Prata
+                    else if (idx === 2) positionColor = '#CD7F32'; // Bronze
+                    
+                    // FASE 2 NOVO: Badge AA Qualification (8 ginastas, máx 2 por país)
+                    let aaQualifiedBadge = '';
+                    if (bP === 'qualifiers' && typeof applyMaxPerCountry === 'function') {
+                        // Usar a função existente para determinar os qualificados AA
+                        const qualifiedList = applyMaxPerCountry(rR, 8, 2);
+                        
+                        // Verificar se o item atual está na lista de qualificados
+                        const isQualified = qualifiedList.some(q => q.id === item.id);
+                        if (isQualified) {
+                            aaQualifiedBadge = `<div class="item-aa-badge qualified">AA</div>`;
+                        }
+                    }
+                    
+                    li.innerHTML=`<span class="item-order" style="background: linear-gradient(135deg, ${positionColor}, ${positionColor}dd)">${idx+1}</span> <span class="item-flag fi fi-${flC}"></span> <span class="item-country">${cC||'---'}</span> <span class="item-name"><span class="item-lastname">${lN}</span>${fN?`<span class="item-firstname">${fN}</span>`:''}</span><span class="item-score-container">${aaQualifiedBadge}<span class="item-score">${sTxt}</span>${diffText}</span>`;
+                    resultsItemsUl.appendChild(li); 
+                    
+                    // FASE 2 MELHORIA: Animação suave escalonada
+                    setTimeout(()=>{
+                        requestAnimationFrame(()=>{
+                            li.classList.add('visible');
+                        });
+                    }, idx * 80);
+                } catch(e) {
+                    console.error(`[Display populateResultsList] Error creating result item ${idx}:`,item,e);
+                }
+            });
+        }
+        
+        // FASE 2: Nova função para calcular resultados consolidados
+        function calculateConsolidatedResults(basePhase, apparatus) {
+            console.log(`[calculateConsolidatedResults] DEBUG: basePhase=${basePhase}, apparatus=${apparatus}, allGymnastData.length=${allGymnastData.length}`);
+            console.log(`[calculateConsolidatedResults] Verificando se calculateAAScores existe:`, typeof calculateAAScores);
+            let results = [];
+            
+            if (basePhase === 'qualifiers') {
+                // CORREÇÃO: Para qualifiers, sempre calcular AA consolidado (sem aparelho específico)
+                console.log(`[calculateConsolidatedResults] Calculando AA geral para qualifiers (ignorando apparatus)`);
+                if (typeof calculateAAScores === 'function') {
+                    results = calculateAAScores(allGymnastData);
+                } else {
+                    console.error(`[calculateConsolidatedResults] calculateAAScores não é uma função!`);
+                }
+            } else if (basePhase === 'aa_final') {
+                // Resultados do AA Final (todos os qualificados)
+                const aaQualifiers = calculateAAScores(allGymnastData);
+                const aaFinalists = applyMaxPerCountry(aaQualifiers, 16, 2);
+                const finalistIds = new Set(aaFinalists.map(f => f.id));
+                const finalGymnasts = allGymnastData.filter(g => finalistIds.has(g.id));
+                
+                if (apparatus) {
+                    // Aparelho específico no AA Final
+                    results = finalGymnasts.map(g => {
+                        const phaseScores = g.scores?.[basePhase] || {};
+                        let score = 0;
+                        
+                        if (apparatus === 'vt') {
+                            const d = parseFloat(phaseScores[`${basePhase}_${apparatus}_d`]) || 0;
+                            const e = parseFloat(phaseScores[`${basePhase}_${apparatus}_e`]) || 0;
+                            const p = parseFloat(phaseScores[`${basePhase}_${apparatus}_p`]) || 0;
+                            score = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                        } else {
+                            const d = parseFloat(phaseScores[`${basePhase}_${apparatus}_d`]) || 0;
+                            const e = parseFloat(phaseScores[`${basePhase}_${apparatus}_e`]) || 0;
+                            const p = parseFloat(phaseScores[`${basePhase}_${apparatus}_p`]) || 0;
+                            score = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                        }
+                        
+                        return { ...g, apparatusScore: score };
+                    }).filter(g => g.apparatusScore > 0).sort((a, b) => b.apparatusScore - a.apparatusScore);
+                } else {
+                    // Total AA Final
+                    results = finalGymnasts.map(g => {
+                        const phaseScores = g.scores?.[basePhase] || {};
+                        let aaTotal = 0;
+                        
+                        ['vt', 'ub', 'bb', 'fx'].forEach(app => {
+                            const d = parseFloat(phaseScores[`${basePhase}_${app}_d`]) || 0;
+                            const e = parseFloat(phaseScores[`${basePhase}_${app}_e`]) || 0;
+                            const p = parseFloat(phaseScores[`${basePhase}_${app}_p`]) || 0;
+                            aaTotal += (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                        });
+                        
+                        return { ...g, aaTotal };
+                    }).filter(g => g.aaTotal > 0).sort((a, b) => b.aaTotal - a.aaTotal);
+                }
+            } else if (basePhase === 'team_final') {
+                // Resultados da Final por Equipes - usar sistema de duplicação se disponível
+                const teamQualifiers = calculateTeamScores(allGymnastData).slice(0, 8);
+                const qualifyingCountries = teamQualifiers.map(t => t.country);
+                
+                // Verificar se há dados de duplicação carregados globalmente
+                let teamFinalResults;
+                if (window.teamFinalDrawGlobal && window.teamFinalDrawGlobal.duplications) {
+                    teamFinalResults = calculateTeamFinalScoresWithDuplication(allGymnastData, qualifyingCountries, window.teamFinalDrawGlobal);
+                } else {
+                    teamFinalResults = calculateTeamFinalScores(allGymnastData, qualifyingCountries);
+                }
+                
+                results = teamFinalResults.map(team => ({
+                    country: team.country,
+                    total: team.total
+                })).sort((a, b) => b.total - a.total);
+            } else if (basePhase.endsWith('_final')) {
+                // Finais de aparelho
+                const apparatusFinal = basePhase.replace('_final', '');
+                const qualifiersForApparatus = calculateApparatusScores(allGymnastData, apparatusFinal, 'qualifiers');
+                const finalists = applyMaxPerCountry(qualifiersForApparatus, 8, 2);
+                const finalistIds = new Set(finalists.map(f => f.id));
+                const finalGymnasts = allGymnastData.filter(g => finalistIds.has(g.id));
+                
+                if (apparatusFinal === 'vt') {
+                    // VT Final - média dos dois saltos
+                    results = finalGymnasts.map(g => {
+                        const phaseScores = g.scores?.[basePhase] || {};
+                        const vt1D = parseFloat(phaseScores[`${basePhase}_vt1_d`]) || 0;
+                        const vt1E = parseFloat(phaseScores[`${basePhase}_vt1_e`]) || 0;
+                        const vt1P = parseFloat(phaseScores[`${basePhase}_vt1_p`]) || 0;
+                        const vt1Total = (vt1D > 0 || vt1E > 0) ? Math.max(0, vt1D + vt1E - vt1P) : 0;
+                        
+                        const vt2D = parseFloat(phaseScores[`${basePhase}_vt2_d`]) || 0;
+                        const vt2E = parseFloat(phaseScores[`${basePhase}_vt2_e`]) || 0;
+                        const vt2P = parseFloat(phaseScores[`${basePhase}_vt2_p`]) || 0;
+                        const vt2Total = (vt2D > 0 || vt2E > 0) ? Math.max(0, vt2D + vt2E - vt2P) : 0;
+                        
+                        let apparatusScore = 0;
+                        if (vt1Total > 0 && vt2Total > 0) {
+                            apparatusScore = (vt1Total + vt2Total) / 2;
+                        } else if (vt1Total > 0) {
+                            apparatusScore = vt1Total;
+                        } else if (vt2Total > 0) {
+                            apparatusScore = vt2Total;
+                        }
+                        
+                        return { ...g, apparatusScore };
+                    }).filter(g => g.apparatusScore > 0).sort((a, b) => b.apparatusScore - a.apparatusScore);
+                } else {
+                    // Outras finais de aparelho
+                    results = finalGymnasts.map(g => {
+                        const phaseScores = g.scores?.[basePhase] || {};
+                        const d = parseFloat(phaseScores[`${basePhase}_${apparatusFinal}_d`]) || 0;
+                        const e = parseFloat(phaseScores[`${basePhase}_${apparatusFinal}_e`]) || 0;
+                        const p = parseFloat(phaseScores[`${basePhase}_${apparatusFinal}_p`]) || 0;
+                        const apparatusScore = (d > 0 || e > 0) ? Math.max(0, d + e - p) : 0;
+                        
+                        return { ...g, apparatusScore };
+                    }).filter(g => g.apparatusScore > 0).sort((a, b) => b.apparatusScore - a.apparatusScore);
+                }
+            }
+            
+            console.log(`[calculateConsolidatedResults] Phase: ${basePhase}, Apparatus: ${apparatus}, Results: ${results.length}`);
+            if (results.length > 0) {
+                console.log(`[calculateConsolidatedResults] Primeiros 3 resultados:`, results.slice(0, 3));
+            } else {
+                console.warn(`[calculateConsolidatedResults] NENHUM RESULTADO ENCONTRADO!`);
+            }
+            return results;
+        }
+
+        function stopAndResetAudio() { if (gymnastAudioElement) { gymnastAudioElement.pause(); gymnastAudioElement.currentTime = 0; gymnastAudioElement.src = ''; } }
+        function formatTime(seconds) { return `${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`; }
+        function playBeep() {
+            if (!audioEnabled) {
+                console.warn('[Beep] Audio not enabled yet');
+                return;
+            }
+            
+            if (!beepAudioElement) {
+                console.warn('[Beep] Audio element not found');
+                return;
+            }
+            
+            console.log(`[Beep] Attempting to play beep at ${elapsedSeconds}s, lastBeepTime: ${lastBeepTime}`);
+            
+            // Reset audio element
+            beepAudioElement.currentTime = 0;
+            beepAudioElement.volume = 0.8;
+            
+            // Play with promise handling
+            const playPromise = beepAudioElement.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log(`[Beep] Successfully played at ${elapsedSeconds}s for ${currentApparatus}`);
+                    lastBeepTime = elapsedSeconds; // Update lastBeepTime AFTER successful play
+                    
+                    // Add visual feedback
+                    if (currentApparatus === 'vt' && vaultStatusIndicatorAlt) {
+                        vaultStatusIndicatorAlt.classList.add('beep-flash');
+                        setTimeout(() => vaultStatusIndicatorAlt.classList.remove('beep-flash'), 400);
+                    } else if (statusIndicator) {
+                        statusIndicator.classList.add('beep-flash');
+                        setTimeout(() => statusIndicator.classList.remove('beep-flash'), 400);
+                    }
+                }).catch(e => {
+                    console.warn('[Beep] Play failed:', e);
+                });
+            }
+        }
+
+        function checkTimingBeeps() {
+            if (timerState !== 'running') return;
+            
+            // BB: Beeps at 1:20 (80s) and 1:30 (90s)
+            if (currentApparatus === 'bb') {
+                if ((elapsedSeconds === 80 || elapsedSeconds === 90) && elapsedSeconds !== lastBeepTime) {
+                    playBeep();
+                }
+            }
+            // UB: Beep at 0:50 (50s)
+            else if (currentApparatus === 'ub') {
+                if (elapsedSeconds === 50 && elapsedSeconds !== lastBeepTime) {
+                    playBeep();
+                }
+            }
+        }
+
+        function startTimer() { 
+            if(timerState==='running')return; 
+            timerState='running'; 
+            clearInterval(timerInterval); 
+            
+            console.log(`[Timer] Starting timer for ${currentApparatus}, elapsedSeconds: ${elapsedSeconds}`);
+            
+            // Play initial beep for VT, BB, UB (not FX as it has its own music)
+            if (['vt', 'bb', 'ub'].includes(currentApparatus)) {
+                console.log(`[Timer] Playing initial beep for ${currentApparatus}`);
+                // Force play initial beep regardless of lastBeepTime
+                setTimeout(() => {
+                    playBeep();
+                }, 100); // Small delay to ensure timer state is set
+            }
+            
+            timerInterval=setInterval(()=>{
+                elapsedSeconds++; 
+                checkTimingBeeps(); // Check for timing beeps
+                if(currentApparatus==='vt') updateVaultPreScoreStatusDisplay(); 
+                else updateTimerDisplay();
+            },1000); 
+            
+            if(currentApparatus==='vt') updateVaultPreScoreStatusDisplay(); 
+            else updateTimerDisplay(); 
+        }
+
+        function stopTimer() { 
+            clearInterval(timerInterval); 
+            timerInterval=null; 
+            timerState='stop'; // Changed from removing timer state to explicit 'stop' state
+            
+            // Stop FX music when timer is paused/stopped
+            if (currentApparatus === 'fx') {
+                stopAndResetAudio();
+                console.log('[Timer] FX music stopped due to timer pause');
+            }
+            
+            // Update display to show STOP state
+            if(currentApparatus==='vt') updateVaultPreScoreStatusDisplay(); 
+            else updateTimerDisplay();
+        }
+        
+        function resetTimer() { 
+            stopTimer(); 
+            timerState='wait'; 
+            elapsedSeconds=0; 
+            lastBeepTime = -1; // Reset to -1 to allow beep at 0 seconds
+            
+            // Always stop audio on reset regardless of apparatus
+            stopAndResetAudio();
+            
+            if(currentApparatus==='vt') { 
+                updateVaultPreScoreStatusDisplay(); 
+            } else { 
+                updateTimerDisplay(); 
+            } 
+        }
+
+        function updateMainDisplayMode() {
+            const isVault = currentApparatus === 'vt';
+            const isScoreState = timerState === 'score';
+            const bP = currentPhase.split('|')[0];
+
+            timerScoreScreen.classList.remove('vault-mode-pre-score', 'vault-mode-post-score', 'vault-mode-single-score-post', 'standard-mode', 'score-display-active');
+            mainContent.className = 'fx-main-content';
+
+            if (isVault) {
+                if (isScoreState) {
+                    // Vault score display mode
+                    if (bP === 'qualifiers' || bP === 'vt_final') {
+                        // Multi-vault display (VT1, VT2, Average)
+                        timerScoreScreen.classList.add('vault-mode-post-score');
+                        mainContent.classList.add('gradient-go-ok');
+                    } else {
+                        // Single vault display (AA Final, Team Final)
+                        timerScoreScreen.classList.add('vault-mode-single-score-post');
+                        timerScoreScreen.classList.add('score-display-active');
+                        mainContent.classList.add('gradient-go-ok');
+                    }
+                } else {
+                    // Vault pre-score mode (showing vault info)
+                    timerScoreScreen.classList.add('vault-mode-pre-score');
+                    if (timerState === 'wait') mainContent.classList.add('gradient-wait');
+                    else if (timerState === 'stop') mainContent.classList.add('gradient-stop');
+                    else if (timerState === 'running') {
+                        if (elapsedSeconds <= 50) mainContent.classList.add('gradient-go-ok');
+                        else if (elapsedSeconds <= 70) mainContent.classList.add('gradient-go-warn');
+                        else mainContent.classList.add('gradient-go-over');
+                    }
+                }
+            } else {
+                // Standard mode for UB, BB, FX
+                timerScoreScreen.classList.add('standard-mode');
+                if (isScoreState) {
+                    timerScoreScreen.classList.add('score-display-active');
+                    mainContent.classList.add('gradient-go-ok');
+                } else {
+                    if (timerState === 'wait') mainContent.classList.add('gradient-wait');
+                    else if (timerState === 'stop') mainContent.classList.add('gradient-stop');
+                    else if (timerState === 'running') {
+                        if (elapsedSeconds <= (currentApparatus === 'bb' ? 70 : (currentApparatus === 'fx' ? 69 : 50))) {
+                            mainContent.classList.add('gradient-go-ok');
+                        } else if (elapsedSeconds <= (currentApparatus === 'bb' ? 90 : (currentApparatus === 'fx' ? 90 : 70))) {
+                            mainContent.classList.add('gradient-go-warn');
+                        } else {
+                            mainContent.classList.add('gradient-go-over');
+                        }
+                    }
+                }
+            }
+        }
+        function updateVisibleScreen(screenToShow){
+            visibleScreen = screenToShow;
+            timerScoreScreen.style.display = 'none';
+            startListScreen.style.display = 'none';
+            resultsScreen.style.display = 'none';
+
+            if(screenToShow === 'timer'){
+                timerScoreScreen.style.display = 'flex';
+                updateMainDisplayMode();
+            } else if (screenToShow === 'startlist'){
+                startListScreen.style.display = 'flex';
+                populateStartList();
+            } else if (screenToShow === 'results'){
+                resultsScreen.style.display = 'flex';
+                populateResultsList();
+            }
+        }
+        function updateVaultPreScoreStatusDisplay() {
+            if (!vaultPreScoreInfo || !mainContent || !vaultStatusIndicatorAlt || !vaultCodeValueEl) return;
+            const currentStatusInd = vaultStatusIndicatorAlt;
+            const baseG='fx-main-content'; 
+            const waitC={g:'gradient-wait'}; 
+            const stopC={g:'gradient-stop'};
+            const goOkC={g:'gradient-go-ok'};
+            
+            mainContent.className=`${baseG} fx-main-content`; 
+            currentStatusInd.className='fx-status-indicator';
+            
+            if(timerState==='wait'){
+                currentStatusInd.textContent='WAIT'; 
+                currentStatusInd.classList.add(waitC.g); 
+                mainContent.classList.add(waitC.g);
+            } else if(timerState==='stop'){
+                currentStatusInd.textContent='STOP'; 
+                currentStatusInd.classList.add(stopC.g); 
+                mainContent.classList.add(stopC.g);
+            } else if(timerState==='running'){ 
+                currentStatusInd.textContent='GO'; 
+                if(elapsedSeconds<= (currentApparatus==='bb'?70:(currentApparatus==='fx'?69:50))){
+                    currentStatusInd.classList.add(goOkC.g); 
+                    mainContent.classList.add(goOkC.g);
+                }
+            }
+            vaultCodeValueEl.textContent = currentDisplayVaultCode; 
+        }
+        
+        function updateTimerDisplay() { 
+            if(!statusIndicator||!timerDisplay||!mainContent)return; 
+            timerDisplay.textContent=formatTime(elapsedSeconds); 
+            const bI='fx-status-indicator';const bT='fx-status-timer';const bG='fx-main-content'; 
+            const wC={i:'status-wait-bg',t:'timer-wait-bg',g:'gradient-wait'}; 
+            const stopC={i:'status-stop-bg',t:'timer-stop-bg',g:'gradient-stop'};
+            const gOC={i:'status-running-ok-bg',t:'timer-running-ok-bg',g:'gradient-go-ok'}; 
+            const gWC={i:'status-running-warn-bg',t:'timer-running-warn-bg',g:'gradient-go-warn'}; 
+            const gOvC={i:'status-running-over-bg',t:'timer-running-over-bg',g:'gradient-go-over'}; 
+            statusIndicator.className=bI;timerDisplay.className=bT;mainContent.className=`${bG} fx-main-content`; 
+            
+            if(timerState==='wait'){
+                statusIndicator.textContent='WAIT'; 
+                statusIndicator.classList.add(wC.i); 
+                timerDisplay.classList.add(wC.t); 
+                mainContent.classList.add(wC.g);
+            } else if(timerState==='stop'){
+                statusIndicator.textContent='STOP'; 
+                statusIndicator.classList.add(stopC.i); 
+                timerDisplay.classList.add(stopC.t); 
+                mainContent.classList.add(stopC.g);
+            } else if(timerState==='running'){ 
+                statusIndicator.textContent='GO'; 
+                if(elapsedSeconds<= (currentApparatus==='bb'?70:(currentApparatus==='fx'?69:50))){
+                    statusIndicator.classList.add(gOC.i); 
+                    timerDisplay.classList.add(gOC.t); 
+                    mainContent.classList.add(gOC.g);
+                }else if(elapsedSeconds<= (currentApparatus==='bb'?90:(currentApparatus==='fx'?90:70))){
+                    statusIndicator.classList.add(gWC.i); 
+                    timerDisplay.classList.add(gWC.t); 
+                    mainContent.classList.add(gWC.g);
+                }else{
+                    statusIndicator.classList.add(gOvC.i); 
+                    timerDisplay.classList.add(gOvC.t); 
+                    mainContent.classList.add(gOvC.g);
+                }
+            }
+        }
+
+        let isCalculatingScores = false;
+
+        // FASE 2: Funções para indicador de cálculo de notas
+        function showCalculatingIndicator() {
+            const indicator = document.getElementById('fx-calculating-indicator');
+            if (indicator && !isCalculatingScores) {
+                isCalculatingScores = true;
+                indicator.style.display = 'flex';
+                console.log('[Display] Showing calculating indicator');
+            }
+        }
+
+        function hideCalculatingIndicator() {
+            const indicator = document.getElementById('fx-calculating-indicator');
+            if (indicator && isCalculatingScores) {
+                isCalculatingScores = false;
+                indicator.style.display = 'none';
+                console.log('[Display] Hiding calculating indicator');
+            }
+        }
+
+        // FASE 2: Função melhorada de exibição de nota com indicador
+        function showScore(gymnastDataFromMessage) {
+            stopTimer();
+            timerState = 'score';
+            
+            // Mostrar indicador de cálculo por um breve período
+            showCalculatingIndicator();
+            
+            const gId = gymnastDataFromMessage?.id;
+            if (!gId) { 
+                console.warn("[Display showScore] No gymnast ID received."); 
+                hideCalculatingIndicator();
+                return; 
+            }
+            // Always select gymnast by ID for FX finals
+            let lGData = allGymnastData.find(g => g.id === gId);
+            if (!lGData) { 
+                console.warn(`[Display showScore] Gymnast data not found for ID: ${gId}`); 
+                hideCalculatingIndicator();
+                return; 
+            }
+            // For FX finals, also update currentIndex to match the correct gymnast (ensure sync for music/score)
+            if (currentApparatus === 'fx' && currentPhase.split('|')[0] === 'fx_final') {
+                const idx = fxStartList.findIndex(g => g.id === gId);
+                if (idx !== -1) {
+                    currentIndex = idx;
+                    // Also update music for FX finals
+                    if (gymnastAudioElement) {
+                        const audioSrc = fxStartList[currentIndex]?.music || '';
+                        gymnastAudioElement.src = audioSrc;
+                    }
+                }
+            }
+
+            const bP = currentPhase.split('|')[0];
+            const pS = lGData.scores?.[bP] || {}; 
+            console.log(`[Display showScore] Gymnast: ${lGData.name} (${gId}), BasePhase: ${bP}, PhaseScores:`, pS);
+
+            const dispApp = gymnastDataFromMessage.apparatus || currentApparatus;
+
+            // Update gymnast info
+            if (lGData.name) { 
+                const { firstName, lastName } = splitName(lGData.name); 
+                if (lastNameEl) lastNameEl.textContent = lastName; 
+                if (firstNameEl) firstNameEl.textContent = firstName; 
+            }
+            if (countryCodeEl) countryCodeEl.textContent = lGData.country || '---';
+            const cI = lGData.country ? window.countryData[lGData.country] : null;
+            if (cI && cI.code && countryFlagEl) { 
+                countryFlagEl.className = `fi fi-${cI.code.toLowerCase()} fx-country-flag`; 
+                countryFlagEl.style.display = 'inline-block'; 
+            } else if (countryFlagEl) { 
+                countryFlagEl.className = 'fx-country-flag fi'; 
+                countryFlagEl.style.display = 'none'; 
+            }
+            if (apparatusIconEl) apparatusIconEl.textContent = dispApp.toUpperCase();
+
+            // FASE 2: Simular tempo de cálculo (remover indicador após um tempo)
+            setTimeout(() => {
+                hideCalculatingIndicator();
+            }, 1200);
+
+            if (dispApp === 'vt') {
+                if (bP === 'aa_final' || bP === 'team_final') {
+                    // AA Final e Team Final - um salto único
+                    const sD = getAppScore(pS, dispApp, gId, bP);
+                    console.log(`[Display showScore] VT (single) data for ${gId}:`, sD);
+                    if (scoreDEl) scoreDEl.textContent = sD.d >= 0 ? sD.d.toFixed(1) : '-.--';
+                    if (scoreEEl) scoreEEl.textContent = sD.e >= 0 ? sD.e.toFixed(3) : '-.---';
+                    if (scorePEl) scorePEl.textContent = sD.p >= 0 ? sD.p.toFixed(1) : '-.--';
+                    if (scoreTotalEl) scoreTotalEl.textContent = sD.total >= 0 ? sD.total.toFixed(3) : '-.---';
+                } else if (bP === 'qualifiers' || bP === 'vt_final') {
+                    // VT Final and Qualifiers - handling dual vaults
+                    const vault1D = parseFloat(pS[`${bP}_vt1_d`]) || 0;
+                    const vault1E = parseFloat(pS[`${bP}_vt1_e`]) || 0;
+                    const vault1P = parseFloat(pS[`${bP}_vt1_p`]) || 0;
+                    const vault1Total = (vault1D > 0 || vault1E > 0) ? Math.max(0, vault1D + vault1E - vault1P) : 0;
+                    
+                    const vault2D = parseFloat(pS[`${bP}_vt2_d`]) || 0;
+                    const vault2E = parseFloat(pS[`${bP}_vt2_e`]) || 0;
+                    const vault2P = parseFloat(pS[`${bP}_vt2_p`]) || 0;
+                    const vault2Total = (vault2D > 0 || vault2E > 0) ? Math.max(0, vault2D + vault2E - vault2P) : 0;
+                    
+                    // SEMPRE calcular média dos dois saltos (incluindo zeros) para VT Final
+                    let avgTotal = (vault1Total + vault2Total) / 2;
+                    
+                    // Update vault details display - mostrar zeros ao invés de hífens
+                    if (vaultVt1DEl) vaultVt1DEl.textContent = vault1D.toFixed(1);
+                    if (vaultVt1EEl) vaultVt1EEl.textContent = vault1E.toFixed(3);
+                    if (vaultVt1PEl) vaultVt1PEl.textContent = vault1P.toFixed(1);
+                    if (vaultVt1TotalEl) vaultVt1TotalEl.textContent = vault1Total.toFixed(3);
+                    
+                    if (vaultVt2DEl) vaultVt2DEl.textContent = vault2D.toFixed(1);
+                    if (vaultVt2EEl) vaultVt2EEl.textContent = vault2E.toFixed(3);
+                    if (vaultVt2PEl) vaultVt2PEl.textContent = vault2P.toFixed(1);
+                    if (vaultVt2TotalEl) vaultVt2TotalEl.textContent = vault2Total.toFixed(3);
+                    
+                    if (vaultAverageTotalEl) vaultAverageTotalEl.textContent = avgTotal.toFixed(3);
+                    
+                    // Also show individual vault scores based on activeVaultNum
+                    if (activeVaultNum === 1) {
+                        if (scoreDEl) scoreDEl.textContent = vault1D.toFixed(1);
+                        if (scoreEEl) scoreEEl.textContent = vault1E.toFixed(3);
+                        if (scorePEl) scorePEl.textContent = vault1P.toFixed(1);
+                        if (scoreTotalEl) scoreTotalEl.textContent = vault1Total.toFixed(3);
+                    } else {
+                        if (scoreDEl) scoreDEl.textContent = vault2D.toFixed(1);
+                        if (scoreEEl) scoreEEl.textContent = vault2E.toFixed(3);
+                        if (scorePEl) scorePEl.textContent = vault2P.toFixed(1);
+                        if (scoreTotalEl) scoreTotalEl.textContent = vault2Total.toFixed(3);
+                    }
+                    
+                    console.log(`[Display showScore] VT (${bP} dual vaults) data for ${gId}: VT1=${vault1Total.toFixed(3)}, VT2=${vault2Total.toFixed(3)}, Avg=${avgTotal.toFixed(3)}`);
+                } else {
+                    // Single vault for other phases
+                    const sD = getAppScore(pS, dispApp, gId, bP);
+                    console.log(`[Display showScore] VT (single) data for ${gId}:`, sD);
+                    if (scoreDEl) scoreDEl.textContent = sD.d.toFixed(1);
+                    if (scoreEEl) scoreEEl.textContent = sD.e.toFixed(3);
+                    if (scorePEl) scorePEl.textContent = sD.p.toFixed(1);
+                    if (scoreTotalEl) scoreTotalEl.textContent = sD.total.toFixed(3);
+                }
+            } else { 
+                // Non-vault apparatus (UB, BB, FX)
+                let sD;
+                if (dispApp === 'ub' && bP === 'ub_final') {
+                    // UB Final: use ub_final_ub_d/e/p
+                    const d = parseFloat(pS['ub_final_ub_d']) || 0;
+                    const e = parseFloat(pS['ub_final_ub_e']) || 0;
+                    const p = parseFloat(pS['ub_final_ub_p']) || 0;
+                    const total = (d > 0 || e > 0 || d === 0 || e === 0) ? Math.max(0, d + e - p) : 0;
+                    sD = { d, e, p, total };
+                    console.log(`[Display showScore] UB FINAL data for ${gId}:`, sD);
+                } else {
+                    sD = getAppScore(pS, dispApp, gId, bP);
+                    console.log(`[Display showScore] ${dispApp.toUpperCase()} data for ${gId}:`, sD);
+                }
+                if (scoreDEl) scoreDEl.textContent = sD.d.toFixed(1);
+                if (scoreEEl) scoreEEl.textContent = sD.e.toFixed(3);
+                if (scorePEl) scorePEl.textContent = sD.p.toFixed(1);
+                if (scoreTotalEl) scoreTotalEl.textContent = sD.total.toFixed(3);
+            }
+            
+            const cR = calculateCurrentRank(lGData);
+            if (rankValueEl) rankValueEl.textContent = cR ?? '--';
+            updateVisibleScreen('timer');
+        }
+
+
+        let controlChannel = null;
+        try {
+            controlChannel = new BroadcastChannel('fx-control');
+            console.log("[Display] BroadcastChannel created successfully");
+            
+            controlChannel.onmessage = (event) => {
+                try {
+                    const { action, type, screen, gymnastId, phase, apparatus, subdivIdx, rotIdx, index } = event.data;
+                    const messageAction = action || type; // Support both action and type for compatibility
+                    console.log(`[Display BC Recv] Action: ${messageAction}, Screen: ${screen}, Phase: ${phase}, App: ${apparatus}, Index: ${index}, CurrentVisible: ${visibleScreen}`);
+
+                    if (['next','prev','setIndex','setPhase','sync', 'timer-reset'].includes(action)) {
+                        stopAndResetAudio();
+                    }
+
+                    switch (messageAction) {
+                        case 'showScore':
+                            // Show score for selected gymnast
+                            if (event.data.gymnast) {
+                                showScore(event.data.gymnast);
+                            }
+                            break;
+                        case 'showScreen':
+                            // Show requested screen (timer, startlist, results, etc)
+                            if (event.data.screen) {
+                                updateVisibleScreen(event.data.screen);
+                            }
+                            break;
+                        case 'timer-reset':
+                        case 'reset':
+                            // Reset timer and update display
+                            resetTimer();
+                            if (visibleScreen === 'timer') updateMainDisplayMode();
+                            break;
+                        case 'test':
+                            console.log(`[Display] Received test message: ${event.data.message}`);
+                            break;
+                        case 'setPhase': case 'sync':
+                            console.log(`[Display] Processing ${action}:`, event.data);
+                            currentPhase=phase||currentPhase; currentApparatus=apparatus||currentApparatus; currentSubdivIdx=subdivIdx??null; currentRotIdx=rotIdx??null; currentIndex=index??0;
+                            activeVaultNum = event.data.activeVaultNum || 1;
+                            if (currentApparatus === 'vt' && event.data.vaultCode !== undefined && event.data.vaultDV !== undefined) {
+                                currentDisplayVaultCode = event.data.vaultCode === "0.0" ? "DV -.--" : `DV ${event.data.vaultCode}`;
+                                currentDisplayVaultDV = event.data.vaultDV > 0 ? event.data.vaultDV.toFixed(1) : '-.--';
+                            }
+                            listenStartListStructure(currentPhase.split('|')[0]);
+                            break;
+                        case 'setVaultInfo':
+                            console.log(`[Display] Processing setVaultInfo:`, event.data);
+                            if (currentApparatus === 'vt') {
+                                activeVaultNum = event.data.activeVaultNum || activeVaultNum;
+                                currentDisplayVaultCode = event.data.vaultCode === "0.0" ? "DV -.--" : `DV ${event.data.vaultCode}`;
+                                currentDisplayVaultDV = event.data.vaultDV > 0 ? event.data.vaultDV.toFixed(1) : '-.--';
+                                if (timerState !== 'score' && visibleScreen === 'timer') {
+                                    updateVaultPreScoreStatusDisplay();
+                                }
+                            }
+                            break;
+                        case 'next': 
+                            console.log(`[Display] Processing next, current index: ${currentIndex}, list length: ${fxStartList.length}`);
+                            if(fxStartList.length>0){currentIndex=(currentIndex+1)%fxStartList.length; activeVaultNum=1; }
+                            updateGymnastInfoOnDisplay(); resetTimer(); if(visibleScreen === 'timer') updateMainDisplayMode();
+                            break;
+                        case 'next': 
+                            console.log(`[Display] Processing next, current index: ${currentIndex}, list length: ${fxStartList.length}`);
+                            if (fxStartList.length > 0) {
+                                if (currentApparatus === 'fx' && currentPhase.split('|')[0] === 'fx_final' && event.data.gymnastId) {
+                                    const idx = fxStartList.findIndex(g => g.id === event.data.gymnastId);
+                                    if (idx !== -1) currentIndex = idx;
+                                } else {
+                                    currentIndex = (currentIndex + 1) % fxStartList.length;
+                                }
+                                activeVaultNum = 1;
+                            }
+                            updateGymnastInfoOnDisplay(); resetTimer(); if (visibleScreen === 'timer') updateMainDisplayMode();
+                            break;
+                        case 'prev': 
+                            console.log(`[Display] Processing prev, current index: ${currentIndex}, list length: ${fxStartList.length}`);
+                            if (fxStartList.length > 0) {
+                                if (currentApparatus === 'fx' && currentPhase.split('|')[0] === 'fx_final' && event.data.gymnastId) {
+                                    const idx = fxStartList.findIndex(g => g.id === event.data.gymnastId);
+                                    if (idx !== -1) currentIndex = idx;
+                                } else {
+                                    currentIndex = (currentIndex - 1 + fxStartList.length) % fxStartList.length;
+                                }
+                                activeVaultNum = 1;
+                            }
+                            updateGymnastInfoOnDisplay(); resetTimer(); if (visibleScreen === 'timer') updateMainDisplayMode();
+                            break;
+                        case 'setIndex': 
+                            console.log(`[Display] Processing setIndex: ${index}, current: ${currentIndex}`);
+                            if (currentApparatus === 'fx' && currentPhase.split('|')[0] === 'fx_final' && event.data.gymnastId) {
+                                const idx = fxStartList.findIndex(g => g.id === event.data.gymnastId);
+                                if (idx !== -1) currentIndex = idx;
+                            } else {
+                                currentIndex = index ?? 0;
+                            }
+                            activeVaultNum = 1;
+                            updateGymnastInfoOnDisplay(); resetTimer(); if (visibleScreen === 'timer') updateMainDisplayMode();
+                            break;
+                        case 'timer-start':
+                            console.log(`[Display] Processing timer-start:`, event.data);
+                            activeVaultNum = event.data.activeVaultNum || activeVaultNum;
+                            if (currentApparatus === 'vt' && event.data.vaultCode !== undefined && event.data.vaultDV !== undefined) {
+                                 currentDisplayVaultCode = event.data.vaultCode === "0.0" ? "DV -.--" : `DV ${event.data.vaultCode}`;
+                                 currentDisplayVaultDV = event.data.vaultDV > 0 ? event.data.vaultDV.toFixed(1) : '-.--';
+                            }
+                            if (currentApparatus === 'fx' && currentPhase.split('|')[0] === 'fx_final' && event.data.gymnastId) {
+                                const idx = fxStartList.findIndex(g => g.id === event.data.gymnastId);
+                                if (idx !== -1) currentIndex = idx;
+                            }
+                            resetTimer(); startTimer();
+                            if (gymnastId && gymnastAudioElement && currentApparatus === 'fx') { const gD = allGymnastData.find(g => g.id === gymnastId); if (gD && gD.fxMusicUrl) { gymnastAudioElement.src = gD.fxMusicUrl; gymnastAudioElement.play().catch(e => console.error("[Audio] Play Error:", e)); } else {stopAndResetAudio();} } else if (currentApparatus !== 'fx') { stopAndResetAudio(); }
+                            break;
+                            if (currentApparatus === 'vt' && event.data.vaultCode !== undefined && event.data.vaultDV !== undefined) {
+                                 currentDisplayVaultCode = event.data.vaultCode === "0.0" ? "DV -.--" : `DV ${event.data.vaultCode}`;
+                                 currentDisplayVaultDV = event.data.vaultDV > 0 ? event.data.vaultDV.toFixed(1) : '-.--';
+                            }
+                            resetTimer(); startTimer();
+                            if (gymnastId && gymnastAudioElement && currentApparatus === 'fx') { const gD = allGymnastData.find(g => g.id === gymnastId); if (gD && gD.fxMusicUrl) { gymnastAudioElement.src = gD.fxMusicUrl; gymnastAudioElement.play().catch(e => console.error("[Audio] Play Error:", e)); } else {stopAndResetAudio();} } else if (currentApparatus !== 'fx') { stopAndResetAudio(); }
+                            break;
+                        case 'timer-stop': 
+                            console.log(`[Display] Processing timer-stop`);
+                            stopTimer(); 
+                            break;
+                        case 'showScreen': 
+                            console.log(`[Display] Processing showScreen: ${screen}`);
+                            if(screen) updateVisibleScreen(screen); 
+                            break;
+                        case 'cycleScreen': 
+                            console.log(`[Display] Processing cycleScreen`);
+                            let nS='timer'; if(visibleScreen==='timer')nS='startlist'; else if(visibleScreen==='startlist')nS='results'; updateVisibleScreen(nS); 
+                            break;
+                        case 'warmup-start':
+                            console.log(`[Display] Processing warmup-start:`, event.data);
+                            showWarmupOverlay(event.data.time, event.data.totalTime);
+                            break;
+                        case 'warmup-update':
+                            console.log(`[Display] Processing warmup-update:`, event.data);
+                            updateWarmupDisplay(event.data.time, event.data.totalTime);
+                            break;
+                        case 'warmup-pause':
+                            console.log(`[Display] Processing warmup-pause:`, event.data);
+                            updateWarmupStatus(event.data.paused ? 'Pausado' : 'Aquecendo...');
+                            break;
+                        case 'warmup-stop':
+                            console.log(`[Display] Processing warmup-stop`);
+                            hideWarmupOverlay();
+                            break;
+                        case 'warmup-finished':
+                            console.log(`[Display] Processing warmup-finished`);
+                            updateWarmupStatus('Tempo Esgotado!');
+                            setTimeout(() => hideWarmupOverlay(), 3000);
+                            break;
+                        case 'show-warmup-screen':
+                        case 'showWarmup':
+                            console.log(`[Display] ✅ Ativando tela de aquecimento permanente`);
+                            showWarmupOverlay(0, 0, true); // permanente
+                            break;
+                        case 'show-resources-screen':
+                        case 'showResources':
+                            console.log(`[Display] ✅ Ativando tela de recursos permanente`);
+                            showResourcesScreen();
+                            break;
+                        case 'hide-special-screens':
+                        case 'hideSpecial':
+                            console.log(`[Display] ✅ Ocultando telas especiais`);
+                            hideWarmupOverlay();
+                            hideResourcesScreen();
+                            break;
+                        case 'inquiry-submitted':
+                            console.log(`[Display] Processing inquiry-submitted:`, event.data);
+                            showInquiryOverlay(event.data.inquiry, 'submitted');
+                            break;
+                        case 'inquiry-resolved':
+                            console.log(`[Display] Processing inquiry-resolved:`, event.data);
+                            showInquiryOverlay(event.data.inquiry, 'resolved');
+                            break;
+                        case 'inquiry-rejected':
+                            console.log(`[Display] Processing inquiry-rejected:`, event.data);
+                            showInquiryOverlay(event.data.inquiry, 'rejected');
+                            break;
+                        default:
+                            console.warn(`[Display] Unknown action received: ${action}`);
+                    }
+                } catch (error) {
+                    console.error("[Display] Error processing BroadcastChannel message:", error, event.data);
+                }
+            };
+            
+            controlChannel.onerror = (error) => {
+                console.error("[Display] BroadcastChannel error:", error);
+            };
+            
+        } catch (e) { 
+            console.error("[Display] BroadcastChannel creation failed:", e); 
+        }
+
+        if (enableAudioBtn && gymnastAudioElement && beepAudioElement) { 
+            enableAudioBtn.onclick = () => { 
+                console.log('[Audio] Testing audio elements...');
+                
+                // Test beep audio first (more important)
+                beepAudioElement.play().then(() => { 
+                    beepAudioElement.pause(); 
+                    beepAudioElement.currentTime = 0;
+                    audioEnabled = true;
+                    console.log('[Audio] Beep audio test successful');
+                    
+                    // Try gymnast audio as secondary
+                    gymnastAudioElement.play().then(() => { 
+                        gymnastAudioElement.pause(); 
+                        gymnastAudioElement.currentTime = 0;
+                        console.log('[Audio] Gymnast audio test successful');
+                        enableAudioBtn.style.display = 'none';
+                        console.log('[Audio] Both audio elements enabled successfully');
+                    }).catch(() => {
+                        console.log('[Audio] Gymnast audio failed but beep works');
+                        enableAudioBtn.style.display = 'none';
+                    });
+                }).catch(e => { 
+                    console.warn("Beep audio failed:", e);
+                    alert("Não foi possível habilitar o áudio do beep. Verifique se o arquivo beep.mp3 existe em /public/audio/ e se o navegador permite reprodução de áudio.");
+                }); 
+            }; 
+        }
+
+        // =================== FUNÇÕES DO TIMER DE AQUECIMENTO ===================
+        const warmupOverlay = document.getElementById('warmup-overlay');
+        const warmupTimerDisplay = document.getElementById('warmup-timer-display');
+        const warmupStatusDisplay = document.getElementById('warmup-status-display');
+        const warmupProgressBar = document.getElementById('warmup-progress-bar');
+        let currentWarmupMusic = null;
+
+        function showWarmupOverlay(time, totalTime, permanent = false) {
+            warmupOverlay.classList.add('active');
+            if (permanent) {
+                updateWarmupDisplay(0, 0);
+                updateWarmupStatus('Aquecimento - Aguardando');
+            } else {
+                updateWarmupDisplay(time, totalTime);
+                updateWarmupStatus('Preparando aquecimento...');
+                
+                // Play warmup start audio (3 seconds)
+                if (warmupStartAudio) {
+                    warmupStartAudio.play().catch(e => console.log('Erro ao reproduzir áudio de início:', e));
+                }
+                
+                // After 3 seconds, start the warmup music
+                setTimeout(() => {
+                    updateWarmupStatus('Aquecendo...');
+                    
+                    // Stop any previous warmup music
+                    if (currentWarmupMusic) {
+                        currentWarmupMusic.pause();
+                        currentWarmupMusic.currentTime = 0;
+                    }
+                    
+                    // Select music based on total time
+                    currentWarmupMusic = totalTime === 60 ? warmupMusic1Min : warmupMusic4Min;
+                    if (currentWarmupMusic) {
+                        currentWarmupMusic.currentTime = 0;
+                        currentWarmupMusic.play().catch(e => console.log('Erro ao reproduzir música de aquecimento:', e));
+                    }
+                }, 3000);
+            }
+        }
+
+        function hideWarmupOverlay() {
+            warmupOverlay.classList.remove('active');
+            
+            // Stop any warmup music
+            if (currentWarmupMusic) {
+                currentWarmupMusic.pause();
+                currentWarmupMusic.currentTime = 0;
+                currentWarmupMusic = null;
+            }
+            
+            // Play warmup end audio if it exists
+            if (warmupEndAudio) {
+                warmupEndAudio.play().catch(e => console.log('Erro ao reproduzir áudio de fim:', e));
+            }
+        }
+
+        function showResourcesScreen() {
+            // Mostrar overlay de recursos com mensagem genérica
+            const inquiryOverlay = document.getElementById('inquiry-overlay');
+            const inquiryTitle = document.getElementById('inquiry-title');
+            const inquiryGymnast = document.getElementById('inquiry-gymnast');
+            const inquiryType = document.getElementById('inquiry-type-display');
+            const inquiryReason = document.getElementById('inquiry-reason-display');
+            const inquiryTimestamp = document.getElementById('inquiry-timestamp');
+            
+            inquiryTitle.innerHTML = '<span>⚖️ Sistema de Recursos</span>';
+            inquiryGymnast.textContent = 'Aguardando recursos...';
+            inquiryType.textContent = 'Sistema ativo';
+            inquiryReason.textContent = 'O painel de recursos está disponível para submissões.';
+            inquiryTimestamp.textContent = new Date().toLocaleTimeString('pt-BR');
+            
+            inquiryOverlay.style.display = 'block';
+        }
+
+        function hideResourcesScreen() {
+            const inquiryOverlay = document.getElementById('inquiry-overlay');
+            inquiryOverlay.style.display = 'none';
+        }
+
+        function updateWarmupDisplay(time, totalTime) {
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            warmupTimerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Atualizar barra de progresso
+            const progress = totalTime > 0 ? ((totalTime - time) / totalTime) * 100 : 0;
+            warmupProgressBar.style.width = `${progress}%`;
+        }
+
+        function updateWarmupStatus(status) {
+            warmupStatusDisplay.textContent = status;
+        }
+
+        // =================== FUNÇÕES DO SISTEMA DE RECURSOS ===================
+        const inquiryOverlay = document.getElementById('inquiry-overlay');
+        const inquiryTitle = document.getElementById('inquiry-title');
+        const inquiryGymnast = document.getElementById('inquiry-gymnast');
+        const inquiryTypeDisplay = document.getElementById('inquiry-type-display');
+        const inquiryReasonDisplay = document.getElementById('inquiry-reason-display');
+        const inquiryTimestamp = document.getElementById('inquiry-timestamp');
+
+        function showInquiryOverlay(inquiry, status) {
+            inquiryOverlay.className = `inquiry-overlay active ${status}`;
+            
+            // Atualizar conteúdo
+            const gymnastDisplay = inquiry.gymnastCountry ? 
+                `${inquiry.gymnastName} (${inquiry.gymnastCountry})` : 
+                inquiry.gymnastName;
+            inquiryGymnast.textContent = gymnastDisplay;
+            inquiryTypeDisplay.textContent = 'Nota D (Dificuldade)'; // Sempre nota D
+            inquiryReasonDisplay.textContent = inquiry.reason;
+            
+            // Formatar timestamp
+            const time = new Date(inquiry.timestamp).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            inquiryTimestamp.textContent = time;
+
+            // Atualizar título baseado no status
+            let titleText = '';
+            let icon = '';
+            
+            switch(status) {
+                case 'submitted':
+                    titleText = 'Recurso Submetido';
+                    icon = '⚖️';
+                    break;
+                case 'resolved':
+                    titleText = 'Recurso Resolvido';
+                    icon = '✅';
+                    break;
+                case 'rejected':
+                    titleText = 'Recurso Rejeitado';
+                    icon = '❌';
+                    break;
+            }
+            
+            inquiryTitle.innerHTML = `<span>${icon} ${titleText}</span>`;
+
+            // NOVA FUNCIONALIDADE: Mostrar informações de resolução/rejeição
+            const resolutionDiv = document.getElementById('inquiry-resolution');
+            const resolutionTitle = document.getElementById('resolution-title');
+            const resolutionDecision = document.getElementById('resolution-decision');
+            const resolutionJustification = document.getElementById('resolution-justification');
+
+            if (status === 'resolved' && inquiry.resolution) {
+                resolutionDiv.style.display = 'block';
+                resolutionTitle.innerHTML = '✅ Decisão da Organização';
+                
+                const decisionText = inquiry.resolution.decision === 'increased' ? 
+                    '📈 Nota Aumentada' : '📉 Nota Diminuída';
+                resolutionDecision.innerHTML = `<strong>Resultado:</strong> ${decisionText}`;
+                resolutionJustification.innerHTML = `<strong>Justificativa:</strong> ${inquiry.resolution.justification}`;
+                
+            } else if (status === 'rejected' && inquiry.rejectionReason) {
+                resolutionDiv.style.display = 'block';
+                resolutionTitle.innerHTML = '❌ Recurso Rejeitado';
+                resolutionDecision.innerHTML = `<strong>Status:</strong> Recurso não aceito`;
+                resolutionJustification.innerHTML = `<strong>Motivo:</strong> ${inquiry.rejectionReason}`;
+                
+            } else {
+                resolutionDiv.style.display = 'none';
+            }
+
+            // Auto-hide após algum tempo (exceto para submitted)
+            if (status !== 'submitted') {
+                setTimeout(() => {
+                    inquiryOverlay.classList.remove('active');
+                }, 10000); // Increased time to read resolution details
+            }
+        }
+
+        function formatInquiryType(type) {
+            const types = {
+                'd_score': 'Nota D (Dificuldade)',
+                'e_score': 'Nota E (Execução)',
+                'nd_deduction': 'Dedução ND',
+                'line_deduction': 'Dedução de Linha',
+                'time_violation': 'Violação de Tempo'
+            };
+            return types[type] || type;
+        }
+
+          document.addEventListener('DOMContentLoaded', () => {
+            console.log("[Display DOMContentLoaded] Initializing. Default visibleScreen:", visibleScreen);
+            
+            // Test BroadcastChannel
+            if (controlChannel) {
+                try {
+                    controlChannel.postMessage({ action: 'test', message: 'Display ready' });
+                    console.log("[Display] Test message sent to control");
+                } catch (e) {
+                    console.error("[Display] Failed to send test message:", e);
+                }
+            }
+            
+            // Initialize lastBeepTime to allow initial beep
+            lastBeepTime = -1;
+            
+            // Force initial sync
+            setTimeout(() => {
+                console.log("[Display DOMContentLoaded] Forcing initial sync...");
+                syncDisplay();
+                if(visibleScreen === 'timer') { 
+                    updateGymnastInfoOnDisplay(); 
+                    resetTimer(); 
+                    updateMainDisplayMode(); 
+                }
+            }, 1000);
+        });
+
+        // ===== SISTEMA DE EFEITOS SONOROS =====
+        const soundEffectsChannel = new BroadcastChannel('sound-effects');
+        let currentSoundEffectAudio = null;
+        
+        // Dados dos países com bandeiras corretas
+        const countryData = {
+            'china': {
+                name: 'CHINA',
+                flagClass: 'fi fi-cn'
+            },
+            'italy': {
+                name: 'ITÁLIA', 
+                flagClass: 'fi fi-it'
+            },
+            'usa': {
+                name: 'EUA',
+                flagClass: 'fi fi-us'
+            },
+            'brazil': {
+                name: 'BRASIL',
+                flagClass: 'fi fi-br'
+            }
+        };
+
+        // Escutar comandos de efeitos sonoros do control
+        soundEffectsChannel.addEventListener('message', (event) => {
+            const { type, effect, audioFile } = event.data;
+            
+            if (type === 'SOUND_EFFECT') {
+                console.log(`🎵 Display recebeu comando: ${effect}`);
+                
+                // Auto-habilitar áudio se necessário
+                if (typeof audioEnabled === 'undefined' || !audioEnabled) {
+                    console.log('🔊 Auto-habilitando áudio para efeitos sonoros...');
+                    if (enableAudioBtn) {
+                        enableAudioBtn.click(); // Simula clique para habilitar áudio
+                    }
+                }
+                
+                playSoundEffectOnDisplay(effect, audioFile);
+            } else if (type === 'CLEAR_SOUND_EFFECTS') {
+                console.log('❌ Display: Limpando efeitos sonoros');
+                clearSoundEffectsOnDisplay();
+            }
+        });
+
+        function playSoundEffectOnDisplay(effect, audioFile) {
+            // Parar áudio anterior se existir
+            if (currentSoundEffectAudio) {
+                currentSoundEffectAudio.pause();
+                currentSoundEffectAudio.currentTime = 0;
+            }
+
+            // Esconder todas as telas
+            hideAllScreens();
+
+            switch (effect) {
+                case 'welcome':
+                    showWelcomeScreen();
+                    break;
+                    
+                case 'brazil-anthem':
+                    showBelgiumAnthemScreen();
+                    break;
+                    
+                case 'china-reception':
+                    showCountryReceptionScreen('china');
+                    break;
+                    
+                case 'italy-reception':
+                    showCountryReceptionScreen('italy');
+                    break;
+                    
+                case 'usa-reception':
+                    showCountryReceptionScreen('usa');
+                    break;
+                    
+                case 'brazil-reception':
+                    showCountryReceptionScreen('brazil');
+                    break;
+                    
+                case 'final-instructions':
+                    showFinalInstructionsScreen();
+                    break;
+            }
+
+            // Reproduzir áudio se disponível
+            if (audioFile) {
+                playAudioFile(audioFile);
+            }
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('.screen-view').forEach(screen => {
+                screen.style.display = 'none';
+            });
+        }
+
+        function showWelcomeScreen() {
+            document.getElementById('welcome-screen').style.display = 'flex';
+        }
+
+        function showBelgiumAnthemScreen() {
+            document.getElementById('brazil-anthem-screen').style.display = 'flex';
+        }
+
+        function showCountryReceptionScreen(country) {
+            const screen = document.getElementById('country-reception-screen');
+            const flag = document.getElementById('reception-flag');
+            const countryTitle = document.getElementById('reception-country');
+            const athletesList = document.getElementById('reception-athletes');
+            
+            // Configurar país
+            const data = countryData[country];
+            if (data) {
+                // Aplicar a classe da bandeira usando flag-icons
+                flag.className = `country-flag ${data.flagClass}`;
+                countryTitle.textContent = data.name;
+                
+                // Buscar atletas do país com filtros mais flexíveis
+                const countryAthletes = allGymnastData.filter(g => {
+                    if (!g.country) return false;
+                    
+                    const countryLower = g.country.toLowerCase();
+                    
+                    // Filtros específicos por país
+                    switch(country) {
+                        case 'china':
+                            return countryLower.includes('chi') || countryLower.includes('chn') || countryLower === 'china';
+                        case 'italy':
+                            return countryLower.includes('ita') || countryLower === 'italy' || countryLower === 'itália';
+                        case 'usa':
+                            return countryLower.includes('usa') || countryLower.includes('united') || countryLower.includes('eua');
+                        case 'brazil':
+                            return countryLower.includes('bra') || countryLower.includes('brasil') || countryLower === 'brazil';
+                        default:
+                            return false;
+                    }
+                });
+                
+                console.log(`🔍 Atletas encontrados para ${data.name}:`, countryAthletes);
+                
+                if (countryAthletes.length > 0) {
+                    athletesList.innerHTML = countryAthletes
+                        .map(athlete => `<div style="margin: 8px 0; font-weight: 600;">${athlete.name}</div>`)
+                        .join('');
+                } else {
+                    athletesList.innerHTML = `<div style="font-style: italic; color: #cccccc;">Nenhum atleta encontrado para ${data.name}<br><small>Verifique se o país está registrado corretamente no Firebase</small></div>`;
+                }
+            }
+            
+            screen.style.display = 'flex';
+        }
+
+        function showFinalInstructionsScreen() {
+            document.getElementById('final-instructions-screen').style.display = 'flex';
+        }
+
+        function clearSoundEffectsOnDisplay() {
+            console.log('🧹 Limpando todas as telas de efeitos sonoros');
+            
+            // Parar áudio se estiver tocando
+            if (currentSoundEffectAudio) {
+                currentSoundEffectAudio.pause();
+                currentSoundEffectAudio.currentTime = 0;
+                currentSoundEffectAudio = null;
+            }
+            
+            // Esconder todas as telas especiais
+            const specialScreens = document.querySelectorAll('.special-screen');
+            specialScreens.forEach(screen => {
+                screen.style.display = 'none';
+            });
+            
+            // Mostrar a tela que estava ativa antes (baseado no visibleScreen)
+            if (typeof visibleScreen !== 'undefined' && visibleScreen) {
+                const currentScreen = document.getElementById(`fx-${visibleScreen}-screen`);
+                if (currentScreen) {
+                    currentScreen.style.display = 'flex';
+                    console.log(`✅ Voltando para tela: ${visibleScreen}`);
+                } else {
+                    // Fallback: mostrar start-list se não encontrar a tela atual
+                    const startListScreen = document.getElementById('fx-startlist-screen');
+                    if (startListScreen) {
+                        startListScreen.style.display = 'flex';
+                        console.log('✅ Fallback: Voltando para start-list');
+                    }
+                }
+            } else {
+                // Fallback padrão: mostrar start-list
+                const startListScreen = document.getElementById('fx-startlist-screen');
+                if (startListScreen) {
+                    startListScreen.style.display = 'flex';
+                    console.log('✅ Padrão: Mostrando start-list');
+                }
+            }
+        }
+
+        function playAudioFile(audioFile) {
+            console.log(`🎵 Tentando reproduzir: ${audioFile}`);
+            
+            // Verificar se o áudio foi habilitado
+            if (typeof audioEnabled === 'undefined' || !audioEnabled) {
+                console.warn('⚠️ Áudio não habilitado! Clique em "Habilitar Áudio" primeiro.');
+                
+                // Mostrar o botão de habilitar áudio se estiver oculto
+                if (enableAudioBtn) {
+                    enableAudioBtn.style.display = 'block';
+                    enableAudioBtn.style.background = 'rgba(255, 0, 0, 0.8)';
+                    enableAudioBtn.textContent = '🔊 Clique para Habilitar Áudio';
+                }
+                return;
+            }
+            
+            try {
+                // Parar áudio anterior se existir
+                if (currentSoundEffectAudio) {
+                    currentSoundEffectAudio.pause();
+                    currentSoundEffectAudio.currentTime = 0;
+                }
+                
+                currentSoundEffectAudio = new Audio(audioFile);
+                currentSoundEffectAudio.volume = 0.8;
+                
+                // Forçar play com Promise
+                const playPromise = currentSoundEffectAudio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            console.log(`✅ Áudio ${audioFile} reproduzindo com sucesso!`);
+                        })
+                        .catch(e => {
+                            console.warn(`⚠️ Erro no play() de ${audioFile}:`, e.message);
+                            if (e.name === 'NotAllowedError') {
+                                console.log('🔊 Áudio bloqueado - clique em "Habilitar Áudio" primeiro');
+                            }
+                        });
+                }
+            } catch (error) {
+                console.error(`❌ Erro ao criar áudio ${audioFile}:`, error.message);
+            }
+        }
+
+        window.addEventListener('unload', () => { 
+            stopAndResetAudio(); 
+            if(controlChannel)controlChannel.close(); 
+            if(soundEffectsChannel)soundEffectsChannel.close();
+            if(unsubscribeGymnasts)unsubscribeGymnasts(); 
+            if(unsubscribeStructure)unsubscribeStructure(); 
+            clearInterval(timerInterval); 
+        });
+    </script>
+</body>
+</html>

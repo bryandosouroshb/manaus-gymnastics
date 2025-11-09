@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - LocalStorage</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        pre {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+        .info {
+            background: #d1ecf1;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid #bee5eb;
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme-manaus.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 Debug - LocalStorage</h1>
+        
+        <div class="info">
+            <strong>Instruções:</strong><br>
+            1. Abra esta página no mesmo navegador onde está testando o login<br>
+            2. Clique em "Mostrar LocalStorage" para ver os dados salvos<br>
+            3. Se necessário, limpe o localStorage e tente fazer login novamente
+        </div>
+
+        <div>
+            <button class="btn btn-primary" onclick="showLocalStorage()">Mostrar LocalStorage</button>
+            <button class="btn btn-danger" onclick="clearUserData()">Limpar Dados do Usuário</button>
+            <button class="btn btn-success" onclick="setAdminManually()">Definir Admin Manualmente</button>
+        </div>
+
+        <h3>Dados do LocalStorage:</h3>
+        <pre id="localStorage-data">Clique em "Mostrar LocalStorage" para ver os dados</pre>
+
+        <h3>Console Logs:</h3>
+        <pre id="console-logs"></pre>
+    </div>
+
+    <script>
+        function logToConsole(message) {
+            console.log(message);
+            const logsDiv = document.getElementById('console-logs');
+            logsDiv.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        }
+
+        function showLocalStorage() {
+            const data = {
+                userRole: localStorage.getItem('userRole'),
+                userEmail: localStorage.getItem('userEmail'),
+                userUID: localStorage.getItem('userUID'),
+                allKeys: Object.keys(localStorage)
+            };
+
+            document.getElementById('localStorage-data').textContent = JSON.stringify(data, null, 2);
+            
+            logToConsole('LocalStorage consultado:');
+            logToConsole(`userRole: "${data.userRole}" (tipo: ${typeof data.userRole})`);
+            logToConsole(`userEmail: "${data.userEmail}"`);
+            logToConsole(`userUID: "${data.userUID}"`);
+        }
+
+        function clearUserData() {
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userUID');
+            
+            logToConsole('Dados do usuário removidos do localStorage');
+            showLocalStorage();
+            
+            alert('Dados removidos! Agora você pode tentar fazer login novamente.');
+        }
+
+        function setAdminManually() {
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('userEmail', 'admin@manauss.com');
+            localStorage.setItem('userUID', 'manual-admin-uid');
+            
+            logToConsole('Role admin definido manualmente');
+            showLocalStorage();
+            
+            alert('Role admin definido! Vá para o dashboard para testar.');
+        }
+
+        // Mostrar dados automaticamente ao carregar
+        window.onload = () => {
+            showLocalStorage();
+        };
+    </script>
+</body>
+</html>

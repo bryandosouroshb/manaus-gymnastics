@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar - Final por Equipes | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        /* --- CONFIGURAÇÕES GLOBAIS E VARIÁVEIS (PADRÃO OURO) --- */
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1001;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem; }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase { font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .live-indicator {
+            background: #e74c3c; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; animation: livePulse 1.5s infinite;
+        }
+        @keyframes livePulse { 
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(231, 76, 60, 0); }
+        }
+        .header-nav .nav-btn {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer;
+        }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        /* --- ESTRUTURA PRINCIPAL --- */
+        .main-container { display: flex; flex-grow: 1; }
+        .content-area {
+            flex-grow: 1; padding: 2rem 3rem; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><pattern id="hexagon" width="60" height="60" patternUnits="userSpaceOnUse"><polygon points="30,2 52,17 52,43 30,58 8,43 8,17" fill="none" stroke="rgba(14,124,58,0.03)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23hexagon)"/></svg>') repeat;
+        }
+        .view-panel { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        /* --- ESTILOS COMUNS PARA PAINEIS --- */
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .panel-title { font-size: 2rem; font-weight: 800; color: var(--primary-green-dark); }
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); color: white; padding: 0.8rem 1.8rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'Montserrat', sans-serif;
+        }
+        .refresh-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+        .data-container { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); overflow: hidden; border: 1px solid var(--border-color); }
+        
+        /* --- TABELA DE PLACAR --- */
+        .table-wrapper { overflow-x: auto; }
+        .scoreboard-table { width: 100%; border-collapse: collapse; }
+        .scoreboard-table th { background: #f8f9fa; color: var(--primary-green-dark); padding: 1rem; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.8rem; position: sticky; top: 0; z-index: 10; }
+        .scoreboard-table td { padding: 1rem; text-align: center; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        .scoreboard-table tbody tr:hover { background-color: #f0fdf4; }
+        .rank { font-weight: 800; font-size: 1.1rem; }
+        .country-cell { text-align: left; }
+        .fi { font-size: 1.2rem; margin-right: 0.5rem; vertical-align: middle; }
+        .total-score { font-weight: 800; font-size: 1.1rem; color: var(--primary-green-dark); }
+        
+        /* --- GRID DE RESUMO (PÓDIO E STATS) --- */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .summary-card { padding: 1.5rem; } /* .data-container serve como card */
+        .summary-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-green-dark);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        /* Pódio */
+        .medal-results {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+        .medal-position {
+            text-align: center;
+            flex: 1;
+        }
+        .medal-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .medal-country { font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .medal-score { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
+        .rank-1 .medal-icon { color: #ffd700; }
+        .rank-2 .medal-icon { color: #c0c0c0; }
+        .rank-3 .medal-icon { color: #cd7f32; }
+
+        /* Stats */
+        .stats-list { list-style: none; }
+        .stats-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
+        .stats-item:last-child { border-bottom: none; }
+        .stats-item strong { color: var(--text-dark); }
+        .stats-item span { font-weight: 600; color: var(--primary-green); }
+
+        /* Loading Spinner */
+        .loading { text-align: center; padding: 3rem; color: var(--text-light); }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-users"></i>
+            <span>Placar ao Vivo</span>
+            <span class="header-phase">Final por Equipes</span>
+        </div>
+        <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="edit-scores-team-final.html" class="nav-btn"><i class="fas fa-edit"></i> Editar Notas</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <main class="content-area">
+            <div class="panel-header">
+                <h1 class="panel-title">Final por Equipes</h1>
+                <button class="refresh-btn" onclick="loadResults()"><i class="fas fa-sync-alt"></i> Atualizar</button>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Carregando resultados...</p>
+            </div>
+
+            <!-- Painel principal que será exibido após o carregamento -->
+            <div id="results-panel" class="view-panel hidden">
+                
+                <!-- Grid com Resumos (Pódio e Estatísticas) -->
+                <div class="summary-grid" id="teamResults">
+                    <div class="data-container summary-card">
+                        <div class="summary-header">
+                            <i class="fas fa-trophy"></i> Pódio da Competição
+                        </div>
+                        <div class="medal-results" id="podiumSummary">
+                            <!-- Pódio gerado via JS -->
+                        </div>
+                    </div>
+                    <div class="data-container summary-card">
+                        <div class="summary-header">
+                            <i class="fas fa-chart-line"></i> Estatísticas
+                        </div>
+                        <ul class="stats-list" id="statsContent">
+                            <!-- Estatísticas geradas via JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tabela com a Classificação Completa -->
+                <div id="fullResults">
+                    <div class="panel-header" style="margin-bottom: 1.5rem;">
+                        <h2 class="panel-title" style="font-size: 1.6rem; font-weight: 700;">Classificação Completa</h2>
+                    </div>
+                    <div class="data-container">
+                        <div class="table-wrapper">
+                            <table class="scoreboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Pos</th>
+                                        <th style="text-align: left;">Equipe</th>
+                                        <th>VT</th>
+                                        <th>UB</th>
+                                        <th>BB</th>
+                                        <th>FX</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsTableBody">
+                                    <!-- Tabela preenchida via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK e Scripts de Lógica (INTOCADOS) -->
+    <script src="js/countries.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/calculation-logic.js"></script>
+
+    <script>
+        // Firebase já inicializado via firebase-init.js (globals)
+        const db = window.db;
+        
+        let unsubscribe = null;
+
+        // Carregar resultados com sincronização em tempo real
+        function loadResults() {
+            try {
+                const loadingEl = document.getElementById('loading');
+                const resultsPanelEl = document.getElementById('results-panel');
+                if (loadingEl) loadingEl.classList.remove('hidden');
+                if (resultsPanelEl) resultsPanelEl.classList.add('hidden');
+
+                console.log('[SCOREBOARD] Carregando dados para Final por Equipes...');
+                
+                if (unsubscribe) {
+                    unsubscribe();
+                }
+
+                let allGymnastData = [];
+                let teamFinalDrawData = null;
+
+                const unsubscribeGymnasts = window.db.collection('new_gymnasts').onSnapshot((snapshot) => {
+                    allGymnastData = [];
+                    
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        if (data.name && data.country) {
+                            allGymnastData.push({ id: doc.id, ...data });
+                        }
+                    });
+                    
+                    console.log('[SCOREBOARD] Dados das ginastas atualizados');
+                    
+                    if (allGymnastData.length > 0) {
+                        calculateAndDisplayResults();
+                    }
+                }, (error) => {
+                    console.error('[SCOREBOARD] Erro ao carregar ginastas:', error);
+                });
+
+                const unsubscribeDraw = window.db.collection('start_lists').doc('team_final').onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const docData = doc.data();
+                        teamFinalDrawData = docData.structure || docData; // Pega a estrutura correta
+                        console.log('[SCOREBOARD] Dados de sorteio atualizados:', teamFinalDrawData);
+                        
+                        if (allGymnastData.length > 0) {
+                            calculateAndDisplayResults();
+                        }
+                    } else {
+                        console.log('[SCOREBOARD] Documento team_final não existe');
+                    }
+                }, (error) => {
+                    console.error('[SCOREBOARD] Erro ao carregar sorteio:', error);
+                });
+
+                // Função para calcular pontuações com a nova estrutura
+                function calculateTeamFinalWithNewStructure(allGymnastData, qualifyingCountries, drawStructure) {
+                    console.log('[SCOREBOARD] calculateTeamFinalWithNewStructure - drawStructure:', drawStructure);
+                    
+                    const teamScores = {};
+                    qualifyingCountries.forEach(country => {
+                        teamScores[country] = { country, vt: 0, ub: 0, bb: 0, fx: 0, total: 0 };
+                    });
+
+                    if (!drawStructure.rotations || !Array.isArray(drawStructure.rotations)) {
+                        console.warn('[SCOREBOARD] Estrutura inválida, usando cálculo padrão');
+                        return calculateTeamFinalScores(allGymnastData, qualifyingCountries);
+                    }
+
+                    // Percorre cada rotação
+                    drawStructure.rotations.forEach(rotation => {
+                        if (!rotation.apparatus) return;
+                        
+                        // Para cada aparelho (VT, UB, BB, FX)
+                        ['VT', 'UB', 'BB', 'FX'].forEach(appCode => {
+                            const athletesOnApparatus = rotation.apparatus[appCode] || [];
+                            const appKey = appCode.toLowerCase();
+                            
+                            // Agrupa por país
+                            const byCountry = {};
+                            athletesOnApparatus.forEach(athlete => {
+                                const country = athlete.country;
+                                if (!byCountry[country]) byCountry[country] = [];
+                                byCountry[country].push(athlete);
+                            });
+                            
+                            // Para cada país neste aparelho
+                            Object.keys(byCountry).forEach(country => {
+                                if (!qualifyingCountries.includes(country)) return;
+                                
+                                const countryAthletes = byCountry[country];
+                                let countryAppTotal = 0;
+                                
+                                // Soma as notas de cada atleta (incluindo duplicatas)
+                                countryAthletes.forEach(athlete => {
+                                    const gymnast = allGymnastData.find(g => g.id === athlete.id);
+                                    if (!gymnast || gymnast.team_final_present === false) {
+                                        console.log(`[SCOREBOARD] ${athlete.name} ausente - 0 pontos`);
+                                        return;
+                                    }
+                                    
+                                    const scores = gymnast.scores?.team_final || {};
+                                    const d = scores[`team_final_${appKey}_d`] || 0;
+                                    const e = scores[`team_final_${appKey}_e`] || 0;
+                                    const p = scores[`team_final_${appKey}_p`] || 0;
+                                    const total = Math.max(0, d + e - p);
+                                    
+                                    countryAppTotal += total;
+                                    console.log(`[SCOREBOARD] ${country} ${appCode}: ${gymnast.name} = ${total} (dup: ${athlete.isDuplicate || false})`);
+                                });
+                                
+                                teamScores[country][appKey] += countryAppTotal;
+                                console.log(`[SCOREBOARD] ${country} ${appCode} total: ${teamScores[country][appKey]}`);
+                            });
+                        });
+                    });
+
+                    // Calcula totais finais
+                    qualifyingCountries.forEach(country => {
+                        teamScores[country].total = teamScores[country].vt + teamScores[country].ub + 
+                                                     teamScores[country].bb + teamScores[country].fx;
+                    });
+
+                    return Object.values(teamScores).sort((a, b) => b.total - a.total);
+                }
+
+                function calculateAndDisplayResults() {
+                    try {
+                        console.log('[SCOREBOARD] Calculando resultados...');
+                        
+                        const teamQualifiers = calculateTeamScores(allGymnastData).slice(0, 8);
+                        const qualifyingCountries = teamQualifiers.map(t => t.country);
+                        
+                        let teamFinalResults;
+                        
+                        // Nova estrutura: teamFinalDrawData.rotations com apparatus[CODE]
+                        if (teamFinalDrawData && teamFinalDrawData.rotations) {
+                            console.log('[SCOREBOARD] Usando estrutura nova de rotations');
+                            teamFinalResults = calculateTeamFinalWithNewStructure(
+                                allGymnastData, 
+                                qualifyingCountries, 
+                                teamFinalDrawData
+                            );
+                        } else {
+                            console.log('[SCOREBOARD] Sem estrutura de sorteio - usando cálculo tradicional');
+                            teamFinalResults = calculateTeamFinalScores(allGymnastData, qualifyingCountries);
+                        }
+
+                        const results = teamFinalResults.map(team => ({
+                            country: team.country,
+                            scores: { VT: team.vt, UB: team.ub, BB: team.bb, FX: team.fx },
+                            total: team.total,
+                            gymnasts: allGymnastData
+                                .filter(g => g.country === team.country)
+                                .map(g => g.name)
+                        }));
+
+                        displayResults(results);
+
+                    } catch (error) {
+                        console.error('[SCOREBOARD] Erro ao calcular resultados:', error);
+                        document.getElementById('loading').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao calcular resultados';
+                    }
+                }
+
+                unsubscribe = () => {
+                    unsubscribeGymnasts();
+                    unsubscribeDraw();
+                };
+                
+            } catch (error) {
+                console.error('[SCOREBOARD] Erro ao inicializar:', error);
+                document.getElementById('loading').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar dados';
+            }
+        }
+
+        function displayResults(results) {
+            displayTeamSummary(results);
+            displayFullResults(results);
+            
+            const loadingEl = document.getElementById('loading');
+            const resultsPanelEl = document.getElementById('results-panel');
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (resultsPanelEl) resultsPanelEl.classList.remove('hidden');
+        }
+
+        function displayTeamSummary(results) {
+            const podiumContainer = document.getElementById('podiumSummary');
+            podiumContainer.innerHTML = '';
+
+            const topThree = results.slice(0, 3);
+            const medals = ['🥇', '🥈', '🥉'];
+
+            topThree.forEach((team, index) => {
+                const medalDiv = document.createElement('div');
+                medalDiv.className = `medal-position rank-${index + 1}`;
+                medalDiv.innerHTML = `
+                    <div class="medal-icon">${medals[index]}</div>
+                    <div class="medal-country">
+                        <span class="fi fi-${getCountryCode(team.country)}"></span>
+                        <span>${team.country}</span>
+                    </div>
+                    <div class="medal-score">${team.total.toFixed(3)}</div>
+                `;
+                podiumContainer.appendChild(medalDiv);
+            });
+
+            const statsContainer = document.getElementById('statsContent');
+            let totalTeams = results.length;
+            let highestScore = results[0]?.total || 0;
+            let averageScore = results.reduce((sum, team) => sum + team.total, 0) / (results.length || 1);
+
+            statsContainer.innerHTML = `
+                <li class="stats-item"><strong>Equipes na final:</strong> <span>${totalTeams}</span></li>
+                <li class="stats-item"><strong>Maior pontuação:</strong> <span>${highestScore.toFixed(3)}</span></li>
+                <li class="stats-item"><strong>Média geral:</strong> <span>${averageScore.toFixed(3)}</span></li>
+                <li class="stats-item"><strong>Formato:</strong> <span>3-up, 3-count</span></li>
+            `;
+        }
+
+        function displayFullResults(results) {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+
+            results.forEach((team, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="rank">${index + 1}</td>
+                    <td class="country-cell">
+                        <div>
+                            <strong><span class="fi fi-${getCountryCode(team.country)}"></span> ${team.country}</strong>
+                            <br><small style="color: ${'var(--text-light)'};">${team.gymnasts.join(', ')}</small>
+                        </div>
+                    </td>
+                    <td>${team.scores.VT.toFixed(3)}</td>
+                    <td>${team.scores.UB.toFixed(3)}</td>
+                    <td>${team.scores.BB.toFixed(3)}</td>
+                    <td>${team.scores.FX.toFixed(3)}</td>
+                    <td class="total-score">${team.total.toFixed(3)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Manter compatibilidade com a função global do 'countries.js'
+        function getCountryCode(country) {
+            // Fallback robusto para garantir a funcionalidade e evitar o erro de recursão infinita.
+            const codes = {
+                'Brasil': 'br', 'Brazil': 'br', 'BRA': 'br',
+                'Estados Unidos': 'us', 'United States': 'us', 'USA': 'us',
+                'França': 'fr', 'France': 'fr', 'FRA': 'fr',
+                'Alemanha': 'de', 'Germany': 'de', 'GER': 'de',
+                'Rússia': 'ru', 'Russia': 'ru', 'RUS': 'ru',
+                'China': 'cn', 'CHN': 'cn',
+                'Japão': 'jp', 'Japan': 'jp', 'JPN': 'jp',
+                'Canadá': 'ca', 'Canada': 'ca', 'CAN': 'ca',
+                'Austrália': 'au', 'Australia': 'au', 'AUS': 'au',
+                'Reino Unido': 'gb', 'United Kingdom': 'gb', 'GBR': 'gb',
+                'Itália': 'it', 'Italy': 'it', 'ITA': 'it',
+                'Espanha': 'es', 'Spain': 'es', 'ESP': 'es',
+                'Holanda': 'nl', 'Netherlands': 'nl', 'NED': 'nl',
+                'Bélgica': 'be', 'Belgium': 'be', 'BEL': 'be',
+                'Romênia': 'ro', 'Romania': 'ro', 'ROU': 'ro',
+                'Ucrânia': 'ua', 'Ukraine': 'ua', 'UKR': 'ua'
+            };
+            return codes[country] || 'xx';
+        }
+
+        window.loadResults = loadResults;
+
+        function initializeWhenReady() {
+            if (window.db) {
+                loadResults();
+            } else {
+                setTimeout(initializeWhenReady, 100);
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeWhenReady);
+        } else {
+            initializeWhenReady();
+        }
+    </script>
+</body>
+</html>
+

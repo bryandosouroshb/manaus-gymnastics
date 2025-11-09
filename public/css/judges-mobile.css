@@ -1,0 +1,115 @@
+/* === RESPONSIVE DESIGN FOR JUDGE D & E - MOBILE === */
+
+@media (max-width: 768px) {
+    .main-header {
+        padding: 0.8rem 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .header-title {
+        font-size: 1rem;
+    }
+    
+    .header-nav .nav-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .controls-sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .content-area {
+        padding: 1rem;
+    }
+    
+    .panel-title {
+        font-size: 1.5rem;
+    }
+    
+    .current-gymnast-card {
+        padding: 1rem;
+    }
+    
+    #current-gymnast-name {
+        font-size: 1.3rem;
+    }
+    
+    #current-gymnast-info {
+        font-size: 0.85rem;
+    }
+    
+    .nav-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .apparatus-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .apparatus-header {
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .apparatus-body {
+        padding: 1rem;
+    }
+    
+    .score-input {
+        padding: 0.7rem;
+        font-size: 1.1rem;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+    
+    .manaus-button {
+        padding: 0.9rem;
+        font-size: 0.85rem;
+    }
+    
+    #feedback-container {
+        top: auto;
+        bottom: 20px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .message {
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-title {
+        font-size: 0.9rem;
+    }
+    
+    .panel-title {
+        font-size: 1.2rem;
+    }
+    
+    #current-gymnast-name {
+        font-size: 1.1rem;
+    }
+    
+    .nav-arrow {
+        width: 36px;
+        height: 36px;
+    }
+}

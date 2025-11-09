@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Edição de Notas - Qualificatórias | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        /* --- CONFIGURAÇÕES GLOBAIS E VARIÁVEIS --- */
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --accent-gold-dark: #dda70a;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+            --card-background: rgba(255, 255, 255, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER SUPERIOR --- */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-title i { color: var(--accent-gold); }
+
+        .header-title .header-phase {
+            font-weight: 400;
+            opacity: 0.8;
+            font-size: 1.1rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.4);
+            margin-left: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .header-nav .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .header-nav .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* --- ESTRUTURA PRINCIPAL (2 COLUNAS) --- */
+        .main-container {
+            display: flex;
+            flex-grow: 1;
+            padding-bottom: 80px; /* Espaço para o rodapé fixo */
+        }
+        
+        /* --- BARRA LATERAL DE NAVEGAÇÃO --- */
+        .gymnast-sidebar {
+            width: 320px;
+            background: #ffffff;
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 67px); /* Altura da tela menos o header */
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 0.5rem;
+        }
+
+        #search-gymnast {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+        #search-gymnast:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+        }
+        
+        #gymnast-list {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .gymnast-list-item {
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .gymnast-list-item:hover {
+            background-color: #f0fdf4;
+            color: var(--primary-green-dark);
+        }
+        .gymnast-list-item.active {
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light));
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transform: translateX(5px);
+        }
+        .gymnast-list-item .fi { font-size: 1.2rem; }
+
+        /* --- ÁREA DE CONTEÚDO PRINCIPAL --- */
+        .content-area {
+            flex-grow: 1;
+            padding: 2rem 3rem;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><pattern id="hexagon" width="60" height="60" patternUnits="userSpaceOnUse"><polygon points="30,2 52,17 52,43 30,58 8,43 8,17" fill="none" stroke="rgba(14,124,58,0.03)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23hexagon)"/></svg>') repeat;
+        }
+        
+        #welcome-panel { text-align: center; padding-top: 10vh; color: var(--text-light); }
+        #welcome-panel i { font-size: 4rem; margin-bottom: 1rem; color: var(--primary-green); opacity: 0.5; }
+        
+        .hidden { display: none !important; }
+
+        /* --- CARD DE PONTUAÇÃO (Área de trabalho) --- */
+        .scoring-card {
+            background: var(--card-background);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            padding: 2rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .scoring-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        #gymnast-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-green-dark);
+        }
+        #gymnast-country {
+            background: linear-gradient(135deg, #eee, #fff);
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* --- SISTEMA DE ABAS (TABS) --- */
+        .apparatus-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .tab-link {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--primary-green);
+            background-color: #f0fdf4;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .tab-link:hover {
+            background-color: #e0f2e7;
+        }
+        .tab-link.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-dark));
+            border-color: var(--primary-green-dark);
+        }
+
+        .apparatus-subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-content { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .score-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+        .score-group { display: flex; flex-direction: column; }
+        .score-label { 
+            font-weight: 600; 
+            margin-bottom: 0.5rem; 
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .score-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .score-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+        }
+        
+        .score-total {
+            text-align: center;
+        }
+
+        .score-total-display {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            background-color: #f0fdf4;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-green-dark);
+        }
+        
+        .vault-average-container {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .score-total-display.average {
+            background-color: var(--primary-green-dark);
+            color: var(--accent-gold);
+            font-size: 1.5rem;
+            border-color: var(--accent-gold);
+        }
+
+
+        /* --- RODAPÉ DE AÇÕES FIXO --- */
+        .action-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -4px 20px var(--shadow-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .manaus-button {
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: var(--text-dark);
+            border: 1px solid #cbd5e0;
+        }
+        .btn-secondary:hover { background: #cbd5e0; }
+
+        .btn-danger {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+        }
+        .btn-danger:hover { background: #fee2e2; }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 1024px) {
+            .gymnast-sidebar {
+                position: fixed;
+                left: -100%;
+                width: 300px;
+                z-index: 2000;
+                height: 100%;
+                transition: left 0.3s ease;
+                box-shadow: 5px 0 20px rgba(0,0,0,0.1);
+            }
+            .gymnast-sidebar.open { left: 0; }
+            
+            .content-area { padding: 1.5rem; }
+            
+            #mobile-menu-btn {
+                display: inline-block;
+                margin-right: 1rem;
+                background: none; border: none; color: white; font-size: 1.5rem;
+            }
+        }
+        @media (min-width: 1025px) { #mobile-menu-btn { display: none; } }
+        
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+             <button id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+            <i class="fas fa-edit"></i>
+            <span>Painel de Edição de Notas</span>
+            <span class="header-phase">Qualificatórias</span>
+        </div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <button id="logout-btn" class="nav-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <!-- Barra Lateral de Ginastas -->
+        <aside class="gymnast-sidebar" id="gymnast-sidebar">
+            <h2 class="sidebar-header">Ginastas</h2>
+            <input type="text" id="search-gymnast" placeholder="Buscar ginasta...">
+            <ul id="gymnast-list">
+                <!-- Ginastas serão inseridas aqui via JS -->
+            </ul>
+        </aside>
+
+        <!-- Área de Conteúdo -->
+        <main class="content-area">
+            <div id="welcome-panel">
+                <i class="fas fa-list-check"></i>
+                <h2>Selecione uma ginasta na lista ao lado para começar a editar as notas.</h2>
+            </div>
+
+            <!-- Painel de Pontuação (invisível por padrão) -->
+            <div id="scoring-panel" class="hidden">
+                 <!-- Conteúdo do card de pontuação será inserido aqui via JS -->
+            </div>
+        </main>
+    </div>
+
+    <footer class="action-footer">
+        <button id="generate-random-btn" class="manaus-button btn-secondary"><i class="fas fa-dice"></i> Gerar Aleatórias</button>
+        <button id="clear-scores-btn" class="manaus-button btn-danger"><i class="fas fa-trash"></i> Limpar Notas</button>
+        <button id="save-scores-btn" class="manaus-button btn-primary"><i class="fas fa-save"></i> Salvar Notas</button>
+    </footer>
+
+    <!-- Scripts do Firebase e Lógica da Página -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/countries.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- ELEMENTOS DO DOM ---
+        const gymnastList = document.getElementById('gymnast-list');
+        const searchInput = document.getElementById('search-gymnast');
+        const welcomePanel = document.getElementById('welcome-panel');
+        const scoringPanel = document.getElementById('scoring-panel');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('gymnast-sidebar');
+        const logoutBtn = document.getElementById('logout-btn');
+        const generateRandomBtn = document.getElementById('generate-random-btn');
+        const clearScoresBtn = document.getElementById('clear-scores-btn');
+        
+        let allGymnasts = []; // Armazena todas as ginastas para o filtro
+        let activeGymnastId = null;
+
+        // --- INICIALIZAÇÃO E AUTENTICAÇÃO ---
+        function initializeApp() {
+            const auth = window.auth;
+            if (!auth) {
+                setTimeout(initializeApp, 100);
+                return;
+            }
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loadAndRenderGymnasts();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+        
+        window.addEventListener('firebaseReady', initializeApp);
+
+        // --- CARREGAMENTO E RENDERIZAÇÃO DE DADOS ---
+        function loadAndRenderGymnasts() {
+            const db = window.db;
+            if (!db) return;
+
+            db.collection('new_gymnasts').onSnapshot(snapshot => {
+                allGymnasts = [];
+                snapshot.forEach(doc => allGymnasts.push({ id: doc.id, ...doc.data() }));
+                
+                // Ordenar por país e nome
+                allGymnasts.sort((a, b) => {
+                    const countryCompare = a.country.localeCompare(b.country);
+                    if (countryCompare !== 0) return countryCompare;
+                    return a.name.localeCompare(b.name);
+                });
+
+                renderGymnastList(allGymnasts);
+            });
+        }
+
+        function renderGymnastList(gymnasts) {
+            gymnastList.innerHTML = '';
+            gymnasts.forEach(gymnast => {
+                const li = document.createElement('li');
+                li.className = 'gymnast-list-item';
+                li.dataset.gymnastId = gymnast.id;
+                li.innerHTML = `
+                    <span class="fi fi-${getCountryCode(gymnast.country)}"></span>
+                    <span>${gymnast.name}</span>
+                `;
+                li.addEventListener('click', () => {
+                    activeGymnastId = gymnast.id;
+                    displayScoringPanel(gymnast);
+                    // Atualiza a classe ativa na lista
+                    document.querySelectorAll('.gymnast-list-item').forEach(item => item.classList.remove('active'));
+                    li.classList.add('active');
+                    if (window.innerWidth <= 1024) sidebar.classList.remove('open');
+                });
+                gymnastList.appendChild(li);
+            });
+        }
+
+        function displayScoringPanel(gymnast) {
+            welcomePanel.classList.add('hidden');
+            scoringPanel.classList.remove('hidden');
+            
+            const apparatuses = [
+                { id: 'VT', name: 'Salto' },
+                { id: 'UB', name: 'Barras Assimétricas' },
+                { id: 'BB', name: 'Trave' },
+                { id: 'FX', name: 'Solo' }
+            ];
+
+            // Cria a estrutura do card, abas e painéis de conteúdo
+            scoringPanel.innerHTML = `
+                <div class="scoring-card">
+                    <div class="scoring-card-header">
+                        <h2 id="gymnast-name">${gymnast.name}</h2>
+                        <span id="gymnast-country"><span class="fi fi-${getCountryCode(gymnast.country)}"></span> ${gymnast.country}</span>
+                    </div>
+                    <div class="apparatus-tabs">
+                        ${apparatuses.map((app, index) => `<button class="tab-link ${index === 0 ? 'active' : ''}" data-tab="${app.id}">${app.name}</button>`).join('')}
+                    </div>
+                    <div class="tab-content-container">
+                        ${apparatuses.map((app, index) => `
+                            <div class="tab-content ${index === 0 ? '' : 'hidden'}" id="tab-${app.id}">
+                                ${createApparatusInputs(app.id, gymnast)}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            setupTabs();
+            loadExistingScores(gymnast);
+            setupDynamicCalculations(gymnast.id);
+        }
+        
+        function createApparatusInputs(apparatus, gymnast) {
+            const isVault = apparatus === 'VT';
+            let html = '';
+            
+            if (isVault) {
+                html += `<h4 class="apparatus-subtitle">Primeiro Salto</h4>`;
+                html += `<div class="score-inputs-grid">`;
+                html += createScoreInputGroup('Nota D', gymnast.id, apparatus, 'd1');
+                html += createScoreInputGroup('Nota E', gymnast.id, apparatus, 'e1');
+                html += createScoreInputGroup('Penalidade', gymnast.id, apparatus, 'p1');
+                html += createTotalDisplayGroup(gymnast.id, apparatus, 'total1');
+                html += `</div>`;
+
+                html += `<h4 class="apparatus-subtitle">Segundo Salto</h4>`;
+                html += `<div class="score-inputs-grid">`;
+                html += createScoreInputGroup('Nota D', gymnast.id, apparatus, 'd2');
+                html += createScoreInputGroup('Nota E', gymnast.id, apparatus, 'e2');
+                html += createScoreInputGroup('Penalidade', gymnast.id, apparatus, 'p2');
+                html += createTotalDisplayGroup(gymnast.id, apparatus, 'total2');
+                html += `</div>`;
+
+                html += `<div class="vault-average-container">`;
+                html += createTotalDisplayGroup(gymnast.id, apparatus, 'average', 'Média Final (VT)');
+                html += `</div>`;
+
+            } else {
+                html += `<div class="score-inputs-grid">`;
+                html += createScoreInputGroup('Nota D', gymnast.id, apparatus, 'd');
+                html += createScoreInputGroup('Nota E', gymnast.id, apparatus, 'e');
+                html += createScoreInputGroup('Penalidade', gymnast.id, apparatus, 'p');
+                html += createTotalDisplayGroup(gymnast.id, apparatus, 'total');
+                html += `</div>`;
+            }
+
+            return html;
+        }
+
+        function createScoreInputGroup(label, gymnastId, apparatus, type) {
+            return `
+                <div class="score-group">
+                    <label class="score-label">${label}</label>
+                    <input type="number" step="0.001" min="0" max="10" 
+                           class="score-input" 
+                           id="${gymnastId}_${apparatus}_${type}"
+                           placeholder="0.000">
+                </div>
+            `;
+        }
+
+        function createTotalDisplayGroup(gymnastId, apparatus, suffix, label = 'Total') {
+            const isAverage = suffix === 'average';
+            return `
+                <div class="score-group score-total">
+                    <label class="score-label">${label}</label>
+                    <span class="score-total-display ${isAverage ? 'average' : ''}" id="${gymnastId}_${apparatus}_${suffix}">0.000</span>
+                </div>
+            `;
+        }
+        
+        // Carrega as notas já existentes para a ginasta ativa
+        function loadExistingScores(gymnast) {
+             const scores = gymnast.scores?.qualifiers || {};
+             ['VT', 'UB', 'BB', 'FX'].forEach(app => {
+                const fields = app === 'VT' ? ['d1', 'e1', 'p1', 'd2', 'e2', 'p2'] : ['d', 'e', 'p'];
+                fields.forEach(type => {
+                    const input = document.getElementById(`${gymnast.id}_${app}_${type}`);
+                    if (input) {
+                        let scoreKey;
+                        if(app === 'VT' && type.includes('2')) {
+                             scoreKey = `qualifiers_vt2_${type.charAt(0)}`;
+                        } else if (app === 'VT') {
+                             scoreKey = `qualifiers_vt1_${type.charAt(0)}`;
+                        } else {
+                             scoreKey = `qualifiers_${app.toLowerCase()}_${type}`;
+                        }
+                        input.value = scores[scoreKey] || '';
+                    }
+                });
+                
+                // Calcula o total depois de popular os campos
+                if (app === 'VT') {
+                    updateTotalScore(gymnast.id, 'VT', '1');
+                    updateTotalScore(gymnast.id, 'VT', '2');
+                } else {
+                    updateTotalScore(gymnast.id, app);
+                }
+            });
+        }
+
+        function updateTotalScore(gymnastId, apparatus, vaultNumber = '') {
+            const dInput = document.getElementById(`${gymnastId}_${apparatus}_d${vaultNumber}`);
+            const eInput = document.getElementById(`${gymnastId}_${apparatus}_e${vaultNumber}`);
+            const pInput = document.getElementById(`${gymnastId}_${apparatus}_p${vaultNumber}`);
+            const totalSuffix = apparatus === 'VT' ? `total${vaultNumber}` : 'total';
+            const totalDisplay = document.getElementById(`${gymnastId}_${apparatus}_${totalSuffix}`);
+
+            if (!dInput || !eInput || !pInput || !totalDisplay) return;
+
+            const d = parseFloat(dInput.value) || 0;
+            const e = parseFloat(eInput.value) || 0;
+            const p = parseFloat(pInput.value) || 0;
+
+            const total = Math.max(0, d + e - p);
+            totalDisplay.textContent = total.toFixed(3);
+
+            if (apparatus === 'VT') {
+                const total1Display = document.getElementById(`${gymnastId}_VT_total1`);
+                const total2Display = document.getElementById(`${gymnastId}_VT_total2`);
+                const averageDisplay = document.getElementById(`${gymnastId}_VT_average`);
+
+                if (total1Display && total2Display && averageDisplay) {
+                    const total1 = parseFloat(total1Display.textContent) || 0;
+                    const total2 = parseFloat(total2Display.textContent) || 0;
+                    const average = (total1 > 0 && total2 > 0) ? (total1 + total2) / 2 : (total1 > 0 ? total1 : total2);
+                    averageDisplay.textContent = average.toFixed(3);
+                }
+            }
+        }
+
+
+        // --- LÓGICA DE INTERAÇÃO (TABS, FILTRO, ETC) ---
+        function setupTabs() {
+            const tabs = scoringPanel.querySelectorAll('.tab-link');
+            const contents = scoringPanel.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const targetId = `tab-${tab.dataset.tab}`;
+                    contents.forEach(content => {
+                        if (content.id === targetId) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        function setupDynamicCalculations(gymnastId) {
+            scoringPanel.querySelectorAll('.score-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const [gId, apparatus, type] = e.target.id.split('_');
+                    
+                    if (apparatus === 'VT') {
+                        const vaultNumber = type.includes('2') ? '2' : '1';
+                        updateTotalScore(gId, apparatus, vaultNumber);
+                    } else {
+                        updateTotalScore(gId, apparatus);
+                    }
+                });
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredGymnasts = allGymnasts.filter(g => g.name.toLowerCase().includes(searchTerm));
+            renderGymnastList(filteredGymnasts);
+        });
+        
+        mobileMenuBtn.addEventListener('click', () => {
+           sidebar.classList.toggle('open');
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            const auth = window.auth;
+            if(auth) {
+                auth.signOut().then(() => {
+                    window.location.href = 'login.html';
+                }).catch(error => {
+                    console.error('Logout error:', error);
+                    alert('Erro ao fazer logout.');
+                });
+            }
+        });
+
+        // --- LÓGICA DAS AÇÕES GLOBAIS ---
+        document.getElementById('save-scores-btn').addEventListener('click', async () => {
+             if (!activeGymnastId) {
+                alert("Por favor, selecione uma ginasta primeiro.");
+                return;
+            }
+             const db = window.db;
+             const gymnastRef = db.collection('new_gymnasts').doc(activeGymnastId);
+             
+             try {
+                const scores = { qualifiers: {} };
+                ['VT', 'UB', 'BB', 'FX'].forEach(app => {
+                    const fields = app === 'VT' ? ['d1', 'e1', 'p1', 'd2', 'e2', 'p2'] : ['d', 'e', 'p'];
+                     fields.forEach(type => {
+                        const input = document.getElementById(`${activeGymnastId}_${app}_${type}`);
+                        if(input && input.value !== '') {
+                             let scoreKey;
+                             if(app === 'VT' && type.includes('2')) {
+                                scoreKey = `qualifiers_vt2_${type.charAt(0)}`;
+                             } else if (app === 'VT') {
+                                scoreKey = `qualifiers_vt1_${type.charAt(0)}`;
+                             } else {
+                                scoreKey = `qualifiers_${app.toLowerCase()}_${type}`;
+                             }
+                             scores.qualifiers[scoreKey] = parseFloat(input.value) || 0;
+                        }
+                     });
+                });
+                
+                await gymnastRef.set({ scores }, { merge: true });
+                alert("Notas salvas com sucesso!");
+             } catch (error) {
+                console.error("Erro ao salvar:", error);
+                alert("Ocorreu um erro ao salvar as notas.");
+             }
+        });
+
+        generateRandomBtn.addEventListener('click', () => {
+            if (!activeGymnastId) {
+                alert("Selecione uma ginasta para gerar notas.");
+                return;
+            }
+            const inputs = scoringPanel.querySelectorAll('.score-input');
+            inputs.forEach(input => {
+                if (input.id.includes('_d')) {
+                    input.value = (Math.random() * 3 + 4).toFixed(3);
+                } else if (input.id.includes('_e')) {
+                    input.value = (Math.random() * 2 + 8).toFixed(3);
+                } else if (input.id.includes('_p')) {
+                    input.value = (Math.random() * 0.5).toFixed(3);
+                }
+                // Dispara o evento de input para recalcular os totais
+                input.dispatchEvent(new Event('input'));
+            });
+        });
+
+        clearScoresBtn.addEventListener('click', () => {
+            if (!activeGymnastId) {
+                alert("Selecione uma ginasta para limpar as notas.");
+                return;
+            }
+            if (confirm('Tem certeza que deseja limpar as notas desta ginasta?')) {
+                const inputs = scoringPanel.querySelectorAll('.score-input');
+                inputs.forEach(input => {
+                    input.value = '';
+                    // Dispara o evento de input para recalcular os totais
+                    input.dispatchEvent(new Event('input'));
+                });
+            }
+        });
+
+    });
+    </script>
+</body>
+</html>
+

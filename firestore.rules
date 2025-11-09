@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Coleção de Ginastas (NOVA ESTRUTURA)
+    match /new_gymnasts/{gymnastId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver os dados das ginastas
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem editar
+      // Para desenvolvimento: permite qualquer escrita autenticada
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Ginastas (ANTIGA - mantida para compatibilidade)
+    match /gymnasts/{gymnastId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver os scores
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem editar
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Scores (NOVA ESTRUTURA)
+    match /scores/{scoreId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver os scores
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem editar scores
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Configuração
+    match /config/{configId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver a config (ex: start list)
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem mudar a config
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Start Lists
+    match /start_lists/{listId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver as start lists
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem editar
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Start Lists (estrutura alternativa)
+    match /startLists/{listId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver as start lists
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem editar
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Sorteios da Team Final
+    match /teamFinalDraws/{drawId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver os sorteios
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem editar
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Resultados/Rankings
+    match /results/{resultId} {
+      // PERMITE LEITURA: Qualquer pessoa pode ver os resultados
+      allow read: if true;
+
+      // PERMITE ESCRITA: Apenas usuários autenticados podem editar
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de estado da transmissão (broadcast)
+    match /broadcast/{broadcastDoc} {
+      // Stream público precisa ler o estado da transmissão
+      allow read: if true;
+
+      // Apenas usuários autenticados (painel) podem escrever
+      allow write: if request.auth != null;
+    }
+
+    // Coleção de Usuários e Roles
+    match /users/{userId} {
+      // PERMITE LEITURA: Usuários autenticados podem ler dados de usuários
+      allow read: if request.auth != null;
+
+      // PERMITE ESCRITA: Apenas o próprio usuário ou admins podem editar
+      // Para setup inicial: permite qualquer usuário autenticado escrever
+      allow write: if request.auth != null;
+    }
+
+    // Regra padrão: negar acesso a outras collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+  }
+}

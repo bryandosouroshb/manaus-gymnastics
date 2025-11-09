@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start List - Final Individual Geral | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 1001;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem; }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase { font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .header-nav .nav-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer; }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        /* --- ESTRUTURA PRINCIPAL --- */
+        .main-container { display: flex; flex-grow: 1; }
+        
+        /* --- SIDEBAR DE CONTROLES --- */
+        .startlist-sidebar {
+            width: 320px; background: #ffffff; border-right: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: calc(100vh - 67px);
+        }
+        .sidebar-header { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem; }
+        .rotation-nav-list { list-style: none; margin-bottom: 2rem; }
+        .rotation-nav-item { padding: 1rem; cursor: pointer; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+        .rotation-nav-item:hover { background-color: #f0fdf4; color: var(--primary-green-dark); }
+        .rotation-nav-item.active { background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light)); color: white; box-shadow: 0 4px 12px var(--shadow-color); transform: translateX(5px); }
+        
+        .sidebar-controls { margin-top: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .manaus-button { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); color: white; padding: 0.8rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .manaus-button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+        .manaus-button.secondary { background: #e2e8f0; color: var(--text-dark); border: 1px solid #cbd5e0; }
+        .manaus-button.secondary:hover { background: #cbd5e0; }
+        
+        /* --- ÁREA DE CONTEÚDO --- */
+        .content-area { flex-grow: 1; padding: 2rem 3rem; }
+        .view-panel { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .panel-title { font-size: 2rem; font-weight: 800; color: var(--primary-green-dark); }
+        
+        /* --- ESTILOS DOS CARDS --- */
+        .apparatus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .apparatus-card { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); border: 1px solid var(--border-color); }
+        .apparatus-header { font-size: 1.2rem; font-weight: 700; color: var(--primary-green-dark); padding: 1.5rem; border-bottom: 2px solid var(--accent-gold); display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        .gymnast-list { padding: 1.5rem; }
+        .gymnast-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid #f0f0f0; }
+        .gymnast-list .gymnast-item:last-child { border-bottom: none; }
+        .gymnast-order { font-weight: 700; flex-shrink: 0; width: 30px; text-align: center; color: var(--text-dark); }
+        .gymnast-details { flex-grow: 1; min-width: 0; }
+        .gymnast-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gymnast-country { font-size: 0.9rem; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
+        .fi { font-size: 1.2rem; vertical-align: middle; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Lista de Largada</span>
+            <span class="header-phase">Final Individual Geral</span>
+        </div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="scoreboard-aa-final.html" class="nav-btn"><i class="fas fa-trophy"></i> Placar</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="startlist-sidebar">
+            <h2 class="sidebar-header">Rotações</h2>
+            <ul id="rotation-nav-list" class="rotation-nav-list">
+                <!-- Links de Rotação aqui -->
+            </ul>
+            <div class="sidebar-controls">
+                <button id="shuffle-start-list" class="manaus-button secondary"><i class="fas fa-random"></i> Reorganizar Ordem</button>
+                <button id="save-start-list" class="manaus-button"><i class="fas fa-save"></i> Salvar Ordem</button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div id="loading" style="text-align: center; padding: 2rem; font-size: 1.2rem; color: var(--primary-green);">
+                <i class="fas fa-spinner fa-spin"></i> Carregando lista de largada...
+            </div>
+            <div id="rotations-container">
+                <!-- Painéis de Rotação aqui -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Scripts customizados -->
+    <script src="js/firebase-init.js"></script>
+    <script src="js/countries.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let gymnastsData = [];
+            let qualifiedGymnasts = [];
+            let startListData = {};
+
+            const loadingPanel = document.getElementById('loading');
+            const rotationsContainer = document.getElementById('rotations-container');
+            const rotationNavList = document.getElementById('rotation-nav-list');
+            
+            const apparatus = ['VT', 'UB', 'BB', 'FX'];
+            const apparatusNames = { 'VT': 'Salto', 'UB': 'Barras Assimétricas', 'BB': 'Trave', 'FX': 'Solo' };
+
+
+            async function loadStartList() {
+                loadingPanel.classList.remove('hidden');
+                rotationsContainer.innerHTML = '';
+
+                try {
+                    const db = window.db;
+                    const gymnastsSnapshot = await db.collection('new_gymnasts').get();
+                    gymnastsData = gymnastsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    calculateQualified();
+
+                    const startListDoc = await db.collection('start_lists').doc('aa_final').get();
+                    if (startListDoc.exists) {
+                        const data = startListDoc.data();
+                        startListData = data.structure || data; // Compatibilidade com formato antigo
+                    } else {
+                        generateStartList();
+                    }
+                    
+                    renderAll();
+                    loadingPanel.classList.add('hidden');
+
+                } catch (error) {
+                    console.error("Erro ao carregar:", error);
+                    loadingPanel.textContent = "Erro ao carregar dados.";
+                }
+            }
+
+            function calculateQualified() {
+                const convertedGymnasts = gymnastsData.map(gymnast => {
+                    const qualifiersScores = gymnast.scores?.qualifiers;
+                    let totalAA = 0;
+                    if (qualifiersScores) {
+                        const vtTotal = (qualifiersScores.qualifiers_vt1_d || 0) + (qualifiersScores.qualifiers_vt1_e || 0) - (qualifiersScores.qualifiers_vt1_p || 0);
+                        const ubTotal = (qualifiersScores.qualifiers_ub_d || 0) + (qualifiersScores.qualifiers_ub_e || 0) - (qualifiersScores.qualifiers_ub_p || 0);
+                        const bbTotal = (qualifiersScores.qualifiers_bb_d || 0) + (qualifiersScores.qualifiers_bb_e || 0) - (qualifiersScores.qualifiers_bb_p || 0);
+                        const fxTotal = (qualifiersScores.qualifiers_fx_d || 0) + (qualifiersScores.qualifiers_fx_e || 0) - (qualifiersScores.qualifiers_fx_p || 0);
+                        totalAA = vtTotal + ubTotal + bbTotal + fxTotal;
+                    }
+                    return { ...gymnast, totalAA };
+                });
+
+                convertedGymnasts.sort((a, b) => b.totalAA - a.totalAA);
+
+                const finalQualifiers = [];
+                const countryCount = {};
+                for (const gymnast of convertedGymnasts) {
+                    if (finalQualifiers.length >= 8) break;
+                    const country = gymnast.country;
+                    countryCount[country] = countryCount[country] || 0;
+                    if (countryCount[country] < 2) {
+                        finalQualifiers.push(gymnast);
+                        countryCount[country]++;
+                    }
+                }
+                qualifiedGymnasts = finalQualifiers;
+            }
+
+            function generateStartList() {
+                const shuffled = [...qualifiedGymnasts].sort(() => Math.random() - 0.5);
+                const groups = [];
+                for (let i = 0; i < 4; i++) {
+                    groups.push({
+                        gymnasts: shuffled.slice(i * 2, (i + 1) * 2),
+                        startApparatus: apparatus[i]
+                    });
+                }
+                
+                const rotations = [];
+                for (let rotNum = 1; rotNum <= 4; rotNum++) {
+                    const rotation = { 
+                        number: rotNum, 
+                        apparatus: {} // ✅ Mudou de array para objeto
+                    };
+                    
+                    apparatus.forEach((app, appIndex) => {
+                        const groupIndex = (appIndex - (rotNum - 1) + 4) % 4;
+                        const group = groups.find(g => g.startApparatus === apparatus[groupIndex]);
+                        const appKey = app.toUpperCase(); // VT, UB, BB, FX
+                        
+                        if (group) {
+                            // ✅ Salvar como apparatus.VT, apparatus.UB, etc.
+                            rotation.apparatus[appKey] = group.gymnasts.map(gymnast => ({
+                                id: gymnast.id,
+                                name: gymnast.name,
+                                country: gymnast.country
+                            }));
+                        }
+                    });
+                    rotations.push(rotation);
+                }
+                
+                startListData = { 
+                    type: 'aa_final',
+                    rotations 
+                };
+                
+                console.log('✅ AA Final start list gerada:', startListData);
+            }
+
+            function renderAll() {
+                renderRotationNav();
+                renderRotationPanels();
+                setupNavEvents();
+            }
+
+            function renderRotationNav() {
+                if (!startListData.rotations) return;
+                rotationNavList.innerHTML = startListData.rotations.map((rot, index) => `
+                    <li><a class="rotation-nav-item ${index === 0 ? 'active' : ''}" data-target="rotation-${rot.number}-panel">
+                        <i class="fas fa-sync-alt"></i> Rotação ${rot.number}
+                    </a></li>
+                `).join('');
+            }
+
+            function renderRotationPanels() {
+                if (!startListData.rotations) return;
+                
+                rotationsContainer.innerHTML = startListData.rotations.map((rot, index) => {
+                    // Converter apparatus de objeto para array para renderização
+                    const apparatusArray = Object.entries(rot.apparatus || {}).map(([code, gymnasts]) => ({
+                        code: code,
+                        displayName: apparatusNames[code] || code,
+                        gymnasts: gymnasts
+                    }));
+                    
+                    return `
+                        <div id="rotation-${rot.number}-panel" class="view-panel ${index > 0 ? 'hidden' : ''}">
+                            <div class="panel-header"><h1 class="panel-title">Rotação ${rot.number}</h1></div>
+                            <div class="apparatus-grid">
+                                ${apparatusArray.map(app => `
+                                    <div class="apparatus-card">
+                                        <div class="apparatus-header">
+                                            <span>${app.displayName || app.code}</span>
+                                        </div>
+                                        <div class="gymnast-list">
+                                            ${(app.gymnasts || []).map((gymnast, i) => `
+                                                <div class="gymnast-item">
+                                                    <div class="gymnast-order">${i + 1}.</div>
+                                                    <div class="gymnast-details">
+                                                        <div class="gymnast-name" title="${gymnast.name}">${gymnast.name}</div>
+                                                        <div class="gymnast-country"><span class="fi fi-${getCountryCode(gymnast.country)}"></span> ${gymnast.country}</div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function setupNavEvents() {
+                const navLinks = document.querySelectorAll('.rotation-nav-item');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        const targetId = link.dataset.target;
+                        document.querySelectorAll('.view-panel').forEach(panel => {
+                            panel.id === targetId ? panel.classList.remove('hidden') : panel.classList.add('hidden');
+                        });
+                    });
+                });
+            }
+            
+            async function saveStartList() {
+                try {
+                    await window.db.collection('start_lists').doc('aa_final').set({ structure: startListData, lastUpdated: new Date() });
+                    const saveBtn = document.getElementById('save-start-list');
+                    const originalText = saveBtn.innerHTML;
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+                    saveBtn.disabled = true;
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.disabled = false;
+                    }, 2000);
+                } catch (error) {
+                    console.error("Erro ao salvar start list:", error);
+                    alert("Erro ao salvar a ordem.");
+                }
+            }
+            
+            document.getElementById('shuffle-start-list').addEventListener('click', () => {
+                generateStartList();
+                renderAll();
+            });
+
+            document.getElementById('save-start-list').addEventListener('click', saveStartList);
+
+            function initializePage() {
+                if(window.auth) {
+                    window.auth.onAuthStateChanged(user => {
+                        if (user) {
+                            loadStartList();
+                        } else {
+                            window.location.href = 'login.html';
+                        }
+                    });
+                } else {
+                    setTimeout(initializePage, 100);
+                }
+            }
+
+            initializePage();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,3360 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎥 Painel de Controle de Broadcast - Manaus 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --accent-gold-dark: #dda70a;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+            --card-background: rgba(255, 255, 255, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--background-light);
+            color: var(--text-dark); 
+            font-family: 'Montserrat', sans-serif; 
+            min-height: 100vh; 
+            overflow-x: hidden;
+        }
+
+        .control-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            padding: 24px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .control-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 0;
+            color: white;
+        }
+
+        .control-header .subtitle {
+            font-size: 1rem;
+            font-weight: 400;
+            opacity: 0.95;
+            margin-top: 6px;
+            color: var(--accent-gold);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .control-section {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border-color);
+            background: white;
+            color: var(--text-dark);
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus, .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(14, 124, 58, 0.1);
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-family: 'Montserrat', sans-serif;
+            box-shadow: 0 3px 10px rgba(14, 124, 58, 0.2);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 124, 58, 0.3);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+        }
+
+        .control-btn.danger {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+
+        .control-btn.danger:hover {
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .control-btn.warning {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
+            color: var(--text-dark);
+        }
+
+        .control-btn.warning:hover {
+            box-shadow: 0 6px 20px rgba(247, 201, 72, 0.4);
+        }
+
+        .control-btn.purple {
+            background: linear-gradient(135deg, #9333ea, #7c3aed);
+            color: white;
+        }
+
+        .control-btn.purple:hover {
+            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+        }
+
+        .control-btn.info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .control-btn.info:hover {
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .vault-controls {
+            background: linear-gradient(135deg, rgba(14, 124, 58, 0.05) 0%, rgba(0, 159, 61, 0.05) 100%);
+            border: 2px solid rgba(14, 124, 58, 0.2);
+        }
+
+        .vault-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .vault-selector .control-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
+
+        .vault-selector .control-btn.active {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
+            box-shadow: 0 0 20px rgba(247, 201, 72, 0.5);
+            color: var(--text-dark);
+        }
+
+        .vault-info {
+            background: rgba(247, 201, 72, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent-gold-dark);
+        }
+
+        .current-gymnast {
+            background: linear-gradient(135deg, rgba(247, 201, 72, 0.15) 0%, rgba(221, 167, 10, 0.15) 100%);
+            border: 2px solid rgba(247, 201, 72, 0.4);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .current-gymnast h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--accent-gold-dark);
+        }
+
+        .gymnast-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .gymnast-details {
+            font-size: 1rem;
+            opacity: 0.8;
+            color: var(--text-light);
+        }
+
+        .timer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .timer-controls .control-btn {
+            font-size: 0.9rem;
+            padding: 16px 12px;
+        }
+
+        /* Estilos do Timer de Aquecimento */
+        .warmup-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(45deg, #dc2626, #b91c1c);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .warmup-time {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .warmup-status {
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .warmup-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preset-btn {
+            background: linear-gradient(45deg, var(--primary-green), var(--primary-green-light));
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 124, 58, 0.3);
+        }
+
+        .warmup-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .warmup-controls .control-btn {
+            font-size: 0.85rem;
+            padding: 12px 8px;
+        }
+
+        /* Sistema de Recursos */
+        .inquiry-status {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 6px;
+        }
+
+        .inquiry-status.idle .status-indicator {
+            background: linear-gradient(45deg, var(--primary-green), var(--primary-green-light));
+            color: white;
+        }
+
+        .inquiry-status.pending .status-indicator {
+            background: linear-gradient(45deg, var(--accent-gold), var(--accent-gold-dark));
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .inquiry-status.resolved .status-indicator {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .inquiry-status.rejected .status-indicator {
+            background: linear-gradient(45deg, #dc2626, #b91c1c);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .inquiry-controls textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            background: white;
+            color: var(--text-dark);
+        }
+
+        .inquiry-controls textarea:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(14, 124, 58, 0.1);
+        }
+
+        .inquiry-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .inquiry-actions .control-btn {
+            font-size: 0.85rem;
+            padding: 10px 12px;
+        }
+
+        /* Seção de Sons e Efeitos */
+        .sounds-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(14, 124, 58, 0.2);
+        }
+
+        .sounds-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .sound-btn {
+            width: 100%;
+            padding: 15px 20px;
+            margin: 8px 0;
+            background: linear-gradient(45deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(220, 38, 38, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .sound-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        .sound-btn:active {
+            transform: translateY(0);
+        }
+
+        .sound-btn.anthem {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .sound-btn.anthem:hover {
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Estilos específicos para controles de broadcast */
+        .broadcast-controls {
+            background: linear-gradient(135deg, rgba(247, 201, 72, 0.1) 0%, rgba(221, 167, 10, 0.1) 100%);
+            border: 2px solid rgba(247, 201, 72, 0.3);
+        }
+
+        .broadcast-controls .section-title {
+            color: var(--accent-gold-dark);
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .right-panel {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .control-section {
+                padding: 20px;
+            }
+            
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timer-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Estilos específicos para controles de broadcast */
+        .broadcast-controls {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+            border: 2px solid rgba(251, 191, 36, 0.4);
+        }
+
+        .broadcast-controls .section-title {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-header">
+        <h1>Manaus 2025</h1>
+        <div class="subtitle">🎥 Painel de Controle de Broadcast</div>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <!-- Seleção de Prova -->
+            <div class="control-section">
+                <div class="section-title">🏆 Configuração da Prova</div>
+                <div class="form-group">
+                    <label for="phase-select">Fase</label>
+                    <select id="phase-select">
+                        <option value="">Selecione a Fase</option>
+                        <option value="qualifiers" selected>Qualificatórias</option>
+                        <option value="aa_final">Final Individual Geral</option>
+                        <option value="team_final">Final por Equipes</option>
+                        <option value="vt_final">Final Salto</option>
+                        <option value="ub_final">Final Barras Assimétricas</option>
+                        <option value="bb_final">Final Trave</option>
+                        <option value="fx_final">Final Solo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rotation-select">Rotação</label>
+                    <select id="rotation-select">
+                        <option value="">Selecione a Rotação</option>
+                        <option value="1" selected>Rotação 1</option>
+                        <option value="2">Rotação 2</option>
+                        <option value="3">Rotação 3</option>
+                        <option value="4">Rotação 4</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="apparatus-select">Aparelho</label>
+                    <select id="apparatus-select">
+                        <option value="">Selecione o Aparelho</option>
+                        <option value="vt">Salto (VT)</option>
+                        <option value="ub">Barras Assimétricas (UB)</option>
+                        <option value="bb">Trave (BB)</option>
+                        <option value="fx" selected>Solo (FX)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button class="control-btn primary" id="apply-configuration">✅ Aplicar Configuração</button>
+                </div>
+            </div>
+
+            <!-- Controles de Navegação -->
+            <div class="control-section">
+                <div class="section-title">🧭 Navegação</div>
+                <div class="control-grid">
+                    <button class="control-btn" id="btn-prev">⬅️ Anterior</button>
+                    <button class="control-btn" id="btn-next">➡️ Próximo</button>
+                    <button class="control-btn primary" id="btn-show-timer">📊 Timer/Info</button>
+                </div>
+            </div>
+
+            <!-- ✨ NOVO: Listas e Resultados Centralizados -->
+            <div class="control-section">
+                <div class="section-title">🏆 Listas e Resultados (Central)</div>
+                <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 15px;">
+                    Aciona os overlays centrais de Start List e Resultados Finais.
+                </p>
+
+                <div class="control-grid" style="margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px;">
+                    <button class="control-btn primary" id="btn-show-startlist-center">📋 Exibir Start List (Atual)</button>
+                    <button class="control-btn danger" id="btn-hide-list-center">❌ Ocultar Lista Central</button>
+                </div>
+
+                <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 10px;">Resultados de Qualificação (QF)</h4>
+                <div class="control-grid" style="margin-bottom: 15px;">
+                    <button class="control-btn info" id="btn-show-qf-aa-p1">QF AA (Pág 1/2)</button>
+                    <button class="control-btn info" id="btn-show-qf-aa-p2">QF AA (Pág 2/2)</button>
+                    <button class="control-btn info" id="btn-show-qf-tf">QF Equipes</button>
+                    <button class="control-btn info" id="btn-show-qf-vt">QF Salto (VT)</button>
+                    <button class="control-btn info" id="btn-show-qf-ub">QF Barras (UB)</button>
+                    <button class="control-btn info" id="btn-show-qf-bb">QF Trave (BB)</button>
+                    <button class="control-btn info" id="btn-show-qf-fx">QF Solo (FX)</button>
+                </div>
+
+                <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 10px;">Resultados das FINAIS</h4>
+                <div class="control-grid">
+                    <button class="control-btn warning" id="btn-show-final-aa">🥇 Final AA</button>
+                    <button class="control-btn warning" id="btn-show-final-tf">🥇 Final Equipes</button>
+                    <button class="control-btn warning" id="btn-show-final-vt">🥇 Final Salto</button>
+                    <button class="control-btn warning" id="btn-show-final-ub">🥇 Final Barras</button>
+                    <button class="control-btn warning" id="btn-show-final-bb">🥇 Final Trave</button>
+                    <button class="control-btn warning" id="btn-show-final-fx">🥇 Final Solo</button>
+                </div>
+            </div>
+
+            <!-- Controles de Display Especiais -->
+            <div class="control-section">
+                <div class="section-title">📺 Telas Especiais</div>
+                <div class="control-grid">
+                    <button class="control-btn warning" id="btn-show-warmup">🔥 Tela de Aquecimento</button>
+                    <button class="control-btn info" id="btn-show-resources">⚖️ Tela de Recursos</button>
+                    <button class="control-btn danger" id="btn-hide-special">❌ Ocultar Telas</button>
+                </div>
+                <p class="section-note">Use essas telas para mostrar informações especiais durante a competição.</p>
+            </div>
+
+            <!-- Controles de Timer -->
+            <div class="control-section">
+                <div class="section-title">⏱️ Controle de Timer</div>
+                <div class="timer-controls" style="margin-bottom: 12px;">
+                    <button class="control-btn success" id="btn-timer-show">👁️ Mostrar Relógio</button>
+                    <button class="control-btn danger" id="btn-timer-hide">🚫 Ocultar Relógio</button>
+                </div>
+                <div class="timer-controls">
+                    <button class="control-btn primary" id="btn-timer-start">▶️ GO (Iniciar)</button>
+                    <button class="control-btn danger" id="btn-timer-stop">⏸️ WAIT (Parar)</button>
+                    <button class="control-btn purple" id="btn-timer-reset">🔄 STOP (Reset)</button>
+                    <button class="control-btn" id="btn-status">📈 Mostrar Nota</button>
+                </div>
+                <button class="control-btn" id="btn-sync" style="margin-top: 12px; width: 100%;">🔄 Sincronizar Display</button>
+            </div>
+
+            <!-- Timer de Aquecimento -->
+            <div class="control-section">
+                <div class="section-title">🔥 Timer de Aquecimento</div>
+                <div class="warmup-display">
+                    <div class="warmup-time" id="warmup-display">00:00</div>
+                    <div class="warmup-status" id="warmup-status">Pronto</div>
+                </div>
+                <div class="warmup-presets">
+                    <button class="preset-btn" data-time="60">1 minuto</button>
+                    <button class="preset-btn" data-time="240">4 minutos</button>
+                </div>
+                <div class="warmup-controls">
+                    <button class="control-btn primary" id="btn-warmup-start">▶️ Iniciar Aquecimento</button>
+                    <button class="control-btn warning" id="btn-warmup-pause">⏸️ Pausar</button>
+                    <button class="control-btn danger" id="btn-warmup-stop">⏹️ Parar</button>
+                </div>
+            </div>
+
+            <!-- Controles de Broadcast (ESPECÍFICO DO STREAM) -->
+            <div class="control-section broadcast-controls">
+                <div class="section-title">📺 Controles de Broadcast</div>
+                <div class="control-grid">
+                    <button class="control-btn warning" id="btn-standby">📴 STANDBY</button>
+                    <button class="control-btn primary" id="btn-live">🔴 AO VIVO</button>
+                    <button class="control-btn danger" id="btn-hide-all-overlays">❌ Ocultar Todos Overlays</button>
+                </div>
+                
+                <!-- ✨ NOVA SEÇÃO: Controles de Rodapé -->
+                <div class="section-title" style="margin-top: 1.5rem;">🏷️ Controles de Rodapé</div>
+                
+                <!-- Rodapé Padrão (Identidade) -->
+                <div class="control-grid" style="margin-top: 0.5rem;">
+                    <button class="control-btn success" id="btn-show-lower-third-default">👤 Exibir Rodapé Padrão</button>
+                    <button class="control-btn" id="btn-hide-lower-third-default">🚫 Fechar Rodapé Padrão</button>
+                </div>
+                
+                <!-- Rodapé VT1 (Nota Salto 1) -->
+                <div class="control-grid" id="vt1-footer-controls" style="margin-top: 0.5rem;">
+                    <button class="control-btn success" id="btn-show-lower-third-vt1">📊 Abrir Rodapé VT1</button>
+                    <button class="control-btn" id="btn-hide-lower-third-vt1">� Fechar Rodapé VT1</button>
+                </div>
+                
+                <!-- Rodapé VT2 (Média dos Saltos) -->
+                <div class="control-grid" id="vt2-footer-controls" style="margin-top: 0.5rem; display: none;">
+                    <button class="control-btn success" id="btn-show-lower-third-vt2">📊 Abrir Rodapé VT2</button>
+                    <button class="control-btn" id="btn-hide-lower-third-vt2">🚫 Fechar Rodapé VT2</button>
+                </div>
+                
+                <!-- Rodapé FX/UB/BB (Nota Aparelho) -->
+                <div class="control-grid" id="apparatus-footer-controls" style="margin-top: 0.5rem;">
+                    <button class="control-btn success" id="btn-show-lower-third-apparatus">📊 Abrir Rodapé FX/UB/BB</button>
+                    <button class="control-btn" id="btn-hide-lower-third-apparatus">🚫 Fechar Rodapé FX/UB/BB</button>
+                </div>
+            </div>
+
+            <!-- Controles do Salto -->
+            <div id="vault-specific-controls" class="control-section vault-controls" style="display:none;">
+                <div class="section-title">🤸 Controles do Salto</div>
+                
+                <div class="vault-selector">
+                    <button class="control-btn active" id="btn-activate-vt1">VT1</button>
+                    <button class="control-btn" id="btn-activate-vt2">VT2</button>
+                </div>
+                
+                <div id="current-active-vault-display" class="vault-info">VT1 Ativo</div>
+
+                <div class="form-group">
+                    <label for="vault-selection-dropdown-vt1">Salto 1 (VT1)</label>
+                    <select id="vault-selection-dropdown-vt1"></select>
+                    <div class="vault-info" id="selected-dv-vt1">DV: -.--</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vault-selection-dropdown-vt2">Salto 2 (VT2)</label>
+                    <select id="vault-selection-dropdown-vt2"></select>
+                    <div class="vault-info" id="selected-dv-vt2">DV: -.--</div>
+                </div>
+            </div>
+
+            <!-- Sistema de Recursos -->
+            <div class="control-section">
+                <div class="section-title">⚖️ Sistema de Recursos</div>
+                <div class="inquiry-status" id="inquiry-status">
+                    <div class="status-indicator" id="inquiry-indicator">Nenhum recurso ativo</div>
+                </div>
+                <div class="inquiry-controls">
+                    <div class="form-group">
+                        <label for="inquiry-gymnast">Ginasta</label>
+                        <select id="inquiry-gymnast">
+                            <option value="">-- Selecione a Ginasta --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="inquiry-reason">Motivo do Recurso de Nota D</label>
+                        <textarea id="inquiry-reason" placeholder="Descreva o motivo do recurso de dificuldade..." rows="3"></textarea>
+                    </div>
+                    <div class="inquiry-actions">
+                        <button class="control-btn warning" id="btn-submit-inquiry">📝 Submeter Recurso</button>
+                        <button class="control-btn danger" id="btn-resolve-inquiry">✅ Resolver Recurso</button>
+                        <button class="control-btn" id="btn-reject-inquiry">❌ Rejeitar Recurso</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <!-- Ginasta Atual -->
+            <div class="control-section current-gymnast">
+                <h3>👤 Ginasta Atual</h3>
+                <div id="fx-gymnast-info">
+                    <div class="gymnast-name">Carregando...</div>
+                    <div class="gymnast-details">Aguarde...</div>
+                </div>
+            </div>
+
+            <!-- Resumo de Qualificação -->
+            <div class="control-section">
+                <div class="section-title">📊 Resumo de Qualificação</div>
+                <div class="qualification-summary" id="qualification-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total de Ginastas:</span>
+                        <span class="summary-value" id="total-gymnasts">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Qualificadas AA:</span>
+                        <span class="summary-value" id="qualified-aa">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Qualificadas por Aparelho:</span>
+                    </div>
+                    <div class="apparatus-qualified">
+                        <div class="qualified-item">
+                            <span>VT:</span> <span id="qualified-vt">-</span>
+                        </div>
+                        <div class="qualified-item">
+                            <span>UB:</span> <span id="qualified-ub">-</span>
+                        </div>
+                        <div class="qualified-item">
+                            <span>BB:</span> <span id="qualified-bb">-</span>
+                        </div>
+                        <div class="qualified-item">
+                            <span>FX:</span> <span id="qualified-fx">-</span>
+                        </div>
+                    </div>
+                    <button class="control-btn primary" id="btn-update-summary">🔄 Atualizar Resumo</button>
+                </div>
+
+                <!-- Seção de Sons e Efeitos -->
+                <div class="sounds-section">
+                    <div class="sounds-title">🎵 SONS E EFEITOS</div>
+                    
+                    <button class="sound-btn" onclick="playSoundEffect('welcome', event)">
+                        🎉 BOAS-VINDAS
+                    </button>
+                    
+                    <button class="sound-btn anthem" onclick="playSoundEffect('brazil-anthem', event)">
+                        🇧🇷 HINO BRASIL
+                    </button>
+                    
+                    <button class="sound-btn" onclick="playSoundEffect('china-reception', event)">
+                        🇨🇳 RECEPÇÃO CHINA
+                    </button>
+                    
+                    <button class="sound-btn" onclick="playSoundEffect('italy-reception', event)">
+                        🇮🇹 RECEPÇÃO ITÁLIA
+                    </button>
+                    
+                    <button class="sound-btn" onclick="playSoundEffect('usa-reception', event)">
+                        🇺🇸 RECEPÇÃO EUA
+                    </button>
+                    
+                    <button class="sound-btn" onclick="playSoundEffect('brazil-reception', event)">
+                        🇧🇷 RECEPÇÃO BRASIL
+                    </button>
+                    
+                    <button class="sound-btn" onclick="playSoundEffect('final-instructions', event)">
+                        ⚠️ INSTRUÇÕES FINAIS
+                    </button>
+                    
+                    <button class="sound-btn" onclick="clearSoundEffects(event)" style="background: linear-gradient(45deg, #666, #888); margin-top: 15px;">
+                        ❌ SAIR DOS EFEITOS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/countries.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/calculation-logic.js"></script> <!-- ✨ ADDED: Calculation functions -->
+    <script>
+        // Use Firebase v8 syntax - variables are available globally from firebase-init.js
+        let db = null;
+
+        let allGymnastData = [];
+        let fxStartList = [];
+        let currentIndex = 0;
+        let allStartListStructures = {};
+        let currentFullSelection = null;
+        let currentSelectedApparatus = null;
+        let currentActiveVaultNum = 1;
+        
+        // Timer control
+        let timerInterval = null;
+        let timerStartTime = null;
+        let timerElapsedSeconds = 0;
+        let timerStopped = false; // NOVO: flag para evitar que setInterval sobrescreva STOP
+
+        const controlChannel = new BroadcastChannel('fx-control');
+
+        const vaultTableFIG = [
+            { id: "0.00", group: 0, name: "--- Selecione um Salto ---", dv: 0.0 },
+            
+            // Group 1 - Handspring Forward (mais comuns)
+            { id: "1.00", group: 1, name: "Handspring fwd", dv: 1.60 },
+            { id: "1.01", group: 1, name: "Handspring fwd + 1/2 turn off", dv: 2.00 },
+            { id: "1.02", group: 1, name: "Handspring fwd + 1/1 turn off", dv: 2.60 },
+            { id: "1.10", group: 1, name: "Yamashita", dv: 2.00 },
+            { id: "1.20", group: 1, name: "Handspring 1/2 turn on - repulsion off", dv: 1.60 },
+            { id: "1.40", group: 1, name: "Round-off, flic-flac - repulsion off", dv: 1.60 },
+            
+            // Group 2 - Handspring Forward + Salto (mais comuns)
+            { id: "2.10", group: 2, name: "Handspring fwd - tucked salto fwd", dv: 3.60 },
+            { id: "2.20", group: 2, name: "Handspring fwd - piked salto fwd", dv: 3.80 },
+            { id: "2.30", group: 2, name: "Handspring fwd - stretched salto fwd", dv: 4.40 },
+            { id: "2.40", group: 2, name: "Handspring fwd - stretched salto fwd + 1/2 twist", dv: 4.80 },
+            { id: "2.42", group: 2, name: "Handspring fwd - stretched salto fwd + 1/1 twist", dv: 5.20 },
+            { id: "2.44", group: 2, name: "Handspring fwd - stretched salto fwd + 3/2 twist", dv: 5.60 },
+            { id: "2.50", group: 2, name: "Handspring fwd - double salto fwd (Produnova)", dv: 6.00 },
+            
+            // Group 3 - Tsukahara (mais comuns)
+            { id: "3.10", group: 3, name: "Tsukahara tucked", dv: 3.20 },
+            { id: "3.20", group: 3, name: "Tsukahara piked", dv: 3.40 },
+            { id: "3.30", group: 3, name: "Tsukahara stretched", dv: 3.80 },
+            { id: "3.32", group: 3, name: "Tsukahara stretched + 1/1 twist", dv: 4.40 },
+            { id: "3.34", group: 3, name: "Tsukahara stretched + 3/2 twist", dv: 4.80 },
+            { id: "3.36", group: 3, name: "Tsukahara stretched + 2/1 twist", dv: 5.20 },
+            { id: "3.40", group: 3, name: "Tsukahara double tucked", dv: 5.60 },
+            
+            // Group 4 - Yurchenko (mais comuns)
+            { id: "4.10", group: 4, name: "Round-off, flic-flac - tucked salto bwd (Yurchenko)", dv: 3.00 },
+            { id: "4.12", group: 4, name: "Yurchenko + 1/1 twist", dv: 3.60 },
+            { id: "4.14", group: 4, name: "Yurchenko + 3/2 twist", dv: 4.20 },
+            { id: "4.16", group: 4, name: "Yurchenko + 2/1 twist", dv: 4.80 },
+            { id: "4.18", group: 4, name: "Yurchenko + 5/2 twist", dv: 5.60 },
+            { id: "4.20", group: 4, name: "Yurchenko piked", dv: 3.20 },
+            { id: "4.30", group: 4, name: "Yurchenko stretched", dv: 3.60 },
+            { id: "4.32", group: 4, name: "Yurchenko stretched + 1/1 twist", dv: 4.00 },
+            { id: "4.34", group: 4, name: "Yurchenko stretched + 3/2 twist", dv: 4.60 },
+            { id: "4.36", group: 4, name: "Yurchenko stretched + 2/1 twist (Amanar)", dv: 5.00 },
+            { id: "4.38", group: 4, name: "Yurchenko stretched + 5/2 twist", dv: 5.40 },
+            { id: "4.50", group: 4, name: "Yurchenko double tucked", dv: 5.40 },
+            { id: "4.52", group: 4, name: "Yurchenko double tucked + 1/1 twist", dv: 5.80 },
+            { id: "4.60", group: 4, name: "Yurchenko double piked", dv: 5.80 },
+            { id: "4.70", group: 4, name: "Yurchenko double stretched", dv: 6.40 },
+            
+            // Group 5 - Round-off 1/2 on + Salto (mais comuns)
+            { id: "5.10", group: 5, name: "Round-off 1/2 on - tucked salto bwd", dv: 3.20 },
+            { id: "5.12", group: 5, name: "Round-off 1/2 on - tucked salto bwd + 1/1 twist", dv: 3.80 },
+            { id: "5.20", group: 5, name: "Round-off 1/2 on - piked salto bwd", dv: 3.40 },
+            { id: "5.30", group: 5, name: "Round-off 1/2 on - stretched salto bwd", dv: 3.80 },
+            { id: "5.32", group: 5, name: "Round-off 1/2 on - stretched salto bwd + 1/1 twist", dv: 4.40 },
+            { id: "5.34", group: 5, name: "Round-off 1/2 on - stretched salto bwd + 3/2 twist", dv: 4.80 },
+            { id: "5.36", group: 5, name: "Round-off 1/2 on - stretched salto bwd + 2/1 twist", dv: 5.20 }
+        ];
+
+        const phaseSelectElement = document.getElementById('phase-select');
+        const rotationSelectElement = document.getElementById('rotation-select');
+        const apparatusSelectElement = document.getElementById('apparatus-select');
+        const applyConfigurationElement = document.getElementById('apply-configuration');
+        const infoDivElement = document.getElementById('fx-gymnast-info');
+        const btnPrevElement = document.getElementById('btn-prev');
+        const btnNextElement = document.getElementById('btn-next');
+        const btnShowTimerElement = document.getElementById('btn-show-timer');
+        const btnToggleListsElement = document.getElementById('btn-toggle-list-results');
+        const btnGoNotaElement = document.getElementById('btn-status');
+        const btnTimerStartElement = document.getElementById('btn-timer-start');
+        const btnTimerStopElement = document.getElementById('btn-timer-stop');
+        const btnTimerResetElement = document.getElementById('btn-timer-reset');
+        const btnSyncElement = document.getElementById('btn-sync');
+        const vaultControlsDivElement = document.getElementById('vault-specific-controls');
+        const btnActivateVt1Element = document.getElementById('btn-activate-vt1');
+        const btnActivateVt2Element = document.getElementById('btn-activate-vt2');
+        const currentActiveVaultDisplayElement = document.getElementById('current-active-vault-display');
+        const vaultSelectVt1Element = document.getElementById('vault-selection-dropdown-vt1');
+        const vaultSelectVt2Element = document.getElementById('vault-selection-dropdown-vt2');
+        const selectedDvVt1Element = document.getElementById('selected-dv-vt1');
+        const selectedDvVt2Element = document.getElementById('selected-dv-vt2');
+
+        function parseDropdownValue(value) {
+            const parts = value.split('|');
+            const phase = parts[0];
+            let subdiv = null, rot = null, app = null;
+            
+            if (phase.endsWith('_final') && !phase.startsWith('aa') && !phase.startsWith('team') && parts.length === 1) {
+                // Apparatus final (e.g., "vt_final")
+                app = phase.split('_')[0];
+            } else if (parts.length === 3 && phase === 'qualifiers') {
+                // Qualifiers with direct rotations (new format): "qualifiers|rot0|vt"
+                rot = parts[1];
+                app = parts[2];
+            } else if (parts.length === 4 && phase === 'qualifiers') {
+                // Qualifiers with subdivisions (old format): "qualifiers|subdiv0|rot0|vt"
+                subdiv = parts[1];
+                rot = parts[2];
+                app = parts[3];
+            } else if (parts.length === 3 && (phase === 'team_final' || phase === 'aa_final')) {
+                // Team/AA final: "team_final|rot0|vt"
+                rot = parts[1];
+                app = parts[2];
+            } else if (phase === 'qualifiers_all_vt') {
+                // Special case for all VT
+                app = 'vt';
+            } else {
+                console.warn(`[Stream Control] Formato não reconhecido: ${value}`);
+            }
+            
+            const subdivIdx = subdiv ? parseInt(subdiv.replace('subdiv','')) : null;
+            const rotIdx = rot ? parseInt(rot.replace('rot','')) : null;
+            currentSelectedApparatus = app;
+            return { phase, apparatus: app, subdivIdx, rotIdx };
+        }
+        function updateGymnastInfo() {
+            if (!infoDivElement) return;
+            
+            if (!fxStartList || fxStartList.length === 0) {
+                infoDivElement.innerHTML = '<div class="gymnast-name">--</div><div class="gymnast-details">Lista Vazia</div>';
+                return;
+            }
+            
+            if (currentIndex < 0 || currentIndex >= fxStartList.length) {
+                currentIndex = 0;
+                if (fxStartList.length === 0) {
+                    infoDivElement.innerHTML = '<div class="gymnast-name">--</div><div class="gymnast-details">Lista Vazia</div>';
+                    return;
+                }
+            }
+            
+            const g = fxStartList[currentIndex];
+            if (!g || !g.name) {
+                infoDivElement.innerHTML = '<div class="gymnast-name">Inválida</div><div class="gymnast-details">Dados não encontrados</div>';
+                return;
+            }
+            
+            const countryInfo = window.countryData[g.country] || {};
+            const countryName = countryInfo.name || g.country;
+            
+            infoDivElement.innerHTML = `
+                <div class="gymnast-name">${g.name}</div>
+                <div class="gymnast-details">${countryName} • ${currentIndex + 1}/${fxStartList.length}</div>
+            `;
+        }
+        function populateVaultDropdowns() {
+            [vaultSelectVt1Element, vaultSelectVt2Element].forEach(selectEl => {
+                if (!selectEl) return;
+                selectEl.innerHTML = '';
+                
+                // Criar DVs de 0.0 a 6.8 em incrementos de 0.1
+                for (let dv = 0; dv <= 6.8; dv += 0.1) {
+                    const dvValue = Math.round(dv * 10) / 10; // Arredondar para evitar problemas de ponto flutuante
+                    const option = document.createElement('option');
+                    option.value = dvValue.toFixed(1);
+                    option.textContent = dvValue.toFixed(1);
+                    option.dataset.dv = dvValue;
+                    selectEl.appendChild(option);
+                }
+            });
+            
+            if (vaultSelectVt1Element) vaultSelectVt1Element.onchange = () => handleVaultSelection(1);
+            if (vaultSelectVt2Element) vaultSelectVt2Element.onchange = () => handleVaultSelection(2);
+        }
+
+        function sendVaultInfoToDisplay(vaultNum, vaultCode, vaultDV, gymnastId) {
+            console.log(`[Stream Control] sendVaultInfoToDisplay for VT${vaultNum}: Code=${vaultCode}, DV=${vaultDV}, Gymnast=${gymnastId}`);
+            controlChannel.postMessage({
+                action: 'setVaultInfo',
+                activeVaultNum: vaultNum, // Qual salto está sendo preparado (1 ou 2)
+                vaultCode: vaultCode,
+                vaultDV: vaultDV,
+                gymnastId: gymnastId
+            });
+        }
+
+        function handleVaultSelection(vaultNum) { 
+            const selectEl = vaultNum === 1 ? vaultSelectVt1Element : vaultSelectVt2Element;
+            const dvDisplayEl = vaultNum === 1 ? selectedDvVt1Element : selectedDvVt2Element;
+            if (!selectEl || !dvDisplayEl) return;
+
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const vaultDV = parseFloat(selectedOption.value);
+
+            dvDisplayEl.textContent = `DV: ${vaultDV.toFixed(1)}`;
+
+            if (vaultDV > 0 && currentActiveVaultNum === vaultNum) {
+                sendVaultInfoToDisplay(currentActiveVaultNum, vaultDV.toFixed(1), vaultDV, fxStartList[currentIndex]?.id);
+                
+                // Atualizar o timer no Firebase SEMPRE que for VT
+                if (currentSelectedApparatus === 'vt') {
+                    db.collection('broadcast').doc('liveState').get().then(doc => {
+                        const timerData = doc.data()?.activeOverlays?.widgets?.timer || {};
+                        console.log(`[Stream Control] 🔄 handleVaultSelection atualizando Firebase: VT${vaultNum} com DV ${vaultDV}`);
+                        
+                        // Preservar ambos os DVs - salvar dvVt1 e dvVt2 separadamente
+                        const updateData = {
+                            apparatus: 'VT',
+                            status: timerData.status || 'WAIT',
+                            elapsedSeconds: timerData.elapsedSeconds || 0,
+                            activeVaultNum: vaultNum,
+                            dvVt1: vaultNum === 1 ? vaultDV : (timerData.dvVt1 || 0),
+                            dvVt2: vaultNum === 2 ? vaultDV : (timerData.dvVt2 || 0)
+                        };
+                        
+                        updateBroadcastOverlay('timer', timerData.visible || false, updateData);
+                    });
+                }
+            }
+        }
+
+        function setActiveVault(vaultNum) { 
+            currentActiveVaultNum = vaultNum; 
+            if (currentActiveVaultDisplayElement) currentActiveVaultDisplayElement.textContent = `VT${vaultNum} Ativo`;
+            if (btnActivateVt1Element) btnActivateVt1Element.classList.toggle('active', vaultNum === 1);
+            if (btnActivateVt2Element) btnActivateVt2Element.classList.toggle('active', vaultNum === 2);
+
+            const selectEl = vaultNum === 1 ? vaultSelectVt1Element : vaultSelectVt2Element;
+            if (!selectEl || selectEl.options.length === 0) {
+                sendVaultInfoToDisplay(currentActiveVaultNum, "0.0", 0.0, fxStartList[currentIndex]?.id);
+                if (vaultNum === 1 && selectedDvVt1Element) selectedDvVt1Element.textContent = 'DV: 0.0';
+                if (vaultNum === 2 && selectedDvVt2Element) selectedDvVt2Element.textContent = 'DV: 0.0';
+                return;
+            }
+
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const vaultDV = parseFloat(selectedOption.value);
+
+            const dvDisplayEl = vaultNum === 1 ? selectedDvVt1Element : selectedDvVt2Element;
+            if (dvDisplayEl) dvDisplayEl.textContent = `DV: ${vaultDV.toFixed(1)}`;
+            
+            sendVaultInfoToDisplay(currentActiveVaultNum, vaultDV.toFixed(1), vaultDV, fxStartList[currentIndex]?.id);
+            
+            // Atualizar o timer no Firebase SEMPRE que for VT (mesmo que não visível)
+            if (currentSelectedApparatus === 'vt') {
+                db.collection('broadcast').doc('liveState').get().then(doc => {
+                    const timerData = doc.data()?.activeOverlays?.widgets?.timer || {};
+                    console.log(`[Stream Control] 🔄 Atualizando timer para VT${vaultNum} com DV ${vaultDV}`);
+                    
+                    // Preservar ambos os DVs - salvar dvVt1 e dvVt2 separadamente
+                    const updateData = {
+                        apparatus: 'VT',
+                        status: timerData.status || 'WAIT',
+                        elapsedSeconds: timerData.elapsedSeconds || 0,
+                        activeVaultNum: vaultNum,
+                        dvVt1: vaultNum === 1 ? vaultDV : (timerData.dvVt1 || 0),
+                        dvVt2: vaultNum === 2 ? vaultDV : (timerData.dvVt2 || 0)
+                    };
+                    
+                    updateBroadcastOverlay('timer', timerData.visible || false, updateData);
+                });
+            }
+        }
+        function setupConfigurationControls() {
+            if (!applyConfigurationElement) return;
+            
+            applyConfigurationElement.onclick = () => {
+                const phase = phaseSelectElement?.value;
+                const rotation = rotationSelectElement?.value;
+                const apparatus = apparatusSelectElement?.value;
+                
+                // Para finais por aparelho (exceto VT e AA), rotação não é necessária
+                const needsRotation = phase === 'qualifiers' || phase === 'aa_final' || (phase.includes('_final') && apparatus === 'vt');
+                
+                if (!phase || (!needsRotation && !apparatus) || (needsRotation && (!rotation || !apparatus))) {
+                    if (needsRotation) {
+                        alert('Por favor, selecione Fase, Rotação e Aparelho antes de aplicar a configuração.');
+                    } else {
+                        alert('Por favor, selecione Fase e Aparelho antes de aplicar a configuração.');
+                    }
+                    return;
+                }
+                
+                // Construct the dropdown value in the expected format
+                let finalPhaseValue;
+                if (needsRotation) {
+                    finalPhaseValue = `${phase}|rot${parseInt(rotation) - 1}|${apparatus}`;
+                } else {
+                    // Para finais por aparelho simples, não usar rotação
+                    finalPhaseValue = `${phase}|${apparatus}`;
+                }
+                
+                console.log(`[Stream Control] Aplicando configuração: ${finalPhaseValue}`);
+                
+                // Set currentSelectedApparatus before loading
+                currentSelectedApparatus = apparatus;
+                
+                loadFXStartListFromDropdown(finalPhaseValue);
+            };
+        }
+        
+        async function populatePhaseSelectAndOptions() {
+            // This function is now simplified - the dropdowns are pre-populated in HTML
+            allStartListStructures = {};
+            
+            try {
+                const querySnapshot = await window.db.collection("start_lists").get();
+                if (querySnapshot.empty) {
+                    console.warn("Nenhum start list encontrado no Firebase");
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const phaseKey = docSnap.id;
+                    const structure = docSnap.data().structure;
+                    allStartListStructures[phaseKey] = structure;
+                    if (phaseKey === 'team_final') {
+                        console.log('[Stream Control] 🏅 Team Final structure loaded:', structure);
+                        console.log('[Stream Control] 🏅 Team Final type:', structure?.type);
+                        console.log('[Stream Control] 🏅 Team Final rotations count:', structure?.rotations?.length);
+                    }
+                });
+                
+                console.log('[Stream Control] Start lists carregados:', Object.keys(allStartListStructures));
+                
+            } catch (error) {
+                console.error('Erro ao carregar start lists:', error);
+            }
+        }
+        
+        function toggleVaultControls(show) { 
+            console.log(`[Control DEBUG] toggleVaultControls called with show=${show}, element exists=${!!vaultControlsDivElement}`);
+            if (vaultControlsDivElement) {
+                vaultControlsDivElement.style.display = show ? 'flex' : 'none';
+                console.log(`[Control DEBUG] Set vaultControls display to: ${vaultControlsDivElement.style.display}`);
+            }
+        }
+        
+        function toggleFooterButtons(apparatus, isDualVaultPhase) {
+            const vt1FooterControls = document.getElementById('vt1-footer-controls');
+            const vt2FooterControls = document.getElementById('vt2-footer-controls');
+            const apparatusFooterControls = document.getElementById('apparatus-footer-controls');
+            
+            if (apparatus === 'vt') {
+                // Mostrar controles de VT
+                if (vt1FooterControls) vt1FooterControls.style.display = 'grid';
+                if (vt2FooterControls) vt2FooterControls.style.display = isDualVaultPhase ? 'grid' : 'none';
+                if (apparatusFooterControls) apparatusFooterControls.style.display = 'none';
+                console.log(`[Control] Footer buttons: VT1=visible, VT2=${isDualVaultPhase ? 'visible' : 'hidden'}, Apparatus=hidden`);
+            } else {
+                // Mostrar controles de aparelho (FX/UB/BB)
+                if (vt1FooterControls) vt1FooterControls.style.display = 'none';
+                if (vt2FooterControls) vt2FooterControls.style.display = 'none';
+                if (apparatusFooterControls) apparatusFooterControls.style.display = 'grid';
+                console.log(`[Control] Footer buttons: VT1=hidden, VT2=hidden, Apparatus=visible`);
+            }
+        }
+
+        // ========================================
+        // HELPER FUNCTIONS FOR LISTS AND RESULTS
+        // ========================================
+        // REMOVIDAS: Usando calculation-logic.js global functions ao invés
+
+        /**
+         * Calcula scores de Finals por aparelho (calculation-logic.js só tem qualifiers)
+         * @param {String} apparatus - 'vt', 'ub', 'bb', 'fx'
+         * @returns {Array} - Array com {gymnast, apparatusScore}
+         */
+        function calculateFinalApparatusScores(apparatus) {
+            const phaseName = `${apparatus}_final`;
+            
+            return allGymnastData.map(g => {
+                const phaseScores = g.scores?.[phaseName] || {};
+                const scoreData = window.getAppScore(phaseScores, apparatus, g.id, phaseName);
+                
+                return {
+                    ...g,
+                    apparatusScore: scoreData.total || 0
+                };
+            })
+            .filter(g => g.apparatusScore >= 0)
+            .sort((a, b) => b.apparatusScore - a.apparatusScore);
+        }
+
+        /**
+         * Aplica a regra de qualificação (máximo 2 por país nos top 8)
+         * USA a função applyMaxPerCountry do calculation-logic.js
+         * @param {Array} data - Array de {gymnast, score/aaTotal/apparatusScore} já ordenado por score DESC
+         * @returns {Array} - Array com Q markers aplicados
+         */
+        function applyQualificationRulesLocal(data) {
+            // Formatar dados para usar applyMaxPerCountry
+            const formatted = data.map(d => ({
+                ...d.gymnast,
+                aaTotal: d.score, // applyMaxPerCountry usa aaTotal
+                apparatusScore: d.score
+            }));
+            
+            // Aplicar regra: Top 8, máximo 2 por país
+            const qualified = window.applyMaxPerCountry(formatted, 8, 2);
+            const qualifiedIds = new Set(qualified.map(g => g.id));
+            
+            // Marcar com 'Q' e adicionar ranks
+            return data.map((d, index) => ({
+                ...d,
+                rank: index + 1,
+                qStatus: qualifiedIds.has(d.gymnast.id) ? 'Q' : ''
+            }));
+        }
+
+        /**
+         * Exibe a Start List do aparelho atual no overlay central
+         */
+        function showStartListCenter() {
+            // Validate start list exists
+            if (!fxStartList || fxStartList.length === 0) {
+                alert('A Start List está vazia ou não foi carregada. Selecione uma fase e aparelho.');
+                return;
+            }
+            
+            // Get current phase and apparatus from dropdowns
+            const phaseSelect = document.getElementById('phase-select');
+            const rotationSelect = document.getElementById('rotation-select');
+            
+            const phaseText = phaseSelect ? phaseSelect.options[phaseSelect.selectedIndex].text : 'Competição';
+            const rotationText = rotationSelect ? rotationSelect.options[rotationSelect.selectedIndex].text : '';
+            
+            // Map start list to items format
+            const items = fxStartList.map((gymnast, index) => {
+                const countryObj = countryData[gymnast.country] || {};
+                
+                return {
+                    rank: index + 1, // Position in start list
+                    flagCode: gymnast.country || '',
+                    flagEmoji: countryObj.emoji || '',
+                    name: gymnast.name || 'Unknown',
+                    qStatus: '', // No qualification status in start list
+                    score: '' // No scores in start list
+                };
+            });
+            
+            // Create overlay data
+            const overlayData = {
+                title: phaseText,
+                subtitle: `${rotationText} - Start List`,
+                page: '', // No pagination for start list
+                items: items
+            };
+            
+            console.log('[Control] 📋 Showing Start List:', overlayData);
+            updateBroadcastOverlay('listCenter', true, overlayData);
+        }
+
+        /**
+         * Exibe os resultados (QF ou Finais) no overlay central
+         * @param {String} resultType - Tipo de resultado: 'QF_AA_P1', 'QF_AA_P2', 'QF_TF', 'QF_VT', 'QF_UB', 'QF_BB', 'QF_FX',
+         *                              'FINAL_AA', 'FINAL_TF', 'FINAL_VT', 'FINAL_UB', 'FINAL_BB', 'FINAL_FX'
+         */
+        function showResults(resultType) {
+            console.log('[Control] 🔍 showResults called with:', resultType);
+            console.log('[Control] 🔍 allGymnastData:', allGymnastData);
+            console.log('[Control] 🔍 allGymnastData.length:', allGymnastData ? allGymnastData.length : 'NULL');
+            
+            // Validate gymnast data loaded
+            if (!allGymnastData || allGymnastData.length === 0) {
+                console.error('[Control] ❌ allGymnastData está vazio ou não carregado!');
+                alert('Dados das ginastas ainda não carregados. Aguarde.');
+                return;
+            }
+            
+            console.log('[Control] ✅ allGymnastData carregado com', allGymnastData.length, 'ginastas');
+            
+            // Parse result type: ['QF'/'FINAL', 'AA'/'VT'/etc, 'P1'/'P2'/undefined]
+            const parts = resultType.split('_');
+            const phase = parts[0]; // 'QF' or 'FINAL'
+            const apparatus = parts[1]; // 'AA', 'VT', 'UB', 'BB', 'FX', 'TF'
+            const page = parts[2]; // 'P1', 'P2', or undefined
+            
+            console.log('[Control] 🔍 Parsed:', { phase, apparatus, page });
+            
+            let title = '';
+            let subtitle = '';
+            let pageText = '';
+            let showQualificationStatus = false;
+            let data = []; // Array of {gymnast, score}
+            
+            // QUALIFICATÓRIAS
+            if (phase === 'QF') {
+                title = 'Qualification Results';
+                showQualificationStatus = true;
+                
+                if (apparatus === 'AA') {
+                    subtitle = 'Women\'s All-Around';
+                    pageText = page === 'P1' ? 'Page 1/2' : 'Page 2/2';
+                    
+                    // ✅ USA window.calculateAAScores do calculation-logic.js
+                    const calculatedData = window.calculateAAScores(allGymnastData, 'qualifiers');
+                    console.log('[Control] 📊 QF AA calculated:', calculatedData);
+                    
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.aaTotal || 0
+                    }));
+                    
+                } else if (apparatus === 'VT') {
+                    subtitle = 'Vault';
+                    
+                    // ✅ USA window.calculateApparatusScores do calculation-logic.js
+                    const calculatedData = window.calculateApparatusScores(allGymnastData, 'vt');
+                    console.log('[Control] 📊 QF VT calculated:', calculatedData);
+                    
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'UB') {
+                    subtitle = 'Uneven Bars';
+                    
+                    // ✅ USA window.calculateApparatusScores do calculation-logic.js
+                    const calculatedData = window.calculateApparatusScores(allGymnastData, 'ub');
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'BB') {
+                    subtitle = 'Balance Beam';
+                    
+                    // ✅ USA window.calculateApparatusScores do calculation-logic.js
+                    const calculatedData = window.calculateApparatusScores(allGymnastData, 'bb');
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'FX') {
+                    subtitle = 'Floor Exercise';
+                    
+                    // ✅ USA window.calculateApparatusScores do calculation-logic.js
+                    const calculatedData = window.calculateApparatusScores(allGymnastData, 'fx');
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'TF') {
+                    subtitle = 'Team Final';
+                    
+                    // ✅ USA window.calculateTeamScores do calculation-logic.js
+                    const teamResults = window.calculateTeamScores(allGymnastData);
+                    console.log('[Control] 📊 QF Team calculated:', teamResults);
+                    
+                    // Converter formato: {country, total} → {gymnast: {name, country}, score}
+                    data = teamResults.map(team => ({
+                        gymnast: { 
+                            name: `Team ${team.country}`, 
+                            country: team.country,
+                            id: `team_${team.country}` // ID fictício para compatibilidade
+                        },
+                        score: team.total || 0
+                    }));
+                }
+                
+            // FINAIS
+            } else if (phase === 'FINAL') {
+                title = 'Final Results';
+                showQualificationStatus = false;
+                
+                if (apparatus === 'AA') {
+                    subtitle = 'Women\'s All-Around Final';
+                    
+                    // ✅ USA window.calculateAAScores do calculation-logic.js
+                    const calculatedData = window.calculateAAScores(allGymnastData, 'aa_final');
+                    console.log('[Control] 📊 Finals AA calculated:', calculatedData);
+                    
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.aaTotal || 0
+                    }));
+                    
+                } else if (apparatus === 'VT') {
+                    subtitle = 'Vault Final';
+                    
+                    // ✅ USA calculateFinalApparatusScores (helper local)
+                    const calculatedData = calculateFinalApparatusScores('vt');
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'UB') {
+                    subtitle = 'Uneven Bars Final';
+                    
+                    // ✅ USA calculateFinalApparatusScores (helper local)
+                    const calculatedData = calculateFinalApparatusScores('ub');
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'BB') {
+                    subtitle = 'Balance Beam Final';
+                    
+                    // ✅ USA calculateFinalApparatusScores (helper local)
+                    const calculatedData = calculateFinalApparatusScores('bb');
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'FX') {
+                    subtitle = 'Floor Exercise Final';
+                    
+                    // ✅ USA calculateFinalApparatusScores (helper local)
+                    const calculatedData = calculateFinalApparatusScores('fx');
+                    data = calculatedData.map(g => ({
+                        gymnast: g,
+                        score: g.apparatusScore || 0
+                    }));
+                    
+                } else if (apparatus === 'TF') {
+                    subtitle = 'Team Final';
+                    
+                    // ✅ Calcular Team Final com estrutura de duplicação
+                    console.log('[Control] 📊 Calculating Team Final results...');
+                    
+                    // 1. Buscar países classificados (top 8 das qualificatórias)
+                    const teamQualifiers = window.calculateTeamScores(allGymnastData);
+                    console.log('[Control] 🏆 Team qualifiers:', teamQualifiers);
+                    const qualifyingCountries = teamQualifiers.slice(0, 8).map(team => team.country);
+                    
+                    // 2. Tentar carregar estrutura de sorteio/duplicação do Firebase
+                    window.db.collection('start_lists').doc('team_final').get()
+                        .then(doc => {
+                            let teamFinalDraw = null;
+                            if (doc.exists) {
+                                teamFinalDraw = doc.data();
+                                console.log('[Control] 📋 Team Final draw loaded:', teamFinalDraw);
+                            }
+                            
+                            // 3. Calcular com ou sem duplicação
+                            let teamResults = [];
+                            if (teamFinalDraw && typeof window.calculateTeamFinalScoresWithDuplication === 'function') {
+                                console.log('[Control] 🔄 Using calculateTeamFinalScoresWithDuplication...');
+                                teamResults = window.calculateTeamFinalScoresWithDuplication(allGymnastData, qualifyingCountries, teamFinalDraw);
+                            } else if (typeof window.calculateTeamFinalScores === 'function') {
+                                console.log('[Control] ⚠️ Using standard calculateTeamFinalScores (no duplication)...');
+                                teamResults = window.calculateTeamFinalScores(allGymnastData, qualifyingCountries);
+                            } else {
+                                console.error('[Control] ❌ No Team Final calculation functions available!');
+                                alert('Funções de cálculo de Team Final não disponíveis.');
+                                return;
+                            }
+                            
+                            console.log('[Control] 📊 Team Final calculated:', teamResults);
+                            
+                            // 4. Converter para formato {gymnast, score}
+                            let teamData = teamResults.map(team => ({
+                                gymnast: { 
+                                    name: `Team ${team.country}`, 
+                                    country: team.country,
+                                    id: `team_${team.country}`
+                                },
+                                score: team.total || 0
+                            }));
+                            
+                            // 5. Verificar se há dados
+                            if (!teamData || teamData.length === 0) {
+                                console.warn('[Control] ⚠️ No Team Final data available');
+                                alert('Nenhuma equipe com nota registrada para Team Final.\nCadastre as notas primeiro.');
+                                return;
+                            }
+                            
+                            // 6. Adicionar ranks
+                            teamData = teamData.map((d, index) => ({
+                                ...d,
+                                rank: index + 1,
+                                qStatus: ''
+                            }));
+                            
+                            // 7. Map to items format
+                            const items = teamData.map(d => {
+                                const countryObj = countryData[d.gymnast.country] || {};
+                                
+                                return {
+                                    rank: d.rank || 0,
+                                    flagCode: d.gymnast.country || '',
+                                    flagEmoji: countryObj.emoji || '',
+                                    name: d.gymnast.name || 'Unknown',
+                                    qStatus: d.qStatus || '',
+                                    score: d.score.toFixed(3)
+                                };
+                            });
+                            
+                            // 8. Create overlay data
+                            const overlayData = {
+                                title: title,
+                                subtitle: subtitle,
+                                page: pageText,
+                                items: items
+                            };
+                            
+                            console.log('[Control] � Showing Team Final Results:', overlayData);
+                            updateBroadcastOverlay('listCenter', true, overlayData);
+                        })
+                        .catch(error => {
+                            console.error('[Control] ❌ Error loading Team Final draw:', error);
+                            // Fallback: calcular sem duplicação
+                            if (typeof window.calculateTeamFinalScores === 'function') {
+                                const teamResults = window.calculateTeamFinalScores(allGymnastData, qualifyingCountries);
+                                let teamData = teamResults.map(team => ({
+                                    gymnast: { 
+                                        name: `Team ${team.country}`, 
+                                        country: team.country,
+                                        id: `team_${team.country}`
+                                    },
+                                    score: team.total || 0,
+                                    rank: 0,
+                                    qStatus: ''
+                                }));
+                                
+                                if (!teamData || teamData.length === 0) {
+                                    alert('Nenhuma equipe com nota registrada para Team Final.');
+                                    return;
+                                }
+                                
+                                teamData = teamData.map((d, index) => ({ ...d, rank: index + 1 }));
+                                
+                                const items = teamData.map(d => {
+                                    const countryObj = countryData[d.gymnast.country] || {};
+                                    return {
+                                        rank: d.rank || 0,
+                                        flagCode: d.gymnast.country || '',
+                                        flagEmoji: countryObj.emoji || '',
+                                        name: d.gymnast.name || 'Unknown',
+                                        qStatus: '',
+                                        score: d.score.toFixed(3)
+                                    };
+                                });
+                                
+                                const overlayData = {
+                                    title: title,
+                                    subtitle: subtitle,
+                                    page: pageText,
+                                    items: items
+                                };
+                                
+                                updateBroadcastOverlay('listCenter', true, overlayData);
+                            } else {
+                                alert('Erro ao carregar dados de Team Final.');
+                            }
+                        });
+                    
+                    // Retornar imediatamente (processamento assíncrono acima)
+                    return;
+                }
+            }
+            
+            // ❌ NÃO MOSTRAR SE NÃO HOUVER DADOS REAIS
+            if (!data || data.length === 0) {
+                console.warn(`[Control] ⚠️ No real data available for ${resultType} - NOT showing overlay`);
+                alert(`Nenhuma ginasta com nota registrada para ${subtitle}.\nCadastre as notas primeiro.`);
+                return;
+            }
+            
+            // Sort by score descending
+            data.sort((a, b) => b.score - a.score);
+            
+            // Apply qualification rules if needed
+            if (showQualificationStatus && apparatus === 'AA') {
+                // QF AA: Aplicar regra 2-per-country nos top 8, marcar com 'Q', MOSTRAR TODOS OS 16
+                data = applyQualificationRulesLocal(data);
+            } else if (showQualificationStatus && ['VT', 'UB', 'BB', 'FX'].includes(apparatus)) {
+                // QF APPARATUS: Aplicar regra 2-per-country, mostrar APENAS os 8 classificados, SEM 'Q'
+                const formatted = data.map(d => ({
+                    ...d.gymnast,
+                    aaTotal: d.score,
+                    apparatusScore: d.score
+                }));
+                
+                // Aplicar regra: Top 8, máximo 2 por país
+                const qualified = window.applyMaxPerCountry(formatted, 8, 2);
+                console.log('[Control] 🏆 QF Apparatus qualified (top 8):', qualified);
+                
+                // Converter de volta para formato {gymnast, score} com ranks
+                data = qualified.map((g, index) => ({
+                    gymnast: g,
+                    score: g.aaTotal || g.apparatusScore || 0,
+                    rank: index + 1,
+                    qStatus: '' // ✅ SEM 'Q' em QF Apparatus
+                }));
+            } else if (phase === 'FINAL' && ['VT', 'UB', 'BB', 'FX'].includes(apparatus)) {
+                // FINALS APPARATUS: Mostrar apenas os 8 da final, SEM 'Q'
+                const formatted = data.map(d => ({
+                    ...d.gymnast,
+                    aaTotal: d.score,
+                    apparatusScore: d.score
+                }));
+                
+                // Aplicar regra: Top 8, máximo 2 por país
+                const qualified = window.applyMaxPerCountry(formatted, 8, 2);
+                console.log('[Control] 🏆 Finals Apparatus qualified after 2-per-country:', qualified);
+                
+                // Converter de volta para formato {gymnast, score} com ranks
+                data = qualified.map((g, index) => ({
+                    gymnast: g,
+                    score: g.aaTotal || g.apparatusScore || 0,
+                    rank: index + 1,
+                    qStatus: '' // Sem 'Q' nas Finals
+                }));
+            } else {
+                // AA Final e TF Final: Apenas adicionar ranks, sem filtro
+                data = data.map((d, index) => ({
+                    ...d,
+                    rank: index + 1,
+                    qStatus: ''
+                }));
+            }
+            
+            // Pagination for QF AA (16 athletes, 8 per page)
+            if (phase === 'QF' && apparatus === 'AA') {
+                const startIdx = page === 'P1' ? 0 : 8;
+                const endIdx = page === 'P1' ? 8 : 16;
+                data = data.slice(startIdx, endIdx);
+            }
+            // Finals já estão limitados a 8 por applyMaxPerCountry
+            
+            // Map to items format
+            const items = data.map(d => {
+                const countryObj = countryData[d.gymnast.country] || {};
+                
+                return {
+                    rank: d.rank || 0,
+                    flagCode: d.gymnast.country || '',
+                    flagEmoji: countryObj.emoji || '',
+                    name: d.gymnast.name || 'Unknown',
+                    qStatus: d.qStatus || '',
+                    score: d.score.toFixed(3)
+                };
+            });
+            
+            // Create overlay data
+            const overlayData = {
+                title: title,
+                subtitle: subtitle,
+                page: pageText,
+                items: items
+            };
+            
+            console.log(`[Control] 🏆 Showing Results [${resultType}]:`, overlayData);
+            updateBroadcastOverlay('listCenter', true, overlayData);
+        }
+
+        // Helper function to update Firebase broadcast overlays
+        function updateBroadcastOverlay(overlayName, visible, data = {}) {
+            if (!db) {
+                console.error('[Stream Control] Database not initialized!');
+                return;
+            }
+            
+            // Criar estrutura aninhada corretamente
+            const overlayData = {
+                visible: visible,
+                ...data
+            };
+            
+            // Usar FieldPath para garantir estrutura aninhada
+            const update = {
+                activeOverlays: {
+                    widgets: {
+                        [overlayName]: overlayData
+                    }
+                }
+            };
+            
+            console.log(`[Stream Control] 🔍 Updating Firebase with nested structure:`, update);
+            
+            // Usar update() em vez de set() com merge para preservar outros campos
+            db.collection('broadcast').doc('liveState').update(update)
+                .then(() => {
+                    console.log(`[Stream Control] ✅ Updated ${overlayName} overlay: visible=${visible}`);
+                })
+                .catch(err => {
+                    console.error(`[Stream Control] ❌ Failed to update ${overlayName}:`, err);
+                    console.error('[Stream Control] ❌ Tentando com set+merge como fallback...');
+                    // Fallback: tentar com set+merge
+                    db.collection('broadcast').doc('liveState').set(update, { merge: true })
+                        .then(() => console.log(`[Stream Control] ✅ Updated ${overlayName} com set+merge`))
+                        .catch(err2 => console.error(`[Stream Control] ❌ Fallback também falhou:`, err2));
+                });
+        }
+
+        function loadFXStartListFromDropdown(value) {
+            currentFullSelection = value;
+            const parsed = parseDropdownValue(value); // sets currentSelectedApparatus
+            const basePhase = parsed.phase.split('|')[0]; // e.g., 'aa_final', 'qualifiers'
+
+            // Determine if full vault controls (VT1 & VT2 selectors, VT2 button) should be shown
+            // Full controls are for: Qualifiers (when selecting a specific rotation for VT OR the "VT Geral" option) and VT Final.
+            const showFullControlsForVault = currentSelectedApparatus === 'vt' &&
+                                            (basePhase === 'qualifiers' || basePhase === 'vt_final' || value === 'qualifiers_all_vt');
+
+            console.log(`[Control DEBUG] parseDropdownValue result: apparatus=${currentSelectedApparatus}, basePhase=${basePhase}, showFullControls=${showFullControlsForVault}`);
+            toggleVaultControls(currentSelectedApparatus === 'vt'); // Show the main vault controls div if apparatus is VT
+            toggleFooterButtons(currentSelectedApparatus, showFullControlsForVault); // Show/hide VT1, VT2, or Apparatus footer buttons
+            console.log(`[Control DEBUG] Called toggleVaultControls(${currentSelectedApparatus === 'vt'})`);
+
+            if (currentSelectedApparatus === 'vt') {
+                if (!showFullControlsForVault) { // Single vault phases: AA Final, Team Final
+                    if (btnActivateVt1Element) btnActivateVt1Element.classList.add('active');
+                    if (btnActivateVt2Element) {
+                        btnActivateVt2Element.style.display = 'none';
+                        btnActivateVt2Element.classList.remove('active');
+                    }
+                    if (vaultSelectVt2Element?.parentElement) {
+                        vaultSelectVt2Element.parentElement.style.display = 'none';
+                    }
+                    if (vaultSelectVt1Element?.parentElement) { // Ensure VT1 dropdown is visible
+                        vaultSelectVt1Element.parentElement.style.display = 'block';
+                    }
+                    setActiveVault(1); // Force VT1 active and send its info
+                } else { // Dual vault phases: Qualifiers (specific VT rotation or VT Geral), VT Final
+                    if (btnActivateVt2Element) btnActivateVt2Element.style.display = 'inline-block';
+                    if (vaultSelectVt2Element?.parentElement) {
+                        vaultSelectVt2Element.parentElement.style.display = 'block';
+                    }
+                    if (vaultSelectVt1Element?.parentElement) {
+                         vaultSelectVt1Element.parentElement.style.display = 'block';
+                    }
+                    // setActiveVault(1); // Default to VT1 active when phase changes, even for dual vault
+                }
+            }
+            // else: Not vault, toggleVaultControls(false) was already called if main div was hidden by it.
+
+            // Use basePhase to get the correct structure from Firebase
+            const currentStructure = allStartListStructures[basePhase];
+            console.log(`[Control DEBUG] Looking for structure with key: ${basePhase}`);
+            console.log(`[Control DEBUG] Available structures:`, Object.keys(allStartListStructures));
+            console.log(`[Control DEBUG] Found structure:`, !!currentStructure);
+            if (currentStructure) {
+                console.log(`[Control DEBUG] Structure type:`, currentStructure.type);
+                console.log(`[Control DEBUG] Structure rotations:`, !!currentStructure.rotations);
+            }
+            let list = [];
+            if (!currentStructure) {
+                // Fallback logic for missing structure: finals must use top 8 qualifiers, max 2 per country, sorted by score
+                console.log(`[Stream Control] No structure for ${basePhase}, using fallback FINALIST logic`);
+                if (basePhase.endsWith('_final') && currentSelectedApparatus) {
+                    // Apparatus finals fallback
+                    const qualifiersGymnasts = allGymnastData.filter(gymnast => {
+                        const qualifiersScores = gymnast.scores?.qualifiers;
+                        if (!qualifiersScores) return false;
+                        if (currentSelectedApparatus === 'vt') {
+                            return qualifiersScores.qualifiers_vt1_d !== undefined || qualifiersScores.qualifiers_vt_d !== undefined;
+                        } else {
+                            return qualifiersScores[`qualifiers_${currentSelectedApparatus}_d`] !== undefined;
+                        }
+                    }).map(gymnast => {
+                        const qualifiersScores = gymnast.scores.qualifiers;
+                        let score = 0;
+                        if (currentSelectedApparatus === 'vt') {
+                            if (qualifiersScores.qualifiers_vt1_d !== undefined) {
+                                const vt1Total = Math.max(0, (qualifiersScores.qualifiers_vt1_d || 0) + (qualifiersScores.qualifiers_vt1_e || 0) - (qualifiersScores.qualifiers_vt1_p || 0));
+                                const vt2Total = Math.max(0, (qualifiersScores.qualifiers_vt2_d || 0) + (qualifiersScores.qualifiers_vt2_e || 0) - (qualifiersScores.qualifiers_vt2_p || 0));
+                                score = (vt1Total + vt2Total) / 2;
+                            } else {
+                                score = Math.max(0, (qualifiersScores.qualifiers_vt_d || 0) + (qualifiersScores.qualifiers_vt_e || 0) - (qualifiersScores.qualifiers_vt_p || 0));
+                            }
+                        } else {
+                            score = Math.max(0, (qualifiersScores[`qualifiers_${currentSelectedApparatus}_d`] || 0) + (qualifiersScores[`qualifiers_${currentSelectedApparatus}_e`] || 0) - (qualifiersScores[`qualifiers_${currentSelectedApparatus}_p`] || 0));
+                        }
+                        return { ...gymnast, [`${currentSelectedApparatus}Score`]: score };
+                    });
+                    qualifiersGymnasts.sort((a, b) => b[`${currentSelectedApparatus}Score`] - a[`${currentSelectedApparatus}Score`]);
+                    // Max 2 per country, top 8
+                    list = [];
+                    const countryCount = {};
+                    for (const gymnast of qualifiersGymnasts) {
+                        if (list.length >= 8) break;
+                        if (!countryCount[gymnast.country]) countryCount[gymnast.country] = 0;
+                        if (countryCount[gymnast.country] < 2) {
+                            list.push(gymnast);
+                            countryCount[gymnast.country]++;
+                        }
+                    }
+                } else if (basePhase === 'qualifiers') {
+                    // Qualifiers fallback logic (unchanged)
+                    if (currentSelectedApparatus === 'vt' && value === 'qualifiers_all_vt') {
+                        list = allGymnastData.filter(g => {
+                            const phaseScores = g.scores?.qualifiers || {};
+                            return phaseScores['qualifiers_vt1_d'] !== undefined || phaseScores['qualifiers_vt2_d'] !== undefined;
+                        });
+                    } else if (currentSelectedApparatus) {
+                        list = allGymnastData.filter(g => {
+                            const phaseScores = g.scores?.qualifiers || {};
+                            if (currentSelectedApparatus === 'vt') {
+                                return phaseScores['qualifiers_vt1_d'] !== undefined;
+                            } else {
+                                return phaseScores[`qualifiers_${currentSelectedApparatus}_d`] !== undefined;
+                            }
+                        });
+                    }
+                } else {
+                    // Other phases fallback: use all gymnasts
+                    list = allGymnastData;
+                }
+                fxStartList = list.filter(g => g && g.id);
+                currentIndex = 0;
+                updateGymnastInfo();
+                populateGymnastDropdown();
+                if (currentSelectedApparatus === 'vt') setActiveVault(1);
+                controlChannel.postMessage({ action: 'setPhase', ...parsed, index: currentIndex, activeVaultNum: currentActiveVaultNum });
+                return;
+            }
+
+            try {
+                if (currentStructure.type === 'apparatus_final' && parsed.apparatus) {
+                    // Para finais por aparelhos, calcular diretamente das qualificatórias
+                    console.log(`[Stream Control] Calculando ginastas para final de ${parsed.apparatus}...`);
+                    
+                    if (parsed.apparatus === 'vt') {
+                        // VT Final - calcular com média dos dois saltos
+                        const qualifiersGymnasts = allGymnastData.filter(gymnast => {
+                            const qualifiersScores = gymnast.scores?.qualifiers;
+                            return qualifiersScores && (
+                                qualifiersScores.qualifiers_vt1_d !== undefined || 
+                                qualifiersScores.qualifiers_vt_d !== undefined
+                            );
+                        }).map(gymnast => {
+                            const qualifiersScores = gymnast.scores.qualifiers;
+                            let vtScore = 0;
+                            
+                            if (qualifiersScores.qualifiers_vt1_d !== undefined) {
+                                const vt1Total = Math.max(0, (qualifiersScores.qualifiers_vt1_d || 0) + (qualifiersScores.qualifiers_vt1_e || 0) - (qualifiersScores.qualifiers_vt1_p || 0));
+                                const vt2Total = Math.max(0, (qualifiersScores.qualifiers_vt2_d || 0) + (qualifiersScores.qualifiers_vt2_e || 0) - (qualifiersScores.qualifiers_vt2_p || 0));
+                                vtScore = (vt1Total + vt2Total) / 2;
+                            } else {
+                                vtScore = Math.max(0, (qualifiersScores.qualifiers_vt_d || 0) + (qualifiersScores.qualifiers_vt_e || 0) - (qualifiersScores.qualifiers_vt_p || 0));
+                            }
+                            
+                            return { ...gymnast, vtAverage: vtScore };
+                        });
+
+                        qualifiersGymnasts.sort((a, b) => b.vtAverage - a.vtAverage);
+
+                        // Aplicar regra de máximo 2 por país
+                        list = [];
+                        const countryCount = {};
+
+                        for (const gymnast of qualifiersGymnasts) {
+                            if (list.length >= 8) break;
+                            
+                            if (!countryCount[gymnast.country]) {
+                                countryCount[gymnast.country] = 0;
+                            }
+                            
+                            if (countryCount[gymnast.country] < 2) {
+                                list.push(gymnast);
+                                countryCount[gymnast.country]++;
+                            }
+                        }
+                    } else {
+                        // Outras finais (UB, BB, FX)
+                        const qualifiersGymnasts = allGymnastData.filter(gymnast => {
+                            const qualifiersScores = gymnast.scores?.qualifiers;
+                            return qualifiersScores && (
+                                qualifiersScores[`qualifiers_${parsed.apparatus}_d`] !== undefined
+                            );
+                        }).map(gymnast => {
+                            const qualifiersScores = gymnast.scores.qualifiers;
+                            const apparatusScore = Math.max(0, (qualifiersScores[`qualifiers_${parsed.apparatus}_d`] || 0) + (qualifiersScores[`qualifiers_${parsed.apparatus}_e`] || 0) - (qualifiersScores[`qualifiers_${parsed.apparatus}_p`] || 0));
+                            return { ...gymnast, [`${parsed.apparatus}Score`]: apparatusScore };
+                        });
+
+                        qualifiersGymnasts.sort((a, b) => b[`${parsed.apparatus}Score`] - a[`${parsed.apparatus}Score`]);
+
+                        // Aplicar regra de máximo 2 por país
+                        list = [];
+                        const countryCount = {};
+
+                        for (const gymnast of qualifiersGymnasts) {
+                            if (list.length >= 8) break;
+                            
+                            if (!countryCount[gymnast.country]) {
+                                countryCount[gymnast.country] = 0;
+                            }
+                            
+                            if (countryCount[gymnast.country] < 2) {
+                                list.push(gymnast);
+                                countryCount[gymnast.country]++;
+                            }
+                        }
+                    }
+                    
+                    console.log(`[Stream Control] ${list.length} ginastas qualificadas para final de ${parsed.apparatus}:`, list.map(g => `${g.name} (${g.country})`));
+                } else if (currentSelectedApparatus === 'vt' && value === 'qualifiers_all_vt') {
+                    list = [];
+                    if (allStartListStructures['qualifiers']) {
+                        const structure = allStartListStructures['qualifiers'];
+                        // Check if using subdivisions (old format) or direct rotations (new format)
+                        const rotationsToProcess = structure.subdivisions ? 
+                            structure.subdivisions[0]?.rotations || [] : 
+                            structure.rotations || [];
+                            
+                        rotationsToProcess.forEach(rot => {
+                            if (rot.apparatus?.vt) {
+                                // Preserve exact order from saved structure
+                                rot.apparatus.vt.forEach(savedAthlete => {
+                                    const freshData = allGymnastData.find(g => g.id === savedAthlete.id);
+                                    if (freshData) {
+                                        list.push(freshData);
+                                    }
+                                });
+                            }
+                        });
+                        list = list.filter((g, index, self) => index === self.findIndex(t => t.id === g.id)); // Deduplicate
+                    }
+                    console.log("[Stream Control] Loaded qualifiers VT all list with fresh data (order preserved):", list.map(g => `${g.id}: ${g.name}`));
+                } else if (currentStructure.type === 'qualifiers' && parsed.rotIdx !== null && parsed.apparatus) {
+                    // For qualifiers, preserve exact order from saved structure
+                    // Check if using subdivisions (old format) or direct rotations (new format)
+                    const rotationsToProcess = currentStructure.subdivisions ? 
+                        currentStructure.subdivisions[0]?.rotations || [] : 
+                        currentStructure.rotations || [];
+                        
+                    const savedAthletes = rotationsToProcess[parsed.rotIdx]?.apparatus?.[parsed.apparatus] || [];
+                    list = savedAthletes.map(savedAthlete => {
+                        const freshData = allGymnastData.find(g => g.id === savedAthlete.id);
+                        return freshData || savedAthlete; // Use fresh data if available, fallback to saved
+                    });
+                    console.log("[Stream Control] Loaded qualifiers specific rotation list with fresh data (order preserved):", list.map(g => `${g.id}: ${g.name}`));
+                } else if ((currentStructure.type === 'team_final' || currentStructure.type === 'aa_final') && parsed.rotIdx !== null && parsed.apparatus) {
+                    // For team/AA finals, preserve exact order from saved structure  
+                    // Convert apparatus to uppercase to match Firebase structure
+                    const apparatusKey = parsed.apparatus.toUpperCase();
+                    console.log(`[Control DEBUG] Team Final: rotIdx=${parsed.rotIdx}, apparatus=${parsed.apparatus}, apparatusKey=${apparatusKey}`);
+                    console.log(`[Control DEBUG] Team Final: available rotations=${currentStructure.rotations?.length || 0}`);
+                    console.log(`[Control DEBUG] Team Final: currentStructure.type=${currentStructure.type}`);
+                    console.log(`[Control DEBUG] Team Final: full structure=`, currentStructure);
+                    
+                    const savedAthletes = currentStructure.rotations?.[parsed.rotIdx]?.apparatus?.[apparatusKey] || [];
+                    console.log(`[Control DEBUG] Team Final: found ${savedAthletes.length} athletes for ${apparatusKey} in rotation ${parsed.rotIdx}`);
+                    console.log(`[Control DEBUG] Team Final: athletes=`, savedAthletes);
+                    
+                    // For team final, load ALL athletes from the apparatus (not just first 3)
+                    // This shows all countries' athletes for the selected apparatus, maintaining order
+                    console.log(`[Stream Control] Team final: loading all ${savedAthletes.length} athletes from ${apparatusKey} apparatus`);
+                    
+                    list = savedAthletes.map(savedAthlete => {
+                        const freshData = allGymnastData.find(g => g.id === savedAthlete.id);
+                        return freshData || savedAthlete; // Use fresh data if available, fallback to saved
+                    });
+                    console.log("[Stream Control] Loaded team/aa final list with fresh data (order preserved):", list.map(g => `${g.id}: ${g.name}`));
+                }
+                fxStartList = list.filter(g => g && g.id);
+                console.log("[Stream Control] Final fxStartList with fresh data:", fxStartList.map(g => `${g.id}: ${g.name}`));
+            } catch (e) {
+                console.error(`Error accessing structure data for ${value}:`, e);
+                fxStartList = [];
+            }
+            currentIndex = 0;
+            updateGymnastInfo();
+            populateGymnastDropdown(); // Popular dropdown de recursos
+            if (currentSelectedApparatus === 'vt') setActiveVault(1); // Reset to VT1 active on any list change if VT
+            controlChannel.postMessage({ action: 'setPhase', ...parsed, index: currentIndex, activeVaultNum: currentActiveVaultNum });
+        }
+
+        // Event Listeners
+        if (phaseSelectElement) { 
+            phaseSelectElement.onchange = (e) => {
+                console.log(`[Stream Control] Phase changed to: ${e.target.value}`);
+                updateFullPhaseSelection();
+            };
+        }
+        
+        // Add listeners for rotation and apparatus selects
+        if (rotationSelectElement) {
+            rotationSelectElement.onchange = (e) => {
+                console.log(`[Stream Control] Rotation changed to: ${e.target.value}`);
+                updateFullPhaseSelection();
+            };
+        }
+        
+        if (apparatusSelectElement) {
+            apparatusSelectElement.onchange = (e) => {
+                console.log(`[Stream Control] Apparatus changed to: ${e.target.value}`);
+                
+                // Atualizar o aparelho no timer do Firebase quando mudar
+                const newApparatus = e.target.value;
+                db.collection('broadcast').doc('liveState').get().then(doc => {
+                    const timerData = doc.data()?.activeOverlays?.widgets?.timer || {};
+                    
+                    // Se mudou PARA VT, manter dvVt1/dvVt2; se mudou DE VT, remover
+                    const updateData = {
+                        apparatus: newApparatus.toUpperCase(),
+                        status: timerData.status || 'WAIT',
+                        elapsedSeconds: timerData.elapsedSeconds || 0
+                    };
+                    
+                    // Preservar DVs apenas se for VT
+                    if (newApparatus === 'vt') {
+                        updateData.dvVt1 = timerData.dvVt1 || 0;
+                        updateData.dvVt2 = timerData.dvVt2 || 0;
+                        updateData.activeVaultNum = timerData.activeVaultNum || 1;
+                    }
+                    
+                    console.log(`[Stream Control] 🔄 Mudando aparelho do timer para: ${newApparatus.toUpperCase()}`);
+                    updateBroadcastOverlay('timer', timerData.visible || false, updateData);
+                });
+                
+                updateFullPhaseSelection();
+            };
+        }
+        
+        // Function to build complete phase selection for team_final and aa_final
+        function updateFullPhaseSelection() {
+            const phase = phaseSelectElement?.value;
+            const rotation = rotationSelectElement?.value;
+            const apparatus = apparatusSelectElement?.value;
+            
+            console.log(`[Stream Control] updateFullPhaseSelection - phase: ${phase}, rotation: ${rotation}, apparatus: ${apparatus}`);
+            
+            let finalSelection = phase;
+            
+            // For team_final and aa_final, we need rotation and apparatus
+            if ((phase === 'team_final' || phase === 'aa_final') && rotation && apparatus) {
+                const rotIdx = parseInt(rotation) - 1; // Convert 1-based to 0-based
+                finalSelection = `${phase}|rot${rotIdx}|${apparatus}`;
+                console.log(`[Stream Control] Built team/aa final selection: ${finalSelection}`);
+            } else if (phase === 'qualifiers' && rotation && apparatus) {
+                const rotIdx = parseInt(rotation) - 1;
+                finalSelection = `qualifiers|rot${rotIdx}|${apparatus}`;
+                console.log(`[Stream Control] Built qualifiers selection: ${finalSelection}`);
+            }
+            
+            // Only load if we have a complete selection
+            if (finalSelection && finalSelection !== phase || (phase && !phase.endsWith('_final') || (phase.endsWith('_final') && !phase.includes('team') && !phase.includes('aa')))) {
+                loadFXStartListFromDropdown(finalSelection);
+            } else {
+                console.log(`[Stream Control] Incomplete selection, not loading: phase=${phase}, rotation=${rotation}, apparatus=${apparatus}`);
+                // Clear the list if incomplete selection for finals that need rotation+apparatus
+                if ((phase === 'team_final' || phase === 'aa_final') && (!rotation || !apparatus)) {
+                    fxStartList = [];
+                    updateGymnastInfo();
+                }
+            }
+        }
+        if (btnPrevElement) { 
+            btnPrevElement.onclick = () => { 
+                if (!fxStartList || fxStartList.length === 0) return; 
+                currentIndex = (currentIndex - 1 + fxStartList.length) % fxStartList.length; 
+                if (currentSelectedApparatus === 'vt') setActiveVault(1); 
+                updateGymnastInfo(); 
+                const gymnastId = fxStartList[currentIndex]?.id;
+                console.log(`[Stream Control] Sending prev, new index: ${currentIndex}, gymnastId: ${gymnastId}`);
+                controlChannel.postMessage({ action: 'setIndex', index: currentIndex, activeVaultNum: 1, gymnastId }); 
+            }; 
+        }
+        if (btnNextElement) { 
+            btnNextElement.onclick = () => { 
+                if (!fxStartList || fxStartList.length === 0) return; 
+                currentIndex = (currentIndex + 1) % fxStartList.length; 
+                if (currentSelectedApparatus === 'vt') setActiveVault(1); 
+                updateGymnastInfo(); 
+                const gymnastId = fxStartList[currentIndex]?.id;
+                console.log(`[Stream Control] Sending next, new index: ${currentIndex}, gymnastId: ${gymnastId}`);
+                controlChannel.postMessage({ action: 'setIndex', index: currentIndex, activeVaultNum: 1, gymnastId }); 
+            }; 
+        }
+        if (btnSyncElement) { 
+            btnSyncElement.onclick = () => { 
+                const parsed = parseDropdownValue(currentFullSelection || phaseSelectElement.value); 
+                const gymnastId = fxStartList[currentIndex]?.id;
+                console.log(`[Stream Control] Manual sync requested:`, parsed, `index: ${currentIndex}, gymnastId: ${gymnastId}`);
+                controlChannel.postMessage({ action: 'sync', ...parsed, index: currentIndex, activeVaultNum: currentActiveVaultNum, gymnastId }); 
+            }; 
+        }
+        if (btnGoNotaElement) { btnGoNotaElement.onclick = () => { const g = fxStartList?.[currentIndex]; if (!g || !g.id) { console.warn("[Stream Control] Tentativa de mostrar nota sem ginasta válida."); return; } const { apparatus } = parseDropdownValue(currentFullSelection || phaseSelectElement.value); controlChannel.postMessage({ action: 'showScore', gymnast: { id: g.id, apparatus: apparatus }, gymnastId: g.id }); }; }
+        if (btnShowTimerElement) { 
+            btnShowTimerElement.onclick = () => { 
+                const { apparatus } = parseDropdownValue(currentFullSelection || phaseSelectElement.value);
+                updateBroadcastOverlay('timer', true, { apparatus: apparatus.toUpperCase(), status: 'WAIT' });
+                if (currentSelectedApparatus === 'vt') { 
+                    setActiveVault(1); 
+                    controlChannel.postMessage({ action: 'timer-reset', activeVaultNum: 1 }); 
+                } else { 
+                    controlChannel.postMessage({ action: 'timer-reset' });
+                } 
+            }; 
+        }
+        let listToggleState = 'results';
+        if (btnToggleListsElement) { 
+            btnToggleListsElement.onclick = () => { 
+                listToggleState = (listToggleState === 'startlist') ? 'results' : 'startlist'; 
+                // Hide all list overlays first
+                updateBroadcastOverlay('startlistMain', false);
+                updateBroadcastOverlay('results', false);
+                // Show the requested one
+                if (listToggleState === 'startlist') {
+                    updateBroadcastOverlay('startlistMain', true, { title: 'Start List' });
+                } else {
+                    updateBroadcastOverlay('results', true, { title: 'Resultados' });
+                }
+            }; 
+        }
+        if (btnTimerStartElement) { 
+            btnTimerStartElement.onclick = () => { 
+                const currentGymnast = fxStartList?.[currentIndex]; 
+                const gymnastId = currentGymnast?.id; 
+                const { apparatus } = parseDropdownValue(currentFullSelection || phaseSelectElement.value); 
+                let vaultData = { 
+                    gymnastId, 
+                    apparatus, 
+                    activeVaultNum: currentActiveVaultNum
+                }; 
+                if (apparatus === 'vt') { 
+                    const selectedVaultEl = currentActiveVaultNum === 1 ? vaultSelectVt1Element : vaultSelectVt2Element; 
+                    if (selectedVaultEl) { 
+                        const selectedOption = selectedVaultEl.options[selectedVaultEl.selectedIndex]; 
+                        if (selectedOption && parseFloat(selectedOption.value) > 0) { 
+                            vaultData.vaultCode = selectedOption.value; 
+                            vaultData.vaultDV = parseFloat(selectedOption.value); 
+                        } else { 
+                            vaultData.vaultCode = "0.0"; 
+                            vaultData.vaultDV = 0; 
+                        } 
+                    } 
+                } 
+                console.log(`[Stream Control] Enviando timer-start com dados:`, vaultData); 
+                
+                // Clear any existing timer
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+                
+                // Start timer from 0
+                timerElapsedSeconds = 0;
+                timerStartTime = Date.now();
+                timerStopped = false; // IMPORTANTE: reseta a flag de STOP ao dar GO
+                
+                // Update Firebase to start timer with GO status
+                db.collection('broadcast').doc('liveState').get().then(doc => {
+                    const timerData = doc.data()?.activeOverlays?.widgets?.timer || {};
+                    updateBroadcastOverlay('timer', true, { 
+                        apparatus: apparatus.toUpperCase(), 
+                        status: 'GO',
+                        elapsedSeconds: 0,
+                        activeVaultNum: apparatus === 'vt' ? currentActiveVaultNum : null,
+                        dvVt1: timerData.dvVt1 || 0,  // ✅ Preservar DVs
+                        dvVt2: timerData.dvVt2 || 0
+                    });
+                });
+                
+                // Start interval to update timer every second
+                timerInterval = setInterval(() => {
+                    // VERIFICAR se o timer foi parado - se sim, não atualizar Firebase
+                    if (timerStopped) {
+                        console.log(`[Stream Control] ⏱️ Interval ignorado - timer está em STOP`);
+                        return;
+                    }
+                    
+                    timerElapsedSeconds++;
+                    
+                    // Buscar DVs atuais do Firebase antes de atualizar
+                    db.collection('broadcast').doc('liveState').get().then(doc => {
+                        const timerData = doc.data()?.activeOverlays?.widgets?.timer || {};
+                        updateBroadcastOverlay('timer', true, { 
+                            apparatus: apparatus.toUpperCase(), 
+                            status: 'GO',
+                            elapsedSeconds: timerElapsedSeconds,
+                            activeVaultNum: apparatus === 'vt' ? currentActiveVaultNum : null,
+                            dvVt1: timerData.dvVt1 || 0,  // ✅ Preservar DVs
+                            dvVt2: timerData.dvVt2 || 0
+                        });
+                    });
+                    console.log(`[Stream Control] ⏱️ Timer tick: ${timerElapsedSeconds}s`);
+                }, 1000);
+                
+                controlChannel.postMessage({ action: 'timer-start', ...vaultData, gymnastId }); 
+
+                // AUTOMAÇÃO: Se FX, tocar música da ginasta; senão, tocar beep
+                if (apparatus === 'fx' && currentGymnast && currentGymnast.music) {
+                    console.log(`[Stream Control] 🎵 Auto-iniciando música FX: ${currentGymnast.music}`);
+                    controlChannel.postMessage({
+                        action: 'play-fx-music',
+                        musicFile: currentGymnast.music
+                    });
+                } else if (apparatus !== 'fx') {
+                    console.log(`[Stream Control] 🔊 Auto-iniciando beep para ${apparatus.toUpperCase()}`);
+                    controlChannel.postMessage({
+                        action: 'play-beep'
+                    });
+                }
+            }; 
+        }
+        if (btnTimerStopElement) { 
+            btnTimerStopElement.onclick = () => { 
+                console.log(`[Stream Control] Sending timer-stop/wait - ZERANDO cronômetro`);
+                
+                // IMPORTANTE: Reseta a flag de STOP ao dar WAIT
+                timerStopped = false;
+                
+                // Stop the interval
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                
+                // Reset elapsed time
+                timerElapsedSeconds = 0;
+                
+                // Se for VT, buscar os DVs do Firebase
+                const apparatus = currentSelectedApparatus || 'FX';
+                
+                // Update Firebase to stop/pause timer (WAIT status) - zera o cronômetro
+                db.collection('broadcast').doc('liveState').get().then(doc => {
+                    const timerData = doc.data()?.activeOverlays?.widgets?.timer || {};
+                    updateBroadcastOverlay('timer', true, { 
+                        status: 'WAIT',
+                        elapsedSeconds: 0,  // WAIT zera o cronômetro
+                        activeVaultNum: apparatus === 'vt' ? currentActiveVaultNum : null,
+                        dvVt1: timerData.dvVt1 || 0,  // ✅ Preservar DVs
+                        dvVt2: timerData.dvVt2 || 0
+                    });
+                });
+                controlChannel.postMessage({ action: 'timer-stop' }); 
+            }; 
+        }
+        if (btnTimerResetElement) { 
+            btnTimerResetElement.onclick = () => { 
+                console.log(`[Stream Control] Timer STOP clicked (cronômetro CONGELA). Tempo atual: ${timerElapsedSeconds}s`);
+                
+                // IMPORTANTE: Seta a flag ANTES de limpar o intervalo para evitar que o último tick sobrescreva
+                timerStopped = true;
+                
+                // Stop the interval (freeze time)
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                
+                // Se for VT, buscar os DVs do Firebase
+                const apparatus = currentSelectedApparatus || 'FX';
+                
+                // STOP: status STOP roxo, mantém o cronômetro onde está (não zera)
+                console.log(`[Stream Control] Sending STOP with elapsedSeconds: ${timerElapsedSeconds}`);
+                
+                // Update Firebase com status STOP (roxo) e tempo travado
+                db.collection('broadcast').doc('liveState').get().then(doc => {
+                    const timerData = doc.data()?.activeOverlays?.widgets?.timer || {};
+                    updateBroadcastOverlay('timer', true, { 
+                        apparatus: apparatus.toUpperCase(),
+                        status: 'STOP', 
+                        elapsedSeconds: timerElapsedSeconds,  // Mantém o tempo onde parou
+                        activeVaultNum: apparatus === 'vt' ? currentActiveVaultNum : null,
+                        dvVt1: timerData.dvVt1 || 0,  // ✅ Preservar DVs
+                        dvVt2: timerData.dvVt2 || 0
+                    });
+                });
+                
+                controlChannel.postMessage({ 
+                    action: 'timer-reset', 
+                    status: 'STOP',
+                    activeVaultNum: apparatus === 'vt' ? currentActiveVaultNum : null 
+                }); 
+                
+                // Também limpar efeitos sonoros ao fazer STOP
+                soundEffectsChannel.postMessage({
+                    type: 'CLEAR_SOUND_EFFECTS',
+                    timestamp: Date.now()
+                });
+                console.log('🔄 STOP: Efeitos sonoros também foram limpos');
+            }; 
+        }
+        if (btnActivateVt1Element) btnActivateVt1Element.onclick = () => setActiveVault(1);
+        if (btnActivateVt2Element) btnActivateVt2Element.onclick = () => setActiveVault(2);
+
+        // Botões de mostrar/ocultar timer
+        const btnShowTimer = document.getElementById('btn-timer-show');
+        const btnHideTimer = document.getElementById('btn-timer-hide');
+        
+        if (btnShowTimer) {
+            btnShowTimer.onclick = () => {
+                console.log('[Stream Control] 👁️ Mostrando overlay de timer (WAIT vermelho)');
+                const apparatus = currentSelectedApparatus || 'FX';
+                
+                // Se for VT, pegar o DV do vault ativo
+                let vaultDV = null;
+                let activeVaultNum = 1;
+                if (apparatus === 'vt') {
+                    activeVaultNum = currentActiveVaultNum;
+                    const selectedVaultEl = currentActiveVaultNum === 1 ? vaultSelectVt1Element : vaultSelectVt2Element;
+                    if (selectedVaultEl) {
+                        const selectedOption = selectedVaultEl.options[selectedVaultEl.selectedIndex];
+                        if (selectedOption && parseFloat(selectedOption.value) > 0) {
+                            vaultDV = parseFloat(selectedOption.value);
+                        }
+                    }
+                }
+                
+                const timerData = {
+                    apparatus: apparatus.toUpperCase(),
+                    status: 'WAIT',
+                    elapsedSeconds: 0,
+                    dv: vaultDV,
+                    activeVaultNum: apparatus === 'vt' ? activeVaultNum : null
+                };
+                
+                console.log('[Stream Control] 🔍 DEBUG - Sending to Firebase:', { visible: true, ...timerData });
+                
+                // Mostrar timer em estado WAIT (vermelho), cronômetro zerado
+                updateBroadcastOverlay('timer', true, timerData);
+            };
+        }
+        
+        if (btnHideTimer) {
+            btnHideTimer.onclick = () => {
+                console.log('[Stream Control] 🚫 Ocultando overlay de timer');
+                
+                // Ocultar timer
+                updateBroadcastOverlay('timer', false, {
+                    status: 'WAIT',
+                    elapsedSeconds: 0
+                });
+            };
+        }
+
+        // Inicialização
+        console.log("[Stream Control] Initializing..."); 
+        
+        // Test BroadcastChannel immediately
+        try {
+            controlChannel.postMessage({ action: 'test', message: 'Control initialized' });
+            console.log("[Stream Control] BroadcastChannel test message sent");
+        } catch (e) {
+            console.error("[Stream Control] BroadcastChannel test failed:", e);
+        }
+        
+        populateVaultDropdowns();
+        setupConfigurationControls();
+        
+        // Mostrar controles de VT por padrão se não há aparelho selecionado
+        if (!currentSelectedApparatus) {
+            console.log("[Stream Control] No apparatus selected, showing VT controls by default");
+            currentSelectedApparatus = 'vt';
+            toggleVaultControls(true);
+        }
+        
+        // Aguardar Firebase estar pronto antes de inicializar listeners
+        function initializeControlWhenReady() {
+            if (window.db) {
+                db = window.db; // Atribuir db global
+                initializeFirebaseListenersControl();
+            } else {
+                setTimeout(initializeControlWhenReady, 100);
+            }
+        }
+
+        function initializeFirebaseListenersControl() {
+            // Inicializar as opções do dropdown
+            populatePhaseSelectAndOptions();
+            
+            // Aplicar configuração padrão (qualifiers, rot1, fx) após carregar
+            setTimeout(() => {
+                if (phaseSelectElement && rotationSelectElement && apparatusSelectElement) {
+                    console.log("[Stream Control] 🎯 Auto-aplicando configuração padrão: qualifiers|rot0|fx");
+                    const defaultSelection = "qualifiers|rot0|fx";
+                    loadFXStartListFromDropdown(defaultSelection);
+                    currentFullSelection = defaultSelection;
+                    currentSelectedApparatus = 'fx';
+                    toggleVaultControls(false);
+                }
+            }, 500);
+            
+            // =================== INICIALIZAR EVENT LISTENERS DE BROADCAST ===================
+            // Botão STANDBY
+            document.getElementById('btn-standby').addEventListener('click', () => {
+                console.log('[Stream Control] 📴 Mudando para STANDBY...');
+                db.collection('broadcast').doc('liveState').set({
+                    currentScene: 'SCENE_STANDBY',
+                    scenePayload: {},
+                    activeOverlays: { logoBug: false, widgets: {} }
+                }, { merge: true });
+            });
+
+            // Botão AO VIVO
+            document.getElementById('btn-live').addEventListener('click', () => {
+                console.log('[Stream Control] 🔴 Mudando para AO VIVO...');
+                db.collection('broadcast').doc('liveState').set({
+                    currentScene: 'SCENE_LIVE_PERFORMANCE',
+                    scenePayload: {},  // ❌ NÃO controlar rodapé aqui - usar botões específicos
+                    activeOverlays: { logoBug: true, widgets: {} }
+                }, { merge: true });
+            });
+
+            // Botão OCULTAR TODOS OVERLAYS
+            document.getElementById('btn-hide-all-overlays').addEventListener('click', () => {
+                console.log('[Stream Control] ❌ Ocultando todos overlays...');
+                controlChannel.postMessage({
+                    action: 'hide-all-overlays'
+                });
+            });
+
+            // ========== CONTROLES DE RODAPÉ ==========
+            
+            // Rodapé Padrão (Identidade)
+            document.getElementById('btn-show-lower-third-default')?.addEventListener('click', () => {
+                console.log('[Stream Control] 👤 Exibindo rodapé padrão...');
+                controlChannel.postMessage({
+                    action: 'show-lower-third-default'
+                });
+            });
+
+            document.getElementById('btn-hide-lower-third-default')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🚫 Fechando rodapé padrão...');
+                controlChannel.postMessage({
+                    action: 'hide-lower-third-default'
+                });
+            });
+
+            // ✨ NOVO: Rodapé VT1 → Score Reveal Overlay
+            document.getElementById('btn-show-lower-third-vt1')?.addEventListener('click', () => {
+                console.log('[Stream Control] ✨ Abrindo Score Reveal Overlay (VT1)...');
+                // Garantir que VT1 está ativo
+                setActiveVault(1);
+                // Aguardar um pouco para garantir que o estado foi atualizado
+                setTimeout(() => {
+                    controlChannel.postMessage({
+                        action: 'show-score-reveal',
+                        activeVaultNum: 1 // Forçar VT1
+                    });
+                }, 50);
+            });
+
+            document.getElementById('btn-hide-lower-third-vt1')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🚫 Fechando Score Reveal Overlay...');
+                controlChannel.postMessage({
+                    action: 'hide-score-reveal'
+                });
+            });
+
+            // ✨ NOVO: Rodapé VT2 → Score Reveal Overlay
+            document.getElementById('btn-show-lower-third-vt2')?.addEventListener('click', () => {
+                console.log('[Stream Control] ✨ Abrindo Score Reveal Overlay (VT2)...');
+                // Garantir que VT2 está ativo
+                setActiveVault(2);
+                // Aguardar um pouco para garantir que o estado foi atualizado
+                setTimeout(() => {
+                    controlChannel.postMessage({
+                        action: 'show-score-reveal',
+                        activeVaultNum: 2 // Forçar VT2
+                    });
+                }, 50);
+            });
+
+            document.getElementById('btn-hide-lower-third-vt2')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🚫 Fechando Score Reveal Overlay...');
+                controlChannel.postMessage({
+                    action: 'hide-score-reveal'
+                });
+            });
+
+        // ✨ Score Reveal SINGLE (VT1/UB/BB/FX)
+        document.getElementById('btn-show-lower-third-apparatus')?.addEventListener('click', () => {
+            console.log('[Stream Control] ✨ Abrindo Score Reveal SINGLE (VT1/UB/BB/FX)...');
+            const currentApparatus = apparatusSelectElement?.value || 'fx';
+            controlChannel.postMessage({
+                action: 'show-score-reveal',
+                activeVaultNum: 1,  // Reset to VT1/SINGLE mode
+                apparatus: currentApparatus  // ✅ Send current apparatus
+            });
+        });
+
+        document.getElementById('btn-hide-lower-third-apparatus')?.addEventListener('click', () => {
+            console.log('[Stream Control] 🚫 Fechando Score Reveal...');
+            controlChannel.postMessage({
+                action: 'hide-score-reveal'
+            });
+        });            // ========================================
+            // EVENT LISTENERS: LISTS AND RESULTS
+            // ========================================
+
+            // Start List
+            document.getElementById('btn-show-startlist-center')?.addEventListener('click', () => {
+                console.log('[Stream Control] 📋 Showing Start List (Current)...');
+                showStartListCenter();
+            });
+
+            document.getElementById('btn-hide-list-center')?.addEventListener('click', () => {
+                console.log('[Stream Control] ❌ Hiding List Center...');
+                updateBroadcastOverlay('listCenter', false);
+            });
+
+            // Qualification Results
+            document.getElementById('btn-show-qf-aa-p1')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🏆 Showing QF AA (Page 1/2)...');
+                showResults('QF_AA_P1');
+            });
+
+            document.getElementById('btn-show-qf-aa-p2')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🏆 Showing QF AA (Page 2/2)...');
+                showResults('QF_AA_P2');
+            });
+
+            document.getElementById('btn-show-qf-tf')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🏆 Showing QF Team Final...');
+                showResults('QF_TF');
+            });
+
+            document.getElementById('btn-show-qf-vt')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🏆 Showing QF Vault (VT)...');
+                showResults('QF_VT');
+            });
+
+            document.getElementById('btn-show-qf-ub')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🏆 Showing QF Uneven Bars (UB)...');
+                showResults('QF_UB');
+            });
+
+            document.getElementById('btn-show-qf-bb')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🏆 Showing QF Balance Beam (BB)...');
+                showResults('QF_BB');
+            });
+
+            document.getElementById('btn-show-qf-fx')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🏆 Showing QF Floor Exercise (FX)...');
+                showResults('QF_FX');
+            });
+
+            // Finals Results
+            document.getElementById('btn-show-final-aa')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🥇 Showing Final AA...');
+                showResults('FINAL_AA');
+            });
+
+            document.getElementById('btn-show-final-tf')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🥇 Showing Final Team...');
+                showResults('FINAL_TF');
+            });
+
+            document.getElementById('btn-show-final-vt')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🥇 Showing Final Vault (VT)...');
+                showResults('FINAL_VT');
+            });
+
+            document.getElementById('btn-show-final-ub')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🥇 Showing Final Uneven Bars (UB)...');
+                showResults('FINAL_UB');
+            });
+
+            document.getElementById('btn-show-final-bb')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🥇 Showing Final Balance Beam (BB)...');
+                showResults('FINAL_BB');
+            });
+
+            document.getElementById('btn-show-final-fx')?.addEventListener('click', () => {
+                console.log('[Stream Control] 🥇 Showing Final Floor Exercise (FX)...');
+                showResults('FINAL_FX');
+            });
+            
+            // Listen for start list changes in real time
+            const unsubscribeStartLists = window.db.collection("start_lists").onSnapshot((snapshot) => {
+                console.log("[Stream Control] Start lists updated via listener");
+                console.log("[Stream Control] Current allGymnastData IDs:", allGymnastData.map(g => `${g.id}: ${g.name}`));
+                populatePhaseSelectAndOptions(); // Reload dropdown options and structures
+            }, (error) => {
+                console.error("[Stream Control] Error listening to start lists:", error);
+            });
+            
+            const unsubscribeGymnasts = window.db.collection("new_gymnasts").onSnapshot((snapshot) => {
+                let updatedData = []; 
+                snapshot.forEach((doc) => { 
+                    const data = doc.data(); 
+                    if (!data.id) data.id = doc.id; 
+                updatedData.push(data); 
+            }); 
+            allGymnastData = updatedData; 
+            console.log("[Stream Control] 📊 Gymnast data updated via listener - COUNT:", allGymnastData.length); 
+            console.log("[Stream Control] 📊 Current gymnast IDs:", allGymnastData.map(g => `${g.id}: ${g.name}`));
+            console.log("[Stream Control] 📊 Sample gymnast data:", allGymnastData[0]);
+            
+            if (fxStartList.length > 0) { 
+                const currentId = fxStartList[currentIndex]?.id; 
+                const updatedCurrentGymnast = allGymnastData.find(g => g.id === currentId); 
+                if (updatedCurrentGymnast) { 
+                    fxStartList[currentIndex] = updatedCurrentGymnast; 
+                    console.log("[Stream Control] Updated current gymnast:", updatedCurrentGymnast.name);
+                } else { 
+                    console.log("[Stream Control] Current gymnast not found in updated data, reloading start list");
+                    loadFXStartListFromDropdown(currentFullSelection || phaseSelectElement.value); 
+                    return; 
+                } 
+                updateGymnastInfo(); 
+            } 
+        }, (error) => { 
+            console.error("[Stream Control] Error listening to gymnasts:", error); 
+            if(infoDivElement) infoDivElement.textContent = "Erro ao carregar ginastas"; 
+        });
+        }
+
+        // Inicializar quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeControlWhenReady);
+        } else {
+            initializeControlWhenReady();
+        }
+
+        // =================== TIMER DE AQUECIMENTO ===================
+        let warmupTimer = null;
+        let warmupTime = 0;
+        let warmupTotalTime = 0;
+        let warmupPaused = false;
+        
+        // Elementos de áudio para aquecimento
+        const warmupStartAudio = document.getElementById('warmup-start-audio');
+        const warmupMusic1Min = document.getElementById('warmup-music-1min');
+        const warmupMusic4Min = document.getElementById('warmup-music-4min');
+        const warmupEndAudio = document.getElementById('warmup-end-audio');
+
+        const warmupDisplay = document.getElementById('warmup-display');
+        const warmupStatus = document.getElementById('warmup-status');
+        const customWarmupInput = document.getElementById('custom-warmup-time');
+        
+        const warmupStartBtn = document.getElementById('btn-warmup-start');
+        const warmupPauseBtn = document.getElementById('btn-warmup-pause');
+        const warmupStopBtn = document.getElementById('btn-warmup-stop');
+
+        // Preset buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const time = parseInt(btn.dataset.time);
+                console.log(`🕐 Preset button clicked: ${time} seconds`);
+                setWarmupTime(time);
+            });
+        });
+
+        function setWarmupTime(seconds) {
+            console.log(`🕐 Setting warmup time to: ${seconds} seconds`);
+            warmupTime = seconds;
+            warmupTotalTime = seconds;
+            updateWarmupDisplay();
+            warmupStatus.textContent = 'Pronto';
+            console.log(`🕐 Warmup time set. Display should show: ${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`);
+        }
+
+        function updateWarmupDisplay() {
+            const minutes = Math.floor(warmupTime / 60);
+            const seconds = warmupTime % 60;
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (warmupDisplay) {
+                warmupDisplay.textContent = timeString;
+                console.log(`🕐 Display updated to: ${timeString}`);
+            } else {
+                console.error('❌ warmupDisplay element not found!');
+            }
+        }
+
+        function startWarmupTimer() {
+            if (warmupTime <= 0) {
+                alert('Por favor, selecione 1 minuto ou 4 minutos antes de iniciar o aquecimento.');
+                return;
+            }
+
+            if (warmupTimer) clearInterval(warmupTimer);
+            
+            // Parar todas as músicas em execução
+            stopAllWarmupAudio();
+            
+            // Reproduzir áudio de início (3 segundos)
+            if (warmupStartAudio) {
+                warmupStartAudio.play().catch(e => console.log('Erro ao reproduzir áudio de início:', e));
+            }
+            
+            warmupStatus.textContent = 'Preparando aquecimento...';
+            warmupPaused = false;
+            
+            // Aguardar 3 segundos (duração do áudio de início) antes de iniciar a música
+            setTimeout(() => {
+                warmupStatus.textContent = 'Aquecendo...';
+                
+                // Selecionar música baseada no tempo
+                const musicAudio = warmupTotalTime === 60 ? warmupMusic1Min : warmupMusic4Min;
+                if (musicAudio) {
+                    musicAudio.currentTime = 0;
+                    musicAudio.play().catch(e => console.log('Erro ao reproduzir música de aquecimento:', e));
+                }
+                
+                // Enviar para o display
+                controlChannel.postMessage({
+                    action: 'warmup-start',
+                    time: warmupTime,
+                    totalTime: warmupTotalTime
+                });
+
+                warmupTimer = setInterval(() => {
+                    if (!warmupPaused && warmupTime > 0) {
+                        warmupTime--;
+                        updateWarmupDisplay();
+                        
+                        // Atualizar display em tempo real
+                        controlChannel.postMessage({
+                            action: 'warmup-update',
+                            time: warmupTime,
+                            totalTime: warmupTotalTime
+                        });
+
+                        if (warmupTime === 0) {
+                            clearInterval(warmupTimer);
+                            finishWarmup();
+                        }
+                    }
+                }, 1000);
+            }, 3000); // Aguarda 3 segundos
+        }
+        
+        function finishWarmup() {
+            // Parar música
+            stopAllWarmupAudio();
+            
+            // Reproduzir áudio de fim
+            if (warmupEndAudio) {
+                warmupEndAudio.play().catch(e => console.log('Erro ao reproduzir áudio de fim:', e));
+            }
+            
+            warmupStatus.textContent = 'Fim do Aquecimento!';
+            
+            // Notificar display sobre fim do aquecimento
+            controlChannel.postMessage({
+                action: 'warmup-finished'
+            });
+        }
+        
+        function stopAllWarmupAudio() {
+            [warmupMusic1Min, warmupMusic4Min].forEach(audio => {
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            });
+        }
+
+        function pauseWarmupTimer() {
+            warmupPaused = !warmupPaused;
+            warmupStatus.textContent = warmupPaused ? 'Pausado' : 'Aquecendo...';
+            warmupPauseBtn.textContent = warmupPaused ? '▶️ Retomar' : '⏸️ Pausar';
+            
+            controlChannel.postMessage({
+                action: 'warmup-pause',
+                paused: warmupPaused
+            });
+        }
+
+        function stopWarmupTimer() {
+            if (warmupTimer) {
+                clearInterval(warmupTimer);
+                warmupTimer = null;
+            }
+            warmupTime = 0;
+            warmupPaused = false;
+            warmupStatus.textContent = 'Parado';
+            warmupPauseBtn.textContent = '⏸️ Pausar';
+            updateWarmupDisplay();
+            
+            // Parar todos os áudios e reproduzir som de fim
+            stopAllWarmupAudio();
+            if (warmupEndAudio) {
+                warmupEndAudio.play().catch(e => console.log('Erro ao reproduzir áudio de fim:', e));
+            }
+            
+            controlChannel.postMessage({
+                action: 'warmup-stop'
+            });
+        }
+
+        // Event listeners para o timer de aquecimento
+        warmupStartBtn.addEventListener('click', startWarmupTimer);
+        warmupPauseBtn.addEventListener('click', pauseWarmupTimer);
+        warmupStopBtn.addEventListener('click', stopWarmupTimer);
+
+        // Event listeners para controles de display especiais
+        document.getElementById('btn-show-warmup').addEventListener('click', () => {
+            // Ativar tela de aquecimento no display
+            console.log('🔥 Ativando tela de aquecimento...');
+            controlChannel.postMessage({
+                action: 'show-warmup-screen'
+            });
+        });
+
+        document.getElementById('btn-show-resources').addEventListener('click', () => {
+            // Ativar tela de recursos no display
+            console.log('⚖️ Ativando tela de recursos...');
+            controlChannel.postMessage({
+                action: 'show-resources-screen'
+            });
+        });
+
+        document.getElementById('btn-hide-special').addEventListener('click', () => {
+            // Ocultar todas as telas especiais
+            console.log('❌ Ocultando telas especiais...');
+            controlChannel.postMessage({
+                action: 'hide-special-screens'
+            });
+        });
+
+        // Inicializar display do timer
+        updateWarmupDisplay();
+
+        // =================== SISTEMA DE RECURSOS ===================
+        let currentInquiry = null;
+
+        const inquiryStatus = document.getElementById('inquiry-status');
+        const inquiryIndicator = document.getElementById('inquiry-indicator');
+        const inquiryGymnast = document.getElementById('inquiry-gymnast');
+        const inquiryReason = document.getElementById('inquiry-reason');
+        const btnSubmitInquiry = document.getElementById('btn-submit-inquiry');
+        const btnResolveInquiry = document.getElementById('btn-resolve-inquiry');
+        const btnRejectInquiry = document.getElementById('btn-reject-inquiry');
+
+        // Popular dropdown de ginastas
+        function populateGymnastDropdown() {
+            if (!fxStartList || fxStartList.length === 0) {
+                console.warn('[Resources] Nenhuma ginasta disponível para recursos');
+                return;
+            }
+
+            inquiryGymnast.innerHTML = '<option value="">-- Selecione a Ginasta --</option>';
+            
+            fxStartList.forEach((gymnast, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${gymnast.name} (${gymnast.country})`;
+                inquiryGymnast.appendChild(option);
+            });
+        }
+
+        function updateInquiryStatus(status, message) {
+            inquiryStatus.className = `inquiry-status ${status}`;
+            inquiryIndicator.textContent = message;
+        }
+
+        function submitInquiry() {
+            const gymnastIndex = inquiryGymnast.value;
+            const reason = inquiryReason.value.trim();
+
+            if (!gymnastIndex || !reason) {
+                alert('Por favor, selecione a ginasta e descreva o motivo do recurso.');
+                return;
+            }
+
+            const selectedGymnast = fxStartList[parseInt(gymnastIndex)];
+            if (!selectedGymnast) {
+                alert('Ginasta selecionada não encontrada.');
+                return;
+            }
+
+            currentInquiry = {
+                gymnastId: selectedGymnast.id,
+                gymnastName: selectedGymnast.name,
+                gymnastCountry: selectedGymnast.country,
+                type: 'd_score', // Sempre nota D
+                reason: reason,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            updateInquiryStatus('pending', `Recurso de Nota D pendente: ${selectedGymnast.name} (${selectedGymnast.country})`);
+
+            // Auto-display: Enviar para o display e mostrar automaticamente
+            controlChannel.postMessage({
+                action: 'show-resources-screen'
+            });
+
+            // Enviar dados do recurso para o display
+            controlChannel.postMessage({
+                action: 'inquiry-submitted',
+                inquiry: currentInquiry
+            });
+
+            // Limpar campos
+            inquiryGymnast.value = '';
+            inquiryReason.value = '';
+
+            console.log('[Inquiry] Recurso submetido:', currentInquiry);
+        }
+
+        function resolveInquiry() {
+            if (!currentInquiry) {
+                alert('Nenhum recurso ativo para resolver.');
+                return;
+            }
+
+            // Abrir modal de resolução
+            document.getElementById('resolve-gymnast-name').textContent = currentInquiry.gymnastName;
+            document.getElementById('modal-resolve-inquiry').style.display = 'flex';
+        }
+
+        function rejectInquiry() {
+            if (!currentInquiry) {
+                alert('Nenhum recurso ativo para rejeitar.');
+                return;
+            }
+
+            // Abrir modal de rejeição
+            document.getElementById('reject-gymnast-name').textContent = currentInquiry.gymnastName;
+            document.getElementById('modal-reject-inquiry').style.display = 'flex';
+        }
+
+        // Funções dos modais
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            // Limpar campos
+            if (modalId === 'modal-reject-inquiry') {
+                document.getElementById('reject-reason').value = '';
+            } else if (modalId === 'modal-resolve-inquiry') {
+                document.getElementById('resolve-decision').value = '';
+                document.getElementById('resolve-justification').value = '';
+            }
+        }
+
+        function confirmRejectInquiry() {
+            const reason = document.getElementById('reject-reason').value.trim();
+            
+            if (!reason) {
+                alert('Por favor, preencha o motivo da rejeição.');
+                return;
+            }
+
+            currentInquiry.status = 'rejected';
+            currentInquiry.rejectedAt = new Date().toISOString();
+            currentInquiry.rejectionReason = reason;
+
+            updateInquiryStatus('rejected', `Recurso de Nota D rejeitado: ${currentInquiry.gymnastName}`);
+
+            // Enviar para o display
+            controlChannel.postMessage({
+                action: 'inquiry-rejected',
+                inquiry: currentInquiry
+            });
+
+            closeModal('modal-reject-inquiry');
+
+            setTimeout(() => {
+                currentInquiry = null;
+                updateInquiryStatus('idle', 'Nenhum recurso ativo');
+            }, 5000);
+
+            console.log('[Inquiry] Recurso rejeitado:', currentInquiry);
+        }
+
+        function confirmResolveInquiry() {
+            const decision = document.getElementById('resolve-decision').value;
+            const justification = document.getElementById('resolve-justification').value.trim();
+            
+            if (!decision || !justification) {
+                alert('Por favor, selecione a decisão e preencha a justificativa.');
+                return;
+            }
+
+            currentInquiry.status = 'resolved';
+            currentInquiry.resolvedAt = new Date().toISOString();
+            currentInquiry.resolution = {
+                decision: decision,
+                justification: justification
+            };
+
+            updateInquiryStatus('resolved', `Recurso de Nota D resolvido: ${currentInquiry.gymnastName}`);
+
+            // Enviar para o display
+            controlChannel.postMessage({
+                action: 'inquiry-resolved',
+                inquiry: currentInquiry
+            });
+
+            closeModal('modal-resolve-inquiry');
+
+            setTimeout(() => {
+                currentInquiry = null;
+                updateInquiryStatus('idle', 'Nenhum recurso ativo');
+            }, 5000);
+
+            console.log('[Inquiry] Recurso resolvido:', currentInquiry);
+        }
+
+        // Event listeners para recursos
+        btnSubmitInquiry.addEventListener('click', submitInquiry);
+        btnResolveInquiry.addEventListener('click', resolveInquiry);
+        btnRejectInquiry.addEventListener('click', rejectInquiry);
+
+        // Inicializar status dos recursos
+        updateInquiryStatus('idle', 'Nenhum recurso ativo');
+
+        // =================== RESUMO DE QUALIFICAÇÃO ===================
+        const btnUpdateSummary = document.getElementById('btn-update-summary');
+        const totalGymnastsEl = document.getElementById('total-gymnasts');
+        const qualifiedAAEl = document.getElementById('qualified-aa');
+        const qualifiedVTEl = document.getElementById('qualified-vt');
+        const qualifiedUBEl = document.getElementById('qualified-ub');
+        const qualifiedBBEl = document.getElementById('qualified-bb');
+        const qualifiedFXEl = document.getElementById('qualified-fx');
+
+        async function updateQualificationSummary() {
+            try {
+                const gymnastsSnapshot = await window.db.collection('new_gymnasts').get();
+                const gymnasts = [];
+                
+                gymnastsSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.scores?.qualifiers) {
+                        gymnasts.push(data);
+                    }
+                });
+
+                totalGymnastsEl.textContent = gymnasts.length;
+
+                // Calcular qualificadas para AA (top 24)
+                const aaScores = gymnasts.map(g => {
+                    const scores = g.scores.qualifiers;
+                    const total = calculateAATotal(scores);
+                    return { name: g.name, country: g.country, total };
+                }).filter(g => g.total > 0).sort((a, b) => b.total - a.total);
+
+                qualifiedAAEl.textContent = Math.min(24, aaScores.length);
+
+                // Calcular qualificadas por aparelho (top 8 por aparelho)
+                ['vt', 'ub', 'bb', 'fx'].forEach(apparatus => {
+                    const apparatusScores = gymnasts.map(g => {
+                        const scores = g.scores.qualifiers;
+                        let total = 0;
+                        
+                        if (apparatus === 'vt') {
+                            const vt1 = calculateApparatusTotal(scores, 'vt1');
+                            const vt2 = calculateApparatusTotal(scores, 'vt2');
+                            total = Math.max(vt1, vt2); // Melhor salto
+                        } else {
+                            total = calculateApparatusTotal(scores, apparatus);
+                        }
+                        
+                        return { name: g.name, country: g.country, total };
+                    }).filter(g => g.total > 0).sort((a, b) => b.total - a.total);
+
+                    const qualified = Math.min(8, apparatusScores.length);
+                    
+                    switch(apparatus) {
+                        case 'vt': qualifiedVTEl.textContent = qualified; break;
+                        case 'ub': qualifiedUBEl.textContent = qualified; break;
+                        case 'bb': qualifiedBBEl.textContent = qualified; break;
+                        case 'fx': qualifiedFXEl.textContent = qualified; break;
+                    }
+                });
+
+                console.log('[Summary] Resumo de qualificação atualizado');
+                
+            } catch (error) {
+                console.error('[Summary] Erro ao atualizar resumo:', error);
+            }
+        }
+
+        function calculateAATotal(scores) {
+            const apparatus = ['vt1', 'ub', 'bb', 'fx'];
+            return apparatus.reduce((total, app) => {
+                return total + calculateApparatusTotal(scores, app);
+            }, 0);
+        }
+
+        function calculateApparatusTotal(scores, apparatus) {
+            const prefix = `qualifiers_${apparatus}`;
+            const d = parseFloat(scores[`${prefix}_d`]) || 0;
+            const e = parseFloat(scores[`${prefix}_e`]) || 0;
+            const p = parseFloat(scores[`${prefix}_p`]) || 0;
+            return Math.max(0, d + e - p);
+        }
+
+        // Event listener para atualização do resumo
+        btnUpdateSummary.addEventListener('click', updateQualificationSummary);
+
+        // Atualizar resumo automaticamente na inicialização
+        setTimeout(updateQualificationSummary, 2000);
+
+        // ===== SISTEMA DE SONS E EFEITOS =====
+        const soundEffectsChannel = new BroadcastChannel('sound-effects');
+
+        // Mapeamento dos sons para arquivos (todos existem!)
+        const soundFiles = {
+            'welcome': 'audio/welcome.mp3',                 // ✅ EXISTE
+            'brazil-anthem': 'music/brazil-anthem.mp3',  // ✅ EXISTE
+            'china-reception': 'music/china-reception.mp3', // ✅ EXISTE
+            'italy-reception': 'music/italy-reception.mp3', // ✅ EXISTE
+            'usa-reception': 'music/usa-reception.mp3',    // ✅ EXISTE AGORA!
+            'brazil-reception': 'music/brazil-reception.mp3', // ✅ EXISTE
+            'final-instructions': 'audio/final-instructions.mp3' // ✅ EXISTE
+        };
+
+        // Mapeamento para overlays de recepção
+        const receptionOverlays = {
+            'china-reception': { countryCode: 'CHN', text: 'CHINA TEAM' },
+            'italy-reception': { countryCode: 'ITA', text: 'ITALY TEAM' },
+            'usa-reception': { countryCode: 'USA', text: 'USA TEAM' },
+            'brazil-reception': { countryCode: 'BRA', text: 'BRAZIL TEAM' }
+        };
+
+        function playSoundEffect(effectType, event) {
+            console.log(`🎵 Reproduzindo efeito: ${effectType}`);
+            
+            // Enviar comando para o display
+            soundEffectsChannel.postMessage({
+                type: 'SOUND_EFFECT',
+                effect: effectType,
+                audioFile: soundFiles[effectType],
+                timestamp: Date.now()
+            });
+
+            // Se for recepção de país, mostrar overlay
+            if (receptionOverlays[effectType]) {
+                const countryCode = receptionOverlays[effectType].countryCode;
+                console.log('[Control] 🔍 DEBUG countryCode:', countryCode);
+                console.log('[Control] 🔍 DEBUG window.getCountryFlag:', window.getCountryFlag);
+                console.log('[Control] 🔍 DEBUG window.countryData:', window.countryData);
+                
+                const flag = window.getCountryFlag ? window.getCountryFlag(countryCode) : '🏴';
+                console.log('[Control] 🔍 DEBUG flag obtida:', flag, '| Length:', flag.length);
+                
+                const message = {
+                    action: 'show-reception',
+                    flag: flag,
+                    text: receptionOverlays[effectType].text,
+                    countryCode: countryCode,
+                    duration: 5000
+                };
+                console.log('[Control] 📡 Enviando show-reception:', message);
+                console.log('[Control] 📡 Tipo do flag:', typeof message.flag, '| Valor:', JSON.stringify(message.flag));
+                controlChannel.postMessage(message);
+            }
+            // Se for boas-vindas, mostrar overlay de welcome
+            else if (effectType === 'welcome') {
+                const message = {
+                    action: 'show-welcome',
+                    duration: 6000
+                };
+                console.log('[Control] 📡 Enviando show-welcome:', message);
+                controlChannel.postMessage(message);
+            }
+            // Se for hino do Brasil, mostrar overlay de anthem
+            else if (effectType === 'brazil-anthem') {
+                const message = {
+                    action: 'show-anthem',
+                    duration: 8000
+                };
+                console.log('[Control] 📡 Enviando show-anthem:', message);
+                controlChannel.postMessage(message);
+            }
+            // Se for instruções finais, mostrar overlay de instruções
+            else if (effectType === 'final-instructions') {
+                const message = {
+                    action: 'show-instructions',
+                    duration: 5000
+                };
+                console.log('[Control] 📡 Enviando show-instructions:', message);
+                controlChannel.postMessage(message);
+            }
+
+            // Feedback visual no control (se event fornecido)
+            if (event && event.target) {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '🎵 REPRODUZINDO...';
+                btn.style.opacity = '0.7';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.opacity = '1';
+                }, 2000);
+            }
+        }
+
+        function clearSoundEffects(event) {
+            console.log('❌ Saindo dos efeitos sonoros');
+            
+            // Enviar comando para limpar o display
+            soundEffectsChannel.postMessage({
+                type: 'CLEAR_SOUND_EFFECTS',
+                timestamp: Date.now()
+            });
+
+            // Feedback visual (se event fornecido)
+            if (event && event.target) {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ EFEITOS LIMPOS';
+                btn.style.opacity = '0.7';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.opacity = '1';
+                }, 1500);
+            }
+        }
+    </script>
+
+    <!-- MODAIS DE RECURSOS -->
+    <!-- Modal para Rejeitar Recurso -->
+    <div id="modal-reject-inquiry" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>❌ Rejeitar Recurso</h3>
+                <button class="modal-close" onclick="closeModal('modal-reject-inquiry')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Ginasta:</strong> <span id="reject-gymnast-name">-</span></p>
+                <label for="reject-reason">Motivo da Rejeição:</label>
+                <textarea id="reject-reason" placeholder="Descreva o motivo da rejeição do recurso..." rows="4" required></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="control-btn" onclick="closeModal('modal-reject-inquiry')">Cancelar</button>
+                <button class="control-btn danger" onclick="confirmRejectInquiry()">❌ Confirmar Rejeição</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Resolver Recurso -->
+    <div id="modal-resolve-inquiry" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✅ Resolver Recurso</h3>
+                <button class="modal-close" onclick="closeModal('modal-resolve-inquiry')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Ginasta:</strong> <span id="resolve-gymnast-name">-</span></p>
+                <label for="resolve-decision">Decisão:</label>
+                <select id="resolve-decision" required>
+                    <option value="">Selecione a decisão...</option>
+                    <option value="increased">Nota Aumentada</option>
+                    <option value="decreased">Nota Diminuída</option>
+                </select>
+                <label for="resolve-justification">Justificativa:</label>
+                <textarea id="resolve-justification" placeholder="Descreva a justificativa da decisão..." rows="4" required></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="control-btn" onclick="closeModal('modal-resolve-inquiry')">Cancelar</button>
+                <button class="control-btn success" onclick="confirmResolveInquiry()">✅ Confirmar Resolução</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Estilos dos Modais de Recursos */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: #1a1635;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid #3a3a5e;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #3a3a5e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #e0e0e0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #e0e0e0;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-body label {
+            display: block;
+            margin: 15px 0 5px 0;
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .modal-body textarea, .modal-body select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #3a3a5e;
+            border-radius: 5px;
+            background: #2a2a4a;
+            color: #e0e0e0;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #3a3a5e;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+    </style>
+
+    <!-- Elementos de áudio para aquecimento -->
+    <audio id="warmup-start-audio" preload="auto">
+        <source src="audio/warmup-start.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="warmup-music-1min" preload="auto" loop>
+        <source src="audio/warmup-music-1min.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="warmup-end-audio" preload="auto">
+        <source src="audio/warmup-end.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Auth Guard -->
+    <script src="js/auth-guard.js"></script>
+</body>
+</html>

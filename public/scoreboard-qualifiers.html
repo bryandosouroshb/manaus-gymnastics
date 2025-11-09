@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar - Qualificatórias | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1001; /* Acima do sidebar */
+        }
+        .header-title {
+            font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem;
+        }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase {
+            font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem;
+        }
+        .live-indicator {
+            background: #e74c3c; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; animation: livePulse 1.5s infinite;
+        }
+        @keyframes livePulse { 
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(231, 76, 60, 0); }
+        }
+        .header-nav .nav-btn {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer;
+        }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        /* --- ESTRUTURA PRINCIPAL --- */
+        .main-container { display: flex; flex-grow: 1; }
+        
+        /* --- SIDEBAR DE NAVEGAÇÃO DO PLACAR --- */
+        .scoreboard-sidebar {
+            width: 300px; background: #ffffff; border-right: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: calc(100vh - 67px);
+        }
+        .sidebar-header {
+            font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem;
+        }
+        .view-nav-list { list-style: none; }
+        .view-nav-item {
+            padding: 1rem; cursor: pointer; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 1rem; font-weight: 600;
+        }
+        .view-nav-item:hover { background-color: #f0fdf4; color: var(--primary-green-dark); }
+        .view-nav-item.active {
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light)); color: white; box-shadow: 0 4px 12px var(--shadow-color); transform: translateX(5px);
+        }
+        
+        /* --- ÁREA DE CONTEÚDO --- */
+        .content-area {
+            flex-grow: 1; padding: 2rem 3rem; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><pattern id="hexagon" width="60" height="60" patternUnits="userSpaceOnUse"><polygon points="30,2 52,17 52,43 30,58 8,43 8,17" fill="none" stroke="rgba(14,124,58,0.03)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23hexagon)"/></svg>') repeat;
+        }
+        .view-panel { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        /* --- ESTILOS COMUNS PARA PAINEIS --- */
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .panel-title { font-size: 2rem; font-weight: 800; color: var(--primary-green-dark); }
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); color: white; padding: 0.8rem 1.8rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'Montserrat', sans-serif;
+        }
+        .refresh-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+        .data-container { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); overflow: hidden; border: 1px solid var(--border-color); }
+        .table-wrapper { overflow-x: auto; }
+        .scoreboard-table { width: 100%; border-collapse: collapse; }
+        .scoreboard-table th { background: #f8f9fa; color: var(--primary-green-dark); padding: 1rem; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.8rem; position: sticky; top: 0; z-index: 10; }
+        .scoreboard-table td { padding: 1rem; text-align: center; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        .scoreboard-table tbody tr:hover { background-color: #f0fdf4; }
+        .rank-cell { font-weight: 700; font-size: 1.1rem; }
+        .gymnast-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        .fi { font-size: 1.2rem; margin-right: 0.5rem; vertical-align: middle; }
+        .total-score { font-weight: 800; font-size: 1.1rem; color: var(--primary-green-dark); }
+        .rank-cell.rank-1::after, .qualifier-rank.rank-1::after { content: '🥇'; margin-left: 0.5rem; }
+        .rank-cell.rank-2::after, .qualifier-rank.rank-2::after { content: '🥈'; margin-left: 0.5rem; }
+        .rank-cell.rank-3::after, .qualifier-rank.rank-3::after { content: '🥉'; margin-left: 0.5rem; }
+
+        /* --- Grid para Finais por Aparelho --- */
+        .apparatus-finals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        .summary-card {
+             background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); border: 1px solid var(--border-color);
+        }
+        .summary-card-header { font-size: 1.2rem; font-weight: 700; color: var(--primary-green-dark); padding: 1.5rem; border-bottom: 2px solid var(--accent-gold); display: flex; align-items: center; gap: 0.8rem; }
+        .summary-list { padding: 1.5rem; }
+        .qualifier-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid #f0f0f0; }
+        .qualifier-item:last-child { border-bottom: none; }
+        .qualifier-rank { font-weight: 700; flex-shrink: 0; width: 30px; text-align: center;}
+        .qualifier-details { flex-grow: 1; min-width: 0; }
+        .qualifier-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .qualifier-country { font-size: 0.8rem; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
+        .qualifier-score { font-weight: 700; color: var(--primary-green); flex-shrink: 0; padding-left: 1rem; }
+
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-trophy"></i>
+            <span>Placar ao Vivo</span>
+            <span class="header-phase">Qualificatórias</span>
+        </div>
+        <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="edit-scores-qualifiers.html" class="nav-btn"><i class="fas fa-edit"></i> Editar Notas</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="scoreboard-sidebar">
+            <h2 class="sidebar-header">Visualizar</h2>
+            <ul class="view-nav-list">
+                <li><a class="view-nav-item active" data-view="geral"><i class="fas fa-list-ol"></i> Classificação Geral</a></li>
+                <li><a class="view-nav-item" data-view="aa"><i class="fas fa-user-astronaut"></i> Final Individual Geral</a></li>
+                <li><a class="view-nav-item" data-view="equipes"><i class="fas fa-users"></i> Final por Equipes</a></li>
+                <li><a class="view-nav-item" data-view="aparelhos"><i class="fas fa-medal"></i> Finais por Aparelho</a></li>
+            </ul>
+        </aside>
+
+        <main class="content-area">
+            <div id="loading" style="text-align: center; padding: 2rem; font-size: 1.2rem; color: var(--primary-green);">
+                <i class="fas fa-spinner fa-spin"></i> Carregando resultados...
+            </div>
+
+            <div id="geral-view" class="view-panel hidden">
+                <div class="panel-header"><h1 class="panel-title">Individual Geral (Qualificatórias)</h1><button class="refresh-btn"><i class="fas fa-sync-alt"></i> Atualizar</button></div>
+                <div class="data-container"><div class="table-wrapper"><table class="scoreboard-table"><thead><tr><th>Pos</th><th style="text-align: left;">Ginasta</th><th>VT</th><th>UB</th><th>BB</th><th>FX</th><th>Total</th></tr></thead><tbody id="scoreboard-tbody-geral"></tbody></table></div></div>
+            </div>
+
+            <div id="aa-view" class="view-panel hidden">
+                <div class="panel-header"><h1 class="panel-title">Classificados para Final Individual Geral</h1><button class="refresh-btn"><i class="fas fa-sync-alt"></i> Atualizar</button></div>
+                <div class="data-container"><div class="table-wrapper"><table class="scoreboard-table"><thead><tr><th>Pos</th><th style="text-align: left;">Ginasta</th><th>Total</th></tr></thead><tbody id="scoreboard-tbody-aa"></tbody></table></div></div>
+            </div>
+
+            <div id="equipes-view" class="view-panel hidden">
+                 <div class="panel-header"><h1 class="panel-title">Classificados para Final por Equipes</h1><button class="refresh-btn"><i class="fas fa-sync-alt"></i> Atualizar</button></div>
+                <div class="data-container"><div class="table-wrapper"><table class="scoreboard-table"><thead><tr><th>Pos</th><th style="text-align: left;">País</th><th>Ginastas</th><th>Total da Equipe</th></tr></thead><tbody id="scoreboard-tbody-equipes"></tbody></table></div></div>
+            </div>
+
+            <div id="aparelhos-view" class="view-panel hidden">
+                <div class="panel-header"><h1 class="panel-title">Classificados para Finais por Aparelho</h1><button class="refresh-btn"><i class="fas fa-sync-alt"></i> Atualizar</button></div>
+                <div class="apparatus-finals-grid" id="apparatus-finals-grid">
+                    <!-- Cards de aparelhos serão inseridos aqui -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/countries.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let gymnastsData = [];
+            let currentRankings = { aa: [], team: [], vt: [], ub: [], bb: [], fx: [] };
+
+            const loadingPanel = document.getElementById('loading');
+            const viewPanels = document.querySelectorAll('.view-panel');
+            const navLinks = document.querySelectorAll('.view-nav-item');
+
+            async function loadScoreboard() {
+                loadingPanel.classList.remove('hidden');
+                viewPanels.forEach(p => p.classList.add('hidden'));
+                
+                try {
+                    const gymnastsSnapshot = await window.db.collection('new_gymnasts').get();
+                    gymnastsData = [];
+                    
+                    gymnastsSnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const scores = data.scores?.qualifiers;
+                        if (scores) {
+                            const vt1 = (scores.qualifiers_vt1_d || 0) + (scores.qualifiers_vt1_e || 0) - (scores.qualifiers_vt1_p || 0);
+                            const vt2 = (scores.qualifiers_vt2_d || 0) + (scores.qualifiers_vt2_e || 0) - (scores.qualifiers_vt2_p || 0);
+                            const ub = (scores.qualifiers_ub_d || 0) + (scores.qualifiers_ub_e || 0) - (scores.qualifiers_ub_p || 0);
+                            const bb = (scores.qualifiers_bb_d || 0) + (scores.qualifiers_bb_e || 0) - (scores.qualifiers_bb_p || 0);
+                            const fx = (scores.qualifiers_fx_d || 0) + (scores.qualifiers_fx_e || 0) - (scores.qualifiers_fx_p || 0);
+                            
+                            gymnastsData.push({
+                                id: doc.id, name: data.name, country: data.country,
+                                scores: { VT: vt1, UB: ub, BB: bb, FX: fx, VT_AVG: (vt1 > 0 && vt2 > 0) ? (vt1 + vt2) / 2 : vt1 },
+                                totalAA: vt1 + ub + bb + fx
+                            });
+                        }
+                    });
+
+                    calculateQualifiersRankings();
+                    renderAllViews();
+                    
+                    loadingPanel.classList.add('hidden');
+                    document.querySelector('.view-nav-item.active').click();
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar scoreboard:', error);
+                }
+            }
+            
+            function calculateQualifiersRankings() {
+                gymnastsData.sort((a, b) => b.totalAA - a.totalAA);
+                currentRankings.aa = [...gymnastsData];
+
+                ['vt', 'ub', 'bb', 'fx'].forEach(app => {
+                    const key = app.toUpperCase();
+                    const scoreKey = key === 'VT' ? 'VT_AVG' : key;
+                    currentRankings[app] = [...gymnastsData].sort((a, b) => b.scores[scoreKey] - a.scores[scoreKey]);
+                });
+
+                const teamScores = {};
+                gymnastsData.forEach(g => {
+                    if (!teamScores[g.country]) {
+                        teamScores[g.country] = { country: g.country, gymnasts: [], scores: { VT: [], UB: [], BB: [], FX: [] }, total: 0 };
+                    }
+                    const team = teamScores[g.country];
+                    team.gymnasts.push(g.name);
+                    Object.keys(g.scores).forEach(app => {
+                        if(app !== 'VT_AVG') team.scores[app].push(g.scores[app]);
+                    });
+                });
+
+                currentRankings.team = Object.values(teamScores).map(team => {
+                    let teamTotal = 0;
+                    Object.keys(team.scores).forEach(app => {
+                        const top3 = team.scores[app].sort((a, b) => b - a).slice(0, 3);
+                        teamTotal += top3.reduce((sum, score) => sum + score, 0);
+                    });
+                    team.total = teamTotal;
+                    return team;
+                }).sort((a, b) => b.total - a.total);
+            }
+
+            function renderAllViews() {
+                renderGeralView();
+                renderAAFinalView();
+                renderEquipesView();
+                renderAparelhosView();
+            }
+
+            function renderGeralView() {
+                const tbody = document.getElementById('scoreboard-tbody-geral');
+                tbody.innerHTML = '';
+                currentRankings.aa.forEach((gymnast, index) => {
+                    const rank = index + 1;
+                    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="rank-cell ${rankClass}">${rank}</td>
+                        <td class="gymnast-cell"><span class="fi fi-${getCountryCode(gymnast.country)}"></span><span>${gymnast.name}</span></td>
+                        <td>${gymnast.scores.VT.toFixed(3)}</td>
+                        <td>${gymnast.scores.UB.toFixed(3)}</td>
+                        <td>${gymnast.scores.BB.toFixed(3)}</td>
+                        <td>${gymnast.scores.FX.toFixed(3)}</td>
+                        <td class="total-score">${gymnast.totalAA.toFixed(3)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function renderAAFinalView() {
+                const tbody = document.getElementById('scoreboard-tbody-aa');
+                tbody.innerHTML = '';
+                const aaQualifiers = getQualifiers(currentRankings.aa, 8, 2);
+                aaQualifiers.forEach((gymnast, index) => {
+                     const rank = index + 1;
+                     const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                     const row = document.createElement('tr');
+                     row.innerHTML = `
+                        <td class="rank-cell ${rankClass}">${rank}</td>
+                        <td class="gymnast-cell"><span class="fi fi-${getCountryCode(gymnast.country)}"></span><span>${gymnast.name}</span></td>
+                        <td class="total-score">${gymnast.totalAA.toFixed(3)}</td>
+                     `;
+                     tbody.appendChild(row);
+                });
+            }
+
+            function renderEquipesView() {
+                const tbody = document.getElementById('scoreboard-tbody-equipes');
+                tbody.innerHTML = '';
+                const tfQualifiers = currentRankings.team.slice(0, 8);
+                tfQualifiers.forEach((team, index) => {
+                    const rank = index + 1;
+                    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="rank-cell ${rankClass}">${rank}</td>
+                        <td class="gymnast-cell" style="text-align:left;"><span class="fi fi-${getCountryCode(team.country)}"></span><span>${team.country}</span></td>
+                        <td>${team.gymnasts.length}</td>
+                        <td class="total-score">${team.total.toFixed(3)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function renderAparelhosView() {
+                const container = document.getElementById('apparatus-finals-grid');
+                container.innerHTML = '';
+                const apparatuses = [
+                    { code: 'VT', name: 'Salto', icon: 'fa-person-running' }, { code: 'UB', name: 'Barras Assimétricas', icon: 'fa-bars-staggered' }, { code: 'BB', name: 'Trave', icon: 'fa-ruler-horizontal' }, { code: 'FX', name: 'Solo', icon: 'fa-music' }
+                ];
+                
+                apparatuses.forEach(app => {
+                    const key = app.code.toLowerCase();
+                    const scoreKey = app.code === 'VT' ? 'VT_AVG' : app.code;
+                    const qualifiers = getQualifiers(currentRankings[key], 8, 2);
+                    const listHTML = qualifiers.map((g, i) => `
+                        <div class="qualifier-item">
+                            <span class="qualifier-rank">${i + 1}.</span>
+                             <div class="qualifier-details">
+                                <div class="qualifier-name" title="${g.name}">${g.name}</div>
+                                <div class="qualifier-country"><span class="fi fi-${getCountryCode(g.country)}"></span> ${g.country}</div>
+                            </div>
+                            <span class="qualifier-score">${g.scores[scoreKey].toFixed(3)}</span>
+                        </div>
+                    `).join('');
+
+                    const card = document.createElement('div');
+                    card.className = 'data-container';
+                    card.innerHTML = `<div class="summary-card-header"><i class="fas ${app.icon}"></i> ${app.name}</div><div class="summary-list">${listHTML}</div>`;
+                    container.appendChild(card);
+                });
+            }
+            
+            function getQualifiers(ranking, maxQualifiers, maxPerCountry) {
+                const qualifiers = [];
+                const countryCount = {};
+                for (const gymnast of ranking) {
+                    if (qualifiers.length >= maxQualifiers) break;
+                    const country = gymnast.country;
+                    countryCount[country] = (countryCount[country] || 0);
+                    if (countryCount[country] < maxPerCountry) {
+                        qualifiers.push(gymnast);
+                        countryCount[country]++;
+                    }
+                }
+                return qualifiers;
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    const view = link.getAttribute('data-view');
+                    viewPanels.forEach(p => {
+                        p.id === `${view}-view` ? p.classList.remove('hidden') : p.classList.add('hidden');
+                    });
+                });
+            });
+
+            document.querySelectorAll('.refresh-btn').forEach(btn => btn.addEventListener('click', loadScoreboard));
+
+            function initializeWhenReady() {
+                if (window.db) {
+                    loadScoreboard();
+                    window.db.collection('new_gymnasts').onSnapshot(() => {
+                        console.log('Real-time update detected.');
+                        loadScoreboard();
+                    });
+                } else {
+                    setTimeout(initializeWhenReady, 100);
+                }
+            }
+            initializeWhenReady();
+        });
+    </script>
+</body>
+</html>
+

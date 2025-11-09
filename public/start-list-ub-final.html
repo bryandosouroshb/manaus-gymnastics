@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start List - Final Barras Assimétricas | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 1001;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem; }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase { font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .header-nav .nav-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer; }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        /* --- ESTRUTURA PRINCIPAL --- */
+        .main-container { display: flex; flex-grow: 1; }
+        
+        /* --- SIDEBAR DE NAVEGAÇÃO --- */
+        .startlist-sidebar {
+            width: 320px; background: #ffffff; border-right: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: calc(100vh - 67px); overflow-y: auto;
+        }
+        .sidebar-header { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem; }
+        .finalist-nav-list { list-style: none; }
+        .finalist-nav-item { padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 1rem; font-weight: 500; }
+        .finalist-nav-item .order { font-weight: 700; color: var(--primary-green); }
+        .finalist-nav-item .name { flex-grow: 1; }
+
+        /* --- ÁREA DE CONTEÚDO --- */
+        .content-area { flex-grow: 1; padding: 2rem 3rem; }
+        .hidden { display: none !important; }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .panel-title { font-size: 2rem; font-weight: 800; color: var(--primary-green-dark); }
+        
+        /* --- ESTILOS DO CARD PRINCIPAL --- */
+        .startlist-card { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); border: 1px solid var(--border-color); }
+        .startlist-card-header { font-size: 1.2rem; font-weight: 700; color: var(--primary-green-dark); padding: 1.5rem; border-bottom: 2px solid var(--accent-gold); }
+        
+        .gymnast-list { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .gymnast-item { display: flex; align-items: center; gap: 1.5rem; padding: 1rem; border: 1px solid var(--border-color); border-radius: 12px; background-color: #fdfdfd; transition: all 0.3s ease; }
+        .gymnast-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px var(--shadow-color); }
+        
+        .gymnast-order { font-weight: 800; font-size: 1.5rem; color: var(--primary-green); width: 50px; text-align: center; flex-shrink: 0; }
+        .gymnast-details { flex-grow: 1; }
+        .gymnast-name { font-weight: 700; font-size: 1.2rem; }
+        .gymnast-country { display: flex; align-items: center; gap: 0.5rem; color: var(--text-light); margin-top: 0.25rem; font-weight: 500; }
+        .qualifying-score { text-align: right; }
+        .score-label { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+        .score-value { font-size: 1.3rem; font-weight: 700; color: var(--primary-green-dark); }
+        .fi { font-size: 1.5rem; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Start List</span>
+            <span class="header-phase">Final - Barras Assimétricas</span>
+        </div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="scoreboard-ub-final.html" class="nav-btn"><i class="fas fa-trophy"></i> Placar</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="startlist-sidebar">
+            <h2 class="sidebar-header">Finalistas</h2>
+            <ul id="finalist-list-sidebar" class="finalist-nav-list">
+                <!-- Lista de finalistas da sidebar será inserida via JS -->
+            </ul>
+        </aside>
+
+        <main class="content-area">
+            <div class="panel-header">
+                <h1 class="panel-title">Ordem de Apresentação</h1>
+            </div>
+            <div id="loading" style="text-align: center; padding: 2rem; font-size: 1.2rem; color: var(--primary-green);">
+                <i class="fas fa-spinner fa-spin"></i> Carregando finalistas...
+            </div>
+            <div id="start-list-main-container" class="hidden">
+                <div class="startlist-card">
+                    <div class="startlist-card-header">Final por Aparelho: Barras Assimétricas</div>
+                    <div class="gymnast-list" id="start-list-main">
+                         <!-- Lista principal de finalistas será inserida via JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
+    <!-- Scripts customizados -->
+    <script src="js/firebase-init.js"></script>
+    <script src="js/countries.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            function initializeWhenReady() {
+                if (window.db) {
+                    loadUBFinalists();
+                    // Auto refresh a cada 30 segundos
+                    setInterval(loadUBFinalists, 30000);
+                } else {
+                    setTimeout(initializeWhenReady, 100);
+                }
+            }
+            
+            initializeWhenReady();
+
+            async function loadUBFinalists() {
+                try {
+                    const snapshot = await window.db.collection('new_gymnasts').get();
+                    
+                    const gymnasts = [];
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        if (data.scores && data.scores.qualifiers) {
+                            const qualifiersScores = data.scores.qualifiers;
+                            const ubTotal = Math.max(0, (qualifiersScores.qualifiers_ub_d || 0) + (qualifiersScores.qualifiers_ub_e || 0) - (qualifiersScores.qualifiers_ub_p || 0));
+                            
+                            if (ubTotal > 0) {
+                                gymnasts.push({
+                                    id: doc.id,
+                                    name: data.name,
+                                    country: data.country,
+                                    ubScore: ubTotal
+                                });
+                            }
+                        }
+                    });
+
+                    gymnasts.sort((a, b) => b.ubScore - a.ubScore);
+                    
+                    const finalists = [];
+                    const countryCount = {};
+                    
+                    for (const gymnast of gymnasts) {
+                        if (finalists.length >= 8) break;
+                        
+                        countryCount[gymnast.country] = (countryCount[gymnast.country] || 0);
+                        
+                        if (countryCount[gymnast.country] < 2) {
+                            finalists.push(gymnast);
+                            countryCount[gymnast.country]++;
+                        }
+                    }
+
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('start-list-main-container').classList.remove('hidden');
+                    displayStartList(finalists);
+
+                } catch (error) {
+                    console.error('Erro ao carregar finalistas:', error);
+                    const mainContainer = document.getElementById('start-list-main');
+                    mainContainer.innerHTML = `<p style="color: red; text-align: center;">Erro ao carregar dados.</p>`;
+                }
+            }
+
+            function displayStartList(gymnasts) {
+                const sidebarContainer = document.getElementById('finalist-list-sidebar');
+                const mainContainer = document.getElementById('start-list-main');
+                
+                if (gymnasts.length === 0) {
+                    const message = `<p>Nenhuma ginasta qualificada encontrada.</p>`;
+                    sidebarContainer.innerHTML = `<li class="finalist-nav-item">${message}</li>`;
+                    mainContainer.innerHTML = `<div class="gymnast-item">${message}</div>`;
+                    return;
+                }
+
+                // Ordem de apresentação é inversa à qualificação (pior para melhor)
+                gymnasts.reverse();
+                
+                sidebarContainer.innerHTML = gymnasts.map((gymnast, index) => `
+                    <li class="finalist-nav-item">
+                        <span class="order">${index + 1}.</span>
+                        <span class="name">${gymnast.name}</span>
+                        <span class="fi fi-${getCountryCode(gymnast.country)}"></span>
+                    </li>
+                `).join('');
+
+                mainContainer.innerHTML = gymnasts.map((gymnast, index) => `
+                    <div class="gymnast-item">
+                        <div class="gymnast-order">${index + 1}</div>
+                        <span class="fi fi-${getCountryCode(gymnast.country)}"></span>
+                        <div class="gymnast-details">
+                            <div class="gymnast-name">${gymnast.name}</div>
+                            <div class="gymnast-country">${gymnast.country}</div>
+                        </div>
+                        <div class="qualifying-score">
+                            <div class="score-label">Qualificação</div>
+                            <div class="score-value">${gymnast.ubScore?.toFixed(3) || '0.000'}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // A função getCountryCode é global vinda do countries.js, mas como fallback:
+            if (typeof getCountryCode !== 'function') {
+                window.getCountryCode = function(country) {
+                    const codes = {
+                        'BRA': 'br', 'USA': 'us', 'CHN': 'cn', 'ITA': 'it', 'FRA': 'fr', 'GER': 'de', 'GBR': 'gb', 'JPN': 'jp', 'RUS': 'ru', 'CAN': 'ca', 'AUS': 'au'
+                    };
+                    return codes[country] || 'xx';
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

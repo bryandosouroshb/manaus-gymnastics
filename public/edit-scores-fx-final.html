@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Pontuações - Final FX | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 1001;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 1rem; }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-title .header-phase { font-weight: 400; opacity: 0.8; font-size: 1.1rem; border-left: 1px solid rgba(255, 255, 255, 0.4); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .header-nav .nav-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; cursor: pointer; }
+        .header-nav .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        .main-container { display: flex; flex-grow: 1; padding-bottom: 80px; }
+        
+        .scores-sidebar {
+            width: 320px; background: #ffffff; border-right: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: calc(100vh - 67px);
+        }
+        .sidebar-header { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem; }
+        .gymnast-nav-list { list-style: none; margin-bottom: 2rem; }
+        .gymnast-nav-item { padding: 1rem; cursor: pointer; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 1rem; font-weight: 600; text-decoration: none; color: var(--text-dark); }
+        .gymnast-nav-item:hover { background-color: #f0fdf4; color: var(--primary-green-dark); }
+        .gymnast-nav-item.active { background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light)); color: white; box-shadow: 0 4px 12px var(--shadow-color); transform: translateX(5px); }
+        .fi { font-size: 1.2rem; }
+        
+        .manaus-button { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); color: white; padding: 0.8rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .manaus-button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); }
+        .manaus-button.secondary { background: #e2e8f0; color: var(--text-dark); border: 1px solid #cbd5e0; }
+        .manaus-button.danger { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;}
+        
+        .content-area { flex-grow: 1; padding: 2rem 3rem; }
+        .hidden { display: none !important; }
+
+        .scoring-card { background: white; border-radius: 16px; box-shadow: 0 15px 40px var(--shadow-color); border: 1px solid var(--border-color); padding: 2rem; }
+        .scoring-card-header { display: flex; align-items: center; gap: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .gymnast-name { font-size: 2rem; font-weight: 700; color: var(--primary-green-dark); }
+        
+        .score-inputs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1.5rem; align-items: end; }
+        .score-group { display: flex; flex-direction: column; }
+        .score-label { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.8rem; text-align: center; color: var(--text-light); }
+        .score-input { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-weight: 500; text-align: center; font-family: 'Montserrat', sans-serif; }
+        .score-total-display { display: block; width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); background-color: #f0fdf4; border-radius: 8px; font-size: 1.2rem; font-weight: 700; color: var(--primary-green-dark); text-align: center; }
+        
+        .action-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 1rem 2rem; border-top: 1px solid var(--border-color); box-shadow: 0 -4px 20px var(--shadow-color); display: flex; justify-content: center; z-index: 1000; gap: 1rem; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-edit"></i>
+            <span>Painel de Edição de Notas</span>
+            <span class="header-phase">Final - Solo (FX)</span>
+        </div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <button id="logout-btn" class="nav-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="scores-sidebar">
+            <h2 class="sidebar-header">Finalistas</h2>
+            <ul id="gymnast-nav-list" class="gymnast-nav-list"></ul>
+        </aside>
+
+        <main class="content-area">
+            <div id="loading" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+            <div id="scoring-panel-container"></div>
+        </main>
+    </div>
+
+    <footer class="action-footer">
+        <button id="generate-random-btn" class="manaus-button secondary"><i class="fas fa-dice"></i> Gerar Aleatórias</button>
+        <button id="clear-scores-btn" class="manaus-button danger"><i class="fas fa-trash"></i> Limpar Notas</button>
+        <button id="save-scores-btn" class="manaus-button"><i class="fas fa-save"></i> Salvar Todas as Pontuações</button>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/countries.js"></script>
+    <script>
+        // Funções auxiliares, caso não estejam no countries.js
+        if (typeof getCountryCode !== 'function') { function getCountryCode(country) { const codes = { 'BRA': 'br', 'USA': 'us', 'CHN': 'cn', 'ITA': 'it' }; return codes[country] || 'xx'; } }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            let gymnastsData = [];
+            let qualifiedGymnasts = [];
+
+            const loadingPanel = document.getElementById('loading');
+            const container = document.getElementById('scoring-panel-container');
+            const gymnastNavList = document.getElementById('gymnast-nav-list');
+
+            async function loadData() {
+                try {
+                    const db = window.db;
+                    const gymnastsSnapshot = await db.collection('new_gymnasts').get();
+                    gymnastsData = gymnastsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    calculateQualified();
+                    renderSidebar();
+                    renderAllGymnastPanels();
+                    loadExistingScores();
+                    setupAllDynamicCalculations();
+                    setupSidebarNav();
+                    
+                    loadingPanel.style.display = 'none';
+
+                } catch (error) {
+                    console.error("Erro ao carregar dados:", error);
+                    loadingPanel.textContent = "Erro ao carregar dados.";
+                }
+            }
+
+            function calculateQualified() {
+                const withScores = gymnastsData.map(g => {
+                    const scores = g.scores?.qualifiers;
+                    if (!scores) return {...g, fxScore: 0};
+                    const fx = (scores.qualifiers_fx_d || 0) + (scores.qualifiers_fx_e || 0) - (scores.qualifiers_fx_p || 0);
+                    return {...g, fxScore: fx};
+                }).sort((a,b) => b.fxScore - a.fxScore);
+
+                qualifiedGymnasts = [];
+                const countryCount = {};
+                for (const gymnast of withScores) {
+                    if (qualifiedGymnasts.length >= 8) break;
+                    const country = gymnast.country;
+                    countryCount[country] = countryCount[country] || 0;
+                    if (countryCount[country] < 2) {
+                        qualifiedGymnasts.push(gymnast);
+                        countryCount[country]++;
+                    }
+                }
+            }
+
+            function renderSidebar() {
+                gymnastNavList.innerHTML = qualifiedGymnasts.map((g, index) => `
+                    <li><a class="gymnast-nav-item ${index === 0 ? 'active' : ''}" href="#gymnast-card-${g.id}" data-gymnast-id="${g.id}">
+                        <span class="fi fi-${getCountryCode(g.country)}"></span>${g.name}
+                    </a></li>
+                `).join('');
+            }
+            
+            function renderAllGymnastPanels() {
+                container.innerHTML = qualifiedGymnasts.map(gymnast => `
+                    <div class="scoring-card" id="gymnast-card-${gymnast.id}" style="margin-bottom: 2rem;">
+                        <div class="scoring-card-header">
+                             <span class="fi fi-${getCountryCode(gymnast.country)}"></span>
+                            <h2 class="gymnast-name">${gymnast.name}</h2>
+                        </div>
+                        <div class="score-inputs-grid">
+                            <div class="score-group"><label class="score-label">Nota D</label><input type="number" class="score-input" id="${gymnast.id}_fx_d" placeholder="0.000"></div>
+                            <div class="score-group"><label class="score-label">Nota E</label><input type="number" class="score-input" id="${gymnast.id}_fx_e" placeholder="0.000"></div>
+                            <div class="score-group"><label class="score-label">Penalidade</label><input type="number" class="score-input" id="${gymnast.id}_fx_p" placeholder="0.000"></div>
+                            <div class="score-group"><label class="score-label">Total</label><span class="score-total-display" id="${gymnast.id}_fx_total">0.000</span></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            function setupAllDynamicCalculations() {
+                qualifiedGymnasts.forEach(gymnast => {
+                    ['d', 'e', 'p'].forEach(type => {
+                        const inputId = `${gymnast.id}_fx_${type}`;
+                        document.getElementById(inputId)?.addEventListener('input', () => {
+                            updateTotalScore(gymnast.id);
+                        });
+                    });
+                });
+            }
+
+            function updateTotalScore(gymnastId) {
+                const d = parseFloat(document.getElementById(`${gymnastId}_fx_d`)?.value) || 0;
+                const e = parseFloat(document.getElementById(`${gymnastId}_fx_e`)?.value) || 0;
+                const p = parseFloat(document.getElementById(`${gymnastId}_fx_p`)?.value) || 0;
+                const totalDisplay = document.getElementById(`${gymnastId}_fx_total`);
+                const total = d + e - p;
+                if (totalDisplay) totalDisplay.textContent = total.toFixed(3);
+            }
+
+            function loadExistingScores() {
+                qualifiedGymnasts.forEach(gymnast => {
+                    const scores = gymnast.scores?.fx_final;
+                    if (!scores) return;
+                     ['d', 'e', 'p'].forEach(type => {
+                        const input = document.getElementById(`${gymnast.id}_fx_${type}`);
+                        const score = scores[`fx_final_${type}`];
+                        if(input && score) input.value = score;
+                    });
+                    updateTotalScore(gymnast.id);
+                });
+            }
+
+            function setupSidebarNav() {
+                const navLinks = document.querySelectorAll('.gymnast-nav-item');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', e => {
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                    });
+                });
+            }
+
+            document.getElementById('save-scores-btn').onclick = async () => {
+                const db = window.db;
+                const batch = db.batch();
+                qualifiedGymnasts.forEach(gymnast => {
+                    const gymnastRef = db.collection('new_gymnasts').doc(gymnast.id);
+                    const scoresToUpdate = {};
+                    ['d', 'e', 'p'].forEach(type => {
+                        const value = document.getElementById(`${gymnast.id}_fx_${type}`).value;
+                        if (value) scoresToUpdate[`scores.fx_final.fx_final_${type}`] = parseFloat(value);
+                    });
+                    if (Object.keys(scoresToUpdate).length > 0) {
+                        batch.update(gymnastRef, scoresToUpdate);
+                    }
+                });
+
+                try {
+                    await batch.commit();
+                    alert('Pontuações salvas com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao salvar:', error);
+                    alert('Erro ao salvar pontuações.');
+                }
+            };
+            
+            document.getElementById('generate-random-btn').onclick = () => {
+                qualifiedGymnasts.forEach(gymnast => {
+                    const dInput = document.getElementById(`${gymnast.id}_fx_d`);
+                    const eInput = document.getElementById(`${gymnast.id}_fx_e`);
+                    const pInput = document.getElementById(`${gymnast.id}_fx_p`);
+                    if(dInput) dInput.value = (Math.random() * 3 + 4).toFixed(3);
+                    if(eInput) eInput.value = (Math.random() * 2 + 7).toFixed(3);
+                    if(pInput) pInput.value = (Math.random() * 0.5).toFixed(3);
+                    updateTotalScore(gymnast.id);
+                });
+            };
+
+            document.getElementById('clear-scores-btn').onclick = () => {
+                if(!confirm('Tem certeza que deseja limpar todas as notas?')) return;
+                qualifiedGymnasts.forEach(gymnast => {
+                    document.getElementById(`${gymnast.id}_fx_d`).value = '';
+                    document.getElementById(`${gymnast.id}_fx_e`).value = '';
+                    document.getElementById(`${gymnast.id}_fx_p`).value = '';
+                    updateTotalScore(gymnast.id);
+                });
+            };
+
+            function initializeApp() {
+                if (!window.db || !window.auth) { setTimeout(initializeApp, 100); return; }
+                const auth = window.auth;
+                auth.onAuthStateChanged(user => {
+                    if (user) { loadData(); } else { window.location.href = 'login.html'; }
+                });
+                document.getElementById('logout-btn').onclick = () => auth.signOut().then(() => window.location.href = 'login.html');
+            }
+            initializeApp();
+        });
+    </script>
+</body>
+</html>

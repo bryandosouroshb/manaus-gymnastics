@@ -1,0 +1,140 @@
+/* Manaus 2025 Theme – Green & Yellow Palette
+   This stylesheet overrides common components used across start-list and scoreboard pages.
+   Load this AFTER any page-specific <style> blocks to take precedence. */
+
+:root {
+  /* Core palette */
+  --manaus-primary: #0e7c3a;          /* Brazil green */
+  --manaus-primary-dark: #0b5d2b;     /* Darker green */
+  --manaus-accent: #f7c948;           /* Gold/yellow */
+  --manaus-accent-strong: #ffb300;    /* Stronger gold */
+
+  /* Background gradient (light) for pages using soft backgrounds */
+  --manaus-bg1: #eef7ef;
+  --manaus-bg2: #d9f2d0;
+
+  /* Text colors */
+  --manaus-text: #0e3b1f;             /* Deep green for text */
+  --manaus-muted: #556b5f;            /* Muted green/gray */
+
+  /* Alphas for borders/cards */
+  --manaus-primary-05a: rgba(14, 124, 58, 0.05);
+  --manaus-primary-10a: rgba(14, 124, 58, 0.10);
+}
+
+/* Generic page background + text color override */
+body:not(.fx-scoreboard-page) {
+  background: linear-gradient(135deg, var(--manaus-bg1) 0%, var(--manaus-bg2) 100%) !important;
+  color: var(--manaus-text) !important;
+}
+
+/* Header bar used across many pages */
+.olympic-header {
+  background: linear-gradient(45deg, var(--manaus-primary-dark), var(--manaus-primary)) !important;
+  color: #fff !important;
+}
+
+/* Main title gradient text */
+.title-main {
+  background: linear-gradient(45deg, var(--manaus-primary-dark), var(--manaus-primary)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.title-phase { color: var(--manaus-muted) !important; }
+
+/* Containers and cards */
+.start-list-container {
+  border: 1px solid var(--manaus-primary-10a) !important;
+}
+
+.gymnast-item {
+  background: var(--manaus-primary-05a) !important;
+  border: 1px solid var(--manaus-primary-10a) !important;
+}
+
+.gymnast-item:hover {
+  background: var(--manaus-primary-10a) !important;
+}
+
+/* Section headers and chips */
+.start-list-header,
+.gymnast-order {
+  background: linear-gradient(45deg, var(--manaus-primary-dark), var(--manaus-primary)) !important;
+  color: #fff !important;
+}
+
+/* Buttons in the header nav (when present) */
+.nav-btn { 
+  border: none !important; 
+}
+.nav-btn:hover { 
+  background: rgba(255, 255, 255, 0.3) !important; 
+}
+
+/* Global primary button used across admin/judging pages */
+.olympic-button { 
+  background-color: var(--manaus-primary) !important; 
+  border-color: var(--manaus-primary) !important; 
+  color: #fff !important;
+}
+.olympic-button:hover {
+  background-color: var(--manaus-primary-dark) !important; 
+  border-color: var(--manaus-primary-dark) !important;
+}
+.olympic-button.secondary-button { 
+  color: var(--manaus-muted) !important; 
+  border-color: var(--manaus-muted) !important; 
+}
+.olympic-button.secondary-button:hover { 
+  color: #fff !important; 
+  border-color: #fff !important; 
+}
+
+/* Inputs focus states shift to green */
+/* preserve base input backgrounds; only adjust focus styles below */
+input[type="text"]:focus, input[type="number"]:focus, select:focus { 
+  border-color: var(--manaus-primary) !important; 
+  box-shadow: 0 0 0 2px rgba(14, 124, 58, 0.30) !important; 
+}
+.phase-selector select:hover { border-color: var(--manaus-primary) !important; }
+
+/* Common smaller subtitles */
+.header-subtitle, .title-phase { color: var(--manaus-muted) !important; }
+
+/* Scoreboard accents (generic) */
+.scoreboard-title,
+.scoreboard-section-title { 
+  color: var(--manaus-primary-dark) !important; 
+}
+
+/* Utility: emphasize totals with gold accent when applicable */
+.score-total-overall, .score-total-apparatus, .score-bold.total, .total-score {
+  color: var(--manaus-accent-strong) !important;
+}
+
+/* Borders or underlines that used the old blue */
+.underlined,
+.section-divider { 
+  border-color: var(--manaus-primary) !important; 
+}
+
+/* Optional theme hook for future switches */
+[data-theme="manaus"] .themed-primary { color: var(--manaus-primary) !important; }
+[data-theme="manaus"] .themed-accent { color: var(--manaus-accent) !important; }
+
+/* Defensive overrides for legacy inline styles (old Manaus blues) */
+/* Text and borders set to #1e3c72 (dark blue) -> dark green */
+[style*="#1e3c72"] { color: var(--manaus-primary-dark) !important; border-color: var(--manaus-primary-dark) !important; }
+/* Text set to #2a5298 (blue) -> primary green */
+[style*="#2a5298"] { color: var(--manaus-primary) !important; border-color: var(--manaus-primary) !important; }
+/* Gradient backgrounds using the old blues -> green gradient */
+[style*="linear-gradient(45deg, #1e3c72, #2a5298)"] { background: linear-gradient(45deg, var(--manaus-primary-dark), var(--manaus-primary)) !important; }
+[style*="linear-gradient(135deg, #1e3c72, #2a5298)"] { background: linear-gradient(135deg, var(--manaus-primary-dark), var(--manaus-primary)) !important; }
+/* Subtle blue tints to subtle green tints */
+[style*="rgba(30, 60, 114, 0.05)"] { background: var(--manaus-primary-05a) !important; }
+[style*="rgba(30, 60, 114, 0.10)"],
+[style*="rgba(30, 60, 114, 0.1)"] { background: var(--manaus-primary-10a) !important; }
+/* Borders that referenced the old rgba */
+[style*="border: 1px solid rgba(30, 60, 114"] { border: 1px solid var(--manaus-primary-10a) !important; }

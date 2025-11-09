@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mundial de Ginástica Artística Manaus 2025</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/login-mobile.css">
+    
+    <style>
+        :root {
+            --primary-color: #0e7c3a;
+            --primary-dark: #0b5d2b;
+            --secondary-color: #f7c948;
+            --accent-color: #009f3d;
+        }
+
+        /* Splash Screen Styles */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+        }
+
+        .splash-logo {
+            font-size: 5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            animation: logoFloat 2s ease-in-out infinite alternate;
+        }
+
+        .splash-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+
+        .splash-subtitle {
+            font-size: 1.2rem;
+            color: white;
+            opacity: 0.9;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.6s forwards;
+        }
+
+        .loading-dots {
+            display: flex;
+            margin-top: 2rem;
+            gap: 0.5rem;
+        }
+
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+            animation: loadingPulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes logoFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-10px); }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* Hide main content initially */
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+
+        .main-content.show {
+            opacity: 1;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 500px;
+        }
+
+        .login-left {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .features li i {
+            margin-right: 0.8rem;
+            color: var(--secondary-color);
+            width: 16px;
+        }
+
+        .login-right {
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(14, 124, 58, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(14, 124, 58, 0.3);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ffeaea;
+            color: #c0392b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 2rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+            
+            .login-left,
+            .login-right {
+                padding: 40px 30px;
+            }
+            
+            .logo {
+                font-size: 3rem;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div class="splash-title">Mundial de Ginástica Artística</div>
+        <div class="splash-subtitle">Manaus 2025</div>
+        <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+    </div>
+
+    <!-- Main Login Content -->
+    <div class="main-content" id="mainContent">
+        <div class="login-container">
+        <!-- Left Side - Branding -->
+        <div class="login-left">
+            <div class="logo">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h1 class="title">Mundial de Ginástica Artística</h1>
+            <p class="subtitle">Sistema de gestão e pontuação para competições de ginástica artística</p>
+            <ul class="features">
+                <li><i class="fas fa-check"></i> Gestão de ginastas</li>
+                <li><i class="fas fa-check"></i> Sistema de pontuação</li>
+                <li><i class="fas fa-check"></i> Placares em tempo real</li>
+                <li><i class="fas fa-check"></i> Controle de juízes</li>
+                <li><i class="fas fa-check"></i> Relatórios completos</li>
+            </ul>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-right">
+            <h2 class="form-title">Bem-vindo</h2>
+            <p class="form-subtitle">Faça login para acessar o sistema</p>
+
+            <div id="error-message" class="error-message"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="form-control" 
+                        placeholder="Digite seu email" 
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Senha</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="form-control" 
+                        placeholder="Digite sua senha" 
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button type="submit" id="login-btn" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar no Sistema
+                </button>
+            </form>
+
+            <div class="footer-text">
+                © 2025 Mundial de Ginástica Artística Manaus
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+
+    <script>
+        // Authentication Logic
+        function initializeLogin() {
+            if (window.auth) {
+                console.log('🔥 Firebase pronto, inicializando login...');
+                
+                const auth = window.auth;
+                const loginForm = document.getElementById('login-form');
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const errorMessage = document.getElementById('error-message');
+                const loginBtn = document.getElementById('login-btn');
+
+                function showError(message) {
+                    errorMessage.textContent = message;
+                    errorMessage.classList.add('show');
+                    setTimeout(() => errorMessage.classList.remove('show'), 5000);
+                }
+
+                async function getUserRole(user) {
+                    try {
+                        console.log('🔍 Buscando role para:', user.email);
+                        const db = window.db;
+                        
+                        let userDoc = await db.collection('users').doc(user.uid).get();
+                        
+                        if (!userDoc.exists) {
+                            console.log('📧 Tentando buscar por email');
+                            const emailQuery = await db.collection('users').where('email', '==', user.email).get();
+                            if (!emailQuery.empty) {
+                                userDoc = emailQuery.docs[0];
+                            }
+                        }
+                        
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            console.log('✅ Role encontrada:', userData.role);
+                            return userData.role;
+                        }
+                        
+                        console.log('❌ Usuário não encontrado na collection users');
+                        return null;
+                    } catch (error) {
+                        console.error('💥 Erro ao buscar role:', error);
+                        return null;
+                    }
+                }
+
+                function redirectToRolePage(role) {
+                    console.log('🎯 Redirecionando para role:', role);
+                    
+                    switch (role) {
+                        case 'admin':
+                            window.location.href = 'dashboard.html';
+                            break;
+                        case 'judge_d':
+                        case 'jurado_d':
+                            window.location.href = 'judges-d.html';
+                            break;
+                        case 'judge_e':
+                        case 'jurado_e':
+                            window.location.href = 'judges-e.html';
+                            break;
+                        default:
+                            console.log('❌ Role não reconhecida:', role);
+                            showError('Role de usuário não reconhecida. Contate o administrador.');
+                    }
+                }
+
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const email = emailInput.value.trim();
+                    const password = passwordInput.value.trim();
+                    
+                    if (!email || !password) {
+                        showError('Por favor, preencha todos os campos.');
+                        return;
+                    }
+                    
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Entrando...';
+                    
+                    try {
+                        console.log('🔐 Tentando login para:', email);
+                        
+                        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                        const user = userCredential.user;
+                        
+                        console.log('✅ Login realizado com sucesso:', user.email);
+                        
+                        const userRole = await getUserRole(user);
+                        
+                        if (!userRole) {
+                            await auth.signOut();
+                            throw new Error('Usuário sem permissões definidas');
+                        }
+                        
+                        localStorage.setItem('userRole', userRole);
+                        localStorage.setItem('userEmail', user.email);
+                        
+                        console.log('🎉 Login completo! Redirecionando...');
+                        redirectToRolePage(userRole);
+                        
+                    } catch (error) {
+                        console.error('💥 Erro no login:', error);
+                        
+                        let errorMsg = 'Erro ao fazer login. Tente novamente.';
+                        
+                        switch (error.code) {
+                            case 'auth/user-not-found':
+                                errorMsg = 'Usuário não encontrado.';
+                                break;
+                            case 'auth/wrong-password':
+                                errorMsg = 'Senha incorreta.';
+                                break;
+                            case 'auth/invalid-email':
+                                errorMsg = 'E-mail inválido.';
+                                break;
+                            case 'auth/too-many-requests':
+                                errorMsg = 'Muitas tentativas. Tente novamente mais tarde.';
+                                break;
+                            default:
+                                if (error.message.includes('sem permissões')) {
+                                    errorMsg = 'Usuário sem permissões definidas. Contate o administrador.';
+                                }
+                        }
+                        
+                        showError(errorMsg);
+                    } finally {
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar no Sistema';
+                    }
+                });
+
+                // Check if user is already logged in
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        console.log('👤 Usuário já logado:', user.email);
+                        const userRole = await getUserRole(user);
+                        if (userRole) {
+                            console.log('🔄 Redirecionando usuário logado...');
+                            redirectToRolePage(userRole);
+                            return;
+                        }
+                    }
+                });
+
+                // Focus on email input
+                setTimeout(() => {
+                    emailInput.focus();
+                }, 500);
+                
+            } else {
+                console.log('Aguardando Firebase estar pronto...');
+                setTimeout(initializeLogin, 100);
+            }
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeLogin);
+        } else {
+            initializeLogin();
+        }
+    </script>
+
+    <!-- Splash Screen Script -->
+    <script>
+        // Show splash screen for 1.5 seconds then fade to login
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const splashScreen = document.getElementById('splashScreen');
+                const mainContent = document.getElementById('mainContent');
+                
+                // Start fade out of splash screen
+                splashScreen.classList.add('fade-out');
+                
+                // After fade out completes, show main content and remove splash
+                setTimeout(function() {
+                    splashScreen.style.display = 'none';
+                    mainContent.classList.add('show');
+                }, 800); // Match the transition duration
+                
+            }, 1500); // Show splash for 1.5 seconds
+        });
+    </script>
+    </div> <!-- End main-content -->
+</body>
+</html>

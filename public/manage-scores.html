@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Notas | Mundial de Ginástica Manaus 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --primary-green-dark: #0b5d2b;
+            --primary-green: #0e7c3a;
+            --primary-green-light: #009f3d;
+            --accent-gold: #f7c948;
+            --background-light: #f8fcf9;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --border-color: rgba(14, 124, 58, 0.1);
+            --shadow-color: rgba(14, 124, 58, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green-light));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1001;
+        }
+        .header-title {
+            font-size: 1.25rem; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem;
+        }
+        .header-title .fas { color: var(--accent-gold); }
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        .header-nav .nav-btn {
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            color: white; 
+            padding: 0.6rem 1.2rem; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: 500; 
+            transition: all 0.3s ease; 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 0.9rem; 
+            cursor: pointer;
+        }
+        .header-nav .nav-btn:hover { 
+            background: rgba(255, 255, 255, 0.2); 
+            transform: translateY(-2px); 
+        }
+
+        /* MAIN CONTENT */
+        .content-area {
+            flex-grow: 1; 
+            padding: 2rem 3rem; 
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><pattern id="hexagon" width="60" height="60" patternUnits="userSpaceOnUse"><polygon points="30,2 52,17 52,43 30,58 8,43 8,17" fill="none" stroke="rgba(14,124,58,0.03)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23hexagon)"/></svg>') repeat;
+        }
+        
+        .panel-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 2rem; 
+        }
+        .panel-title { 
+            font-size: 2rem; 
+            font-weight: 800; 
+            color: var(--primary-green-dark); 
+        }
+
+        /* TOOLBAR */
+        .toolbar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px var(--shadow-color);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .manaus-button {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light)); 
+            color: white; 
+            padding: 0.8rem 1.5rem; 
+            border-radius: 8px; 
+            border: none; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            justify-content: center; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .manaus-button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 15px rgba(14, 124, 58, 0.2); 
+        }
+        .manaus-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .manaus-button.danger { 
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+        .manaus-button.warning { 
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+        .manaus-button.secondary { 
+            background: #e2e8f0; 
+            color: var(--text-dark); 
+            border: 1px solid #cbd5e0; 
+        }
+        .manaus-button.secondary:hover { 
+            background: #cbd5e0; 
+        }
+
+        /* FILTERS */
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        .filter-select {
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            background: white;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+        }
+
+        /* TABLE */
+        .scores-table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px var(--shadow-color);
+            overflow: auto;
+            max-height: calc(100vh - 350px);
+        }
+
+        .scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .scores-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: linear-gradient(135deg, var(--primary-green-dark), var(--primary-green));
+        }
+
+        .scores-table th {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+            border-bottom: 2px solid var(--accent-gold);
+            white-space: nowrap;
+        }
+
+        .scores-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+
+        .scores-table tbody tr:hover {
+            background: rgba(14, 124, 58, 0.03);
+        }
+
+        .scores-table td {
+            padding: 0.75rem;
+            border-right: 1px solid rgba(14, 124, 58, 0.05);
+        }
+
+        .scores-table td:first-child {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 5;
+            font-weight: 600;
+            border-right: 2px solid var(--border-color);
+        }
+
+        .scores-table tbody tr:hover td:first-child {
+            background: rgba(14, 124, 58, 0.03);
+        }
+
+        .gymnast-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gymnast-flag {
+            font-size: 1.2rem;
+        }
+
+        .gymnast-name {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .gymnast-country {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            display: block;
+        }
+
+        /* SCORE INPUT */
+        .score-input {
+            width: 55px;
+            padding: 0.4rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: rgba(14, 124, 58, 0.03);
+            transition: all 0.2s ease;
+        }
+
+        .score-input:hover {
+            background: rgba(14, 124, 58, 0.08);
+            border-color: var(--border-color);
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+        }
+
+        .score-input.modified {
+            background: rgba(247, 201, 72, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        /* PHASE HEADERS */
+        .phase-header {
+            background: linear-gradient(90deg, rgba(14, 124, 58, 0.08), rgba(14, 124, 58, 0.02));
+            font-weight: 700;
+            color: var(--primary-green-dark);
+            padding: 0.5rem 0.75rem;
+        }
+
+        /* LOADING */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* STATUS MESSAGE */
+        .status-message {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .status-message.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-message.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-message.info {
+            background: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-title">
+            <i class="fas fa-chart-line"></i>
+            Gerenciamento de Notas - Mundial 2025
+        </div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-btn">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="gymnasts.html" class="nav-btn">
+                <i class="fas fa-users"></i> Ginastas
+            </a>
+            <button id="btn-logout" class="nav-btn">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content-area">
+        <div class="panel-header">
+            <h1 class="panel-title">
+                <i class="fas fa-edit"></i> Gerenciar Todas as Notas
+            </h1>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button id="btn-save" class="manaus-button">
+                <i class="fas fa-save"></i>
+                Salvar Alterações
+            </button>
+            <button id="btn-generate-random" class="manaus-button warning">
+                <i class="fas fa-dice"></i>
+                Gerar Notas Aleatórias (Teste)
+            </button>
+            <button id="btn-zero-all" class="manaus-button danger">
+                <i class="fas fa-trash-alt"></i>
+                Zerar Todas as Notas
+            </button>
+
+            <div class="filter-group">
+                <label for="filter-phase" style="font-weight: 600; font-size: 0.9rem;">Fase:</label>
+                <select id="filter-phase" class="filter-select">
+                    <option value="all">Todas as Fases</option>
+                    <option value="qualifiers">Qualificatórias</option>
+                    <option value="aa_final">Final AA</option>
+                    <option value="team_final">Final Team</option>
+                    <option value="vt_final">Final VT</option>
+                    <option value="ub_final">Final UB</option>
+                    <option value="bb_final">Final BB</option>
+                    <option value="fx_final">Final FX</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Scores Table -->
+        <div class="scores-table-container">
+            <table class="scores-table" id="scores-table">
+                <thead id="table-head">
+                    <!-- Dynamically generated -->
+                </thead>
+                <tbody id="table-body">
+                    <!-- Dynamically generated -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/countries.js"></script>
+
+    <script>
+        // ========== GLOBAL STATE ==========
+        let db;
+        let allGymnasts = [];
+        let modifiedScores = new Map(); // gymnastId -> { phase -> { field -> value } }
+        let currentPhaseFilter = 'all';
+
+        const PHASES = [
+            { id: 'qualifiers', label: 'Qualificatórias', apparatuses: ['vt1', 'vt2', 'ub', 'bb', 'fx'] },
+            { id: 'aa_final', label: 'Final AA', apparatuses: ['vt', 'ub', 'bb', 'fx'] },
+            { id: 'team_final', label: 'Final Team', apparatuses: ['vt', 'ub', 'bb', 'fx'] },
+            { id: 'vt_final', label: 'Final VT', apparatuses: ['vt'] },
+            { id: 'ub_final', label: 'Final UB', apparatuses: ['ub'] },
+            { id: 'bb_final', label: 'Final BB', apparatuses: ['bb'] },
+            { id: 'fx_final', label: 'Final FX', apparatuses: ['fx'] }
+        ];
+
+        // ========== INITIALIZATION ==========
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('[Manage Scores] Initializing...');
+            
+            // Wait for Firebase
+            await waitForFirebase();
+            db = window.db;
+
+            // Load gymnasts
+            await loadGymnasts();
+
+            // Setup event listeners
+            setupEventListeners();
+
+            // Render table
+            renderTable();
+
+            console.log('[Manage Scores] Initialized successfully');
+        });
+
+        function waitForFirebase() {
+            return new Promise((resolve) => {
+                if (window.db) {
+                    resolve();
+                } else {
+                    const interval = setInterval(() => {
+                        if (window.db) {
+                            clearInterval(interval);
+                            resolve();
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        // ========== LOAD DATA ==========
+        async function loadGymnasts() {
+            showLoading(true);
+            try {
+                const snapshot = await db.collection('new_gymnasts').get();
+                allGymnasts = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allGymnasts.push({
+                        id: doc.id,
+                        name: data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+                        firstName: data.firstName || data.name?.split(' ')[0] || '',
+                        lastName: data.lastName || data.surname || data.name?.split(' ').slice(1).join(' ') || '',
+                        country: data.country || '',
+                        scores: data.scores || {}
+                    });
+                });
+
+                allGymnasts.sort((a, b) => {
+                    const nameA = (a.lastName || a.name || '').toUpperCase();
+                    const nameB = (b.lastName || b.name || '').toUpperCase();
+                    return nameA.localeCompare(nameB);
+                });
+
+                console.log('[Manage Scores] Loaded', allGymnasts.length, 'gymnasts');
+            } catch (error) {
+                console.error('[Manage Scores] Error loading gymnasts:', error);
+                showStatus('Erro ao carregar ginastas', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ========== RENDER TABLE ==========
+        function renderTable() {
+            const tableHead = document.getElementById('table-head');
+            const tableBody = document.getElementById('table-body');
+
+            // Filter phases
+            const phasesToShow = currentPhaseFilter === 'all' 
+                ? PHASES 
+                : PHASES.filter(p => p.id === currentPhaseFilter);
+
+            // Build header
+            let headerHTML = '<tr><th style="min-width: 200px;">Ginasta / País</th>';
+            
+            phasesToShow.forEach(phase => {
+                phase.apparatuses.forEach(app => {
+                    const appLabel = app.toUpperCase();
+                    headerHTML += `
+                        <th class="phase-header" colspan="3">${phase.label} - ${appLabel}</th>
+                    `;
+                });
+            });
+            headerHTML += '</tr><tr><th></th>';
+            
+            phasesToShow.forEach(phase => {
+                phase.apparatuses.forEach(() => {
+                    headerHTML += '<th>D</th><th>E</th><th>P</th>';
+                });
+            });
+            headerHTML += '</tr>';
+            
+            tableHead.innerHTML = headerHTML;
+
+            // Build body
+            let bodyHTML = '';
+            
+            allGymnasts.forEach(gymnast => {
+                const countryInfo = window.countryData?.[gymnast.country] || {};
+                const countryCode = (gymnast.country || '').toLowerCase();
+                const flagClass = countryCode ? `fi fi-${countryCode}` : '';
+                
+                bodyHTML += `<tr data-gymnast-id="${gymnast.id}">`;
+                bodyHTML += `
+                    <td>
+                        <div class="gymnast-cell">
+                            ${flagClass ? `<span class="${flagClass} gymnast-flag"></span>` : '🏳️'}
+                            <div>
+                                <div class="gymnast-name">${gymnast.lastName || ''} ${gymnast.firstName || ''}</div>
+                                <span class="gymnast-country">${countryInfo.name || gymnast.country || ''}</span>
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                phasesToShow.forEach(phase => {
+                    const phaseScores = gymnast.scores[phase.id] || {};
+                    
+                    phase.apparatuses.forEach(app => {
+                        const prefix = getScoreKeyPrefix(phase.id, app);
+                        const dKey = `${prefix}_d`;
+                        const eKey = `${prefix}_e`;
+                        const pKey = `${prefix}_p`;
+
+                        const dVal = phaseScores[dKey] ?? '';
+                        const eVal = phaseScores[eKey] ?? '';
+                        const pVal = phaseScores[pKey] ?? '';
+
+                        bodyHTML += `
+                            <td><input type="number" step="0.1" min="0" max="10" 
+                                class="score-input" 
+                                data-gymnast-id="${gymnast.id}" 
+                                data-phase="${phase.id}" 
+                                data-field="${dKey}" 
+                                value="${dVal}"></td>
+                            <td><input type="number" step="0.001" min="0" max="10" 
+                                class="score-input" 
+                                data-gymnast-id="${gymnast.id}" 
+                                data-phase="${phase.id}" 
+                                data-field="${eKey}" 
+                                value="${eVal}"></td>
+                            <td><input type="number" step="0.1" min="0" max="5" 
+                                class="score-input" 
+                                data-gymnast-id="${gymnast.id}" 
+                                data-phase="${phase.id}" 
+                                data-field="${pKey}" 
+                                value="${pVal}"></td>
+                        `;
+                    });
+                });
+
+                bodyHTML += '</tr>';
+            });
+
+            tableBody.innerHTML = bodyHTML;
+
+            // Add input listeners
+            document.querySelectorAll('.score-input').forEach(input => {
+                input.addEventListener('input', handleScoreInput);
+                input.addEventListener('keydown', handleKeyDown);
+            });
+        }
+
+        function getScoreKeyPrefix(phaseId, apparatus) {
+            // Handle apparatus finals (simplified keys)
+            if (phaseId.endsWith('_final') && phaseId.split('_')[0] === apparatus) {
+                return phaseId;
+            }
+            // Standard format
+            return `${phaseId}_${apparatus}`;
+        }
+
+        // ========== INPUT HANDLERS ==========
+        function handleScoreInput(event) {
+            const input = event.target;
+            const gymnastId = input.dataset.gymnastId;
+            const phase = input.dataset.phase;
+            const field = input.dataset.field;
+            const value = input.value;
+
+            // Mark as modified
+            if (!modifiedScores.has(gymnastId)) {
+                modifiedScores.set(gymnastId, {});
+            }
+            if (!modifiedScores.get(gymnastId)[phase]) {
+                modifiedScores.get(gymnastId)[phase] = {};
+            }
+            modifiedScores.get(gymnastId)[phase][field] = value === '' ? null : parseFloat(value);
+
+            input.classList.add('modified');
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                saveScores();
+            }
+        }
+
+        // ========== ACTIONS ==========
+        async function saveScores() {
+            if (modifiedScores.size === 0) {
+                showStatus('Nenhuma alteração para salvar', 'info');
+                return;
+            }
+
+            showLoading(true);
+            const batch = db.batch();
+            let updateCount = 0;
+
+            try {
+                for (const [gymnastId, phases] of modifiedScores) {
+                    const gymnastRef = db.collection('new_gymnasts').doc(gymnastId);
+                    
+                    for (const [phase, fields] of Object.entries(phases)) {
+                        for (const [field, value] of Object.entries(fields)) {
+                            const updatePath = `scores.${phase}.${field}`;
+                            batch.update(gymnastRef, { [updatePath]: value });
+                            updateCount++;
+                        }
+                    }
+                }
+
+                await batch.commit();
+                modifiedScores.clear();
+
+                // Remove modified class
+                document.querySelectorAll('.score-input.modified').forEach(input => {
+                    input.classList.remove('modified');
+                });
+
+                showStatus(`${updateCount} notas salvas com sucesso!`, 'success');
+                console.log('[Manage Scores] Saved', updateCount, 'scores');
+            } catch (error) {
+                console.error('[Manage Scores] Error saving scores:', error);
+                showStatus('Erro ao salvar notas', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function generateRandomScores() {
+            const confirmed = confirm(
+                '⚠️ ATENÇÃO!\n\n' +
+                'Isso irá gerar notas ALEATÓRIAS para TODOS os ginastas em TODAS as fases.\n\n' +
+                'As notas atuais serão SOBRESCRITAS.\n\n' +
+                'Deseja continuar?'
+            );
+
+            if (!confirmed) return;
+
+            showLoading(true);
+            const batch = db.batch();
+            let updateCount = 0;
+
+            try {
+                for (const gymnast of allGymnasts) {
+                    const gymnastRef = db.collection('new_gymnasts').doc(gymnast.id);
+                    
+                    // Generate clean scores structure with random values
+                    const cleanScores = {
+                        qualifiers: {
+                            qualifiers_vt1_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            qualifiers_vt1_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            qualifiers_vt1_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            qualifiers_vt2_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            qualifiers_vt2_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            qualifiers_vt2_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            qualifiers_ub_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            qualifiers_ub_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            qualifiers_ub_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            qualifiers_bb_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            qualifiers_bb_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            qualifiers_bb_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            qualifiers_fx_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            qualifiers_fx_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            qualifiers_fx_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0))
+                        },
+                        aa_final: {
+                            aa_final_vt_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            aa_final_vt_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            aa_final_vt_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            aa_final_ub_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            aa_final_ub_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            aa_final_ub_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            aa_final_bb_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            aa_final_bb_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            aa_final_bb_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            aa_final_fx_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            aa_final_fx_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            aa_final_fx_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0))
+                        },
+                        team_final: {
+                            team_final_vt_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            team_final_vt_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            team_final_vt_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            team_final_ub_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            team_final_ub_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            team_final_ub_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            team_final_bb_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            team_final_bb_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            team_final_bb_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0)),
+                            team_final_fx_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            team_final_fx_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            team_final_fx_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0))
+                        },
+                        vt_final: {
+                            vt_final_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            vt_final_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            vt_final_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0))
+                        },
+                        ub_final: {
+                            ub_final_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            ub_final_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            ub_final_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0))
+                        },
+                        bb_final: {
+                            bb_final_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            bb_final_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            bb_final_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0))
+                        },
+                        fx_final: {
+                            fx_final_d: parseFloat((Math.random() * 4 + 3).toFixed(1)),
+                            fx_final_e: parseFloat((Math.random() * 3 + 6).toFixed(3)),
+                            fx_final_p: parseFloat((Math.random() > 0.7 ? (Math.random() * 1).toFixed(1) : 0))
+                        }
+                    };
+
+                    batch.update(gymnastRef, { scores: cleanScores });
+                    updateCount++;
+                }
+
+                await batch.commit();
+                await loadGymnasts();
+                renderTable();
+                modifiedScores.clear();
+
+                showStatus(`Notas aleatórias geradas para ${allGymnasts.length} ginastas!`, 'success');
+                console.log('[Manage Scores] Generated random scores for', allGymnasts.length, 'gymnasts');
+            } catch (error) {
+                console.error('[Manage Scores] Error generating scores:', error);
+                showStatus('Erro ao gerar notas', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function zeroAllScores() {
+            const confirmed = confirm(
+                '🚨 ATENÇÃO CRÍTICA!\n\n' +
+                'Isso irá ZERAR PERMANENTEMENTE todas as notas de TODOS os ginastas em TODAS as fases.\n\n' +
+                'Esta ação NÃO PODE ser desfeita!\n\n' +
+                'Deseja realmente continuar?'
+            );
+
+            if (!confirmed) return;
+
+            const doubleConfirm = confirm(
+                '⚠️ CONFIRMAÇÃO FINAL\n\n' +
+                'Você tem CERTEZA ABSOLUTA que deseja ZERAR todas as notas?\n\n' +
+                'Digite OK para confirmar (cancelar para voltar)'
+            );
+
+            if (!doubleConfirm) return;
+
+            showLoading(true);
+            const batch = db.batch();
+            let updateCount = 0;
+
+            try {
+                for (const gymnast of allGymnasts) {
+                    const gymnastRef = db.collection('new_gymnasts').doc(gymnast.id);
+                    
+                    // Reset entire scores object to clean structure
+                    const cleanScores = {
+                        qualifiers: {
+                            qualifiers_vt1_d: 0, qualifiers_vt1_e: 0, qualifiers_vt1_p: 0,
+                            qualifiers_vt2_d: 0, qualifiers_vt2_e: 0, qualifiers_vt2_p: 0,
+                            qualifiers_ub_d: 0, qualifiers_ub_e: 0, qualifiers_ub_p: 0,
+                            qualifiers_bb_d: 0, qualifiers_bb_e: 0, qualifiers_bb_p: 0,
+                            qualifiers_fx_d: 0, qualifiers_fx_e: 0, qualifiers_fx_p: 0
+                        },
+                        aa_final: {
+                            aa_final_vt_d: 0, aa_final_vt_e: 0, aa_final_vt_p: 0,
+                            aa_final_ub_d: 0, aa_final_ub_e: 0, aa_final_ub_p: 0,
+                            aa_final_bb_d: 0, aa_final_bb_e: 0, aa_final_bb_p: 0,
+                            aa_final_fx_d: 0, aa_final_fx_e: 0, aa_final_fx_p: 0
+                        },
+                        team_final: {
+                            team_final_vt_d: 0, team_final_vt_e: 0, team_final_vt_p: 0,
+                            team_final_ub_d: 0, team_final_ub_e: 0, team_final_ub_p: 0,
+                            team_final_bb_d: 0, team_final_bb_e: 0, team_final_bb_p: 0,
+                            team_final_fx_d: 0, team_final_fx_e: 0, team_final_fx_p: 0
+                        },
+                        vt_final: {
+                            vt_final_d: 0, vt_final_e: 0, vt_final_p: 0
+                        },
+                        ub_final: {
+                            ub_final_d: 0, ub_final_e: 0, ub_final_p: 0
+                        },
+                        bb_final: {
+                            bb_final_d: 0, bb_final_e: 0, bb_final_p: 0
+                        },
+                        fx_final: {
+                            fx_final_d: 0, fx_final_e: 0, fx_final_p: 0
+                        }
+                    };
+
+                    batch.update(gymnastRef, { scores: cleanScores });
+                    updateCount++;
+                }
+
+                await batch.commit();
+                await loadGymnasts();
+                renderTable();
+                modifiedScores.clear();
+
+                showStatus(`Todas as notas de ${allGymnasts.length} ginastas foram zeradas!`, 'success');
+                console.log('[Manage Scores] Zeroed all scores for', allGymnasts.length, 'gymnasts');
+            } catch (error) {
+                console.error('[Manage Scores] Error zeroing scores:', error);
+                showStatus('Erro ao zerar notas', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ========== EVENT LISTENERS ==========
+        function setupEventListeners() {
+            document.getElementById('btn-save').addEventListener('click', saveScores);
+            document.getElementById('btn-generate-random').addEventListener('click', generateRandomScores);
+            document.getElementById('btn-zero-all').addEventListener('click', zeroAllScores);
+            
+            document.getElementById('filter-phase').addEventListener('change', (e) => {
+                currentPhaseFilter = e.target.value;
+                renderTable();
+            });
+
+            document.getElementById('btn-logout').addEventListener('click', async () => {
+                await firebase.auth().signOut();
+                window.location.href = 'login.html';
+            });
+
+            // Keyboard shortcut: Ctrl+S to save
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    saveScores();
+                }
+            });
+        }
+
+        // ========== UI HELPERS ==========
+        function showLoading(show) {
+            const overlay = document.getElementById('loading-overlay');
+            if (show) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function showStatus(message, type = 'success') {
+            const statusEl = document.createElement('div');
+            statusEl.className = `status-message ${type}`;
+            statusEl.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(statusEl);
+
+            setTimeout(() => {
+                statusEl.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

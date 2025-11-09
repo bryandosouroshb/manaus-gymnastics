@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Roles - Administrador</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+        .user-form {
+            background: #e9ecef;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+        .form-group {
+            margin: 1rem 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme-manaus.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Cadastro de Roles - Sistema Olímpico</h1>
+        
+        <div class="user-form">
+            <h3>Cadastrar/Atualizar Usuário</h3>
+            <div class="form-group">
+                <label for="userEmail">E-mail do Usuário:</label>
+                <input type="email" id="userEmail" placeholder="exemplo@manauss.com">
+            </div>
+            <div class="form-group">
+                <label for="userRole">Role:</label>
+                <select id="userRole">
+                    <option value="admin">admin - Administrador Completo</option>
+                    <option value="judge_d">judge_d - Jurado D</option>
+                    <option value="judge_e">judge_e - Jurado E</option>
+                    <option value="viewer">viewer - Visualizador</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="createUser()">Cadastrar/Atualizar Usuário</button>
+        </div>
+
+        <div>
+            <h3>Ações Rápidas:</h3>
+            <button class="btn btn-success" onclick="setupDefaultUsers()">Configurar Usuários Padrão</button>
+            <button class="btn btn-warning" onclick="listAllUsers()">Listar Todos os Usuários</button>
+            <button class="btn btn-danger" onclick="clearAllRoles()">Limpar Todas as Roles</button>
+        </div>
+
+        <h3>Status:</h3>
+        <pre id="status">Clique em uma ação para ver o resultado</pre>
+
+        <h3>Usuários Padrão que serão criados:</h3>
+        <pre>
+admin@manauss.com -> admin (acesso total)
+jurado.d@manauss.com -> judge_d (apenas tela Judge D)
+jurado.e@manauss.com -> judge_e (apenas tela Judge E)
+        </pre>
+    </div>
+
+    <!-- Firebase v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-init.js"></script>
+
+    <script>
+        // Firebase já inicializado via firebase-init.js (globals)
+        const db = window.db;
+        const auth = window.auth;
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            console.log(message);
+        }
+
+        async function createUser() {
+            const email = document.getElementById('userEmail').value.trim();
+            const role = document.getElementById('userRole').value;
+
+            if (!email) {
+                updateStatus('❌ Por favor, digite um e-mail');
+                return;
+            }
+
+            try {
+                updateStatus('⏳ Cadastrando usuário...');
+
+                // Criar um UID baseado no email para consistência
+                const uid = btoa(email).replace(/[^a-zA-Z0-9]/g, '');
+
+                await db.collection('users').doc(uid).set({
+                    email: email,
+                    role: role,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                updateStatus(`✅ Usuário cadastrado com sucesso!\nE-mail: ${email}\nRole: ${role}\nUID: ${uid}`);
+                
+                // Limpar campos
+                document.getElementById('userEmail').value = '';
+                
+            } catch (error) {
+                updateStatus(`❌ Erro ao cadastrar usuário: ${error.message}`);
+            }
+        }
+
+        async function setupDefaultUsers() {
+            const defaultUsers = [
+                { email: 'admin@manauss.com', role: 'admin' },
+                { email: 'jurado.d@manauss.com', role: 'judge_d' },
+                { email: 'jurado.e@manauss.com', role: 'judge_e' }
+            ];
+
+            try {
+                updateStatus('⏳ Configurando usuários padrão...');
+
+                for (const user of defaultUsers) {
+                    const uid = btoa(user.email).replace(/[^a-zA-Z0-9]/g, '');
+                    
+                    await db.collection('users').doc(uid).set({
+                        email: user.email,
+                        role: user.role,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                updateStatus(`✅ Usuários padrão configurados com sucesso!
+                
+admin@manauss.com -> admin
+jurado.d@manauss.com -> judge_d  
+jurado.e@manauss.com -> judge_e
+
+Agora você pode fazer login com qualquer uma dessas contas usando a senha: 123456`);
+
+            } catch (error) {
+                updateStatus(`❌ Erro ao configurar usuários padrão: ${error.message}`);
+            }
+        }
+
+        async function listAllUsers() {
+            try {
+                updateStatus('⏳ Listando usuários...');
+
+                const snapshot = await db.collection('users').get();
+                
+                if (snapshot.empty) {
+                    updateStatus('📝 Nenhum usuário encontrado no Firestore');
+                    return;
+                }
+
+                let usersList = 'Usuários cadastrados:\n\n';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    usersList += `📧 ${data.email} -> ${data.role} (ID: ${doc.id})\n`;
+                });
+
+                updateStatus(usersList);
+
+            } catch (error) {
+                updateStatus(`❌ Erro ao listar usuários: ${error.message}`);
+            }
+        }
+
+        async function clearAllRoles() {
+            if (!confirm('⚠️ Tem certeza que deseja limpar todas as roles? Esta ação não pode ser desfeita!')) {
+                return;
+            }
+
+            try {
+                updateStatus('⏳ Limpando todas as roles...');
+
+                const snapshot = await db.collection('users').get();
+                
+                if (snapshot.empty) {
+                    updateStatus('📝 Nenhum usuário para limpar');
+                    return;
+                }
+
+                const batch = db.batch();
+                snapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+
+                await batch.commit();
+                updateStatus('✅ Todas as roles foram removidas');
+
+            } catch (error) {
+                updateStatus(`❌ Erro ao limpar roles: ${error.message}`);
+            }
+        }
+
+        // Verificar autenticação na inicialização
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                updateStatus(`🔐 Conectado como: ${user.email}`);
+            } else {
+                updateStatus(`🔓 Não autenticado. Faça login primeiro em: login.html`);
+            }
+        });
+    </script>
+</body>
+</html>

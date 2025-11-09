@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Usuários - Firebase</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        .section { 
+            margin: 30px 0; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            background: #f9f9f9;
+        }
+        .user-item { 
+            margin: 10px 0; 
+            padding: 15px; 
+            background: #fff; 
+            border: 1px solid #eee; 
+            border-radius: 5px; 
+        }
+        .user-item h4 { margin: 0 0 10px 0; color: #333; }
+        .role-badge { 
+            padding: 5px 10px; 
+            border-radius: 15px; 
+            font-size: 12px; 
+            font-weight: bold;
+        }
+        .role-admin { background: #e74c3c; color: white; }
+        .role-judge_d { background: #3498db; color: white; }
+        .role-judge_e { background: #f39c12; color: white; }
+        .role-undefined { background: #95a5a6; color: white; }
+        
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { 
+            width: 300px; 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .btn { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        
+        .actions { margin-top: 10px; }
+        .log { 
+            background: #2c3e50; 
+            color: #ecf0f1; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            max-height: 300px; 
+            overflow-y: auto;
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme-manaus.css">
+</head>
+<body>
+    <h1>🔧 Gerenciador de Usuários - Firebase</h1>
+    
+    <div class="section">
+        <h2>📊 Usuários Cadastrados</h2>
+        <button class="btn btn-primary" onclick="loadUsers()">🔄 Recarregar Usuários</button>
+        <div id="users-list">Carregando usuários...</div>
+    </div>
+    
+    <div class="section">
+        <h2>➕ Adicionar Novo Usuário</h2>
+        <div class="form-group">
+            <label>E-mail:</label>
+            <input type="email" id="new-email" placeholder="usuario@exemplo.com">
+        </div>
+        <div class="form-group">
+            <label>Role:</label>
+            <select id="new-role">
+                <option value="admin">Admin</option>
+                <option value="judge_d">Judge D (Jurado D)</option>
+                <option value="judge_e">Judge E (Jurado E)</option>
+            </select>
+        </div>
+        <button class="btn btn-success" onclick="addUser()">➕ Adicionar Usuário</button>
+    </div>
+    
+    <div class="section">
+        <h2>🔧 Testar Login</h2>
+        <div class="form-group">
+            <label>E-mail:</label>
+            <input type="email" id="test-email" placeholder="usuario@exemplo.com">
+        </div>
+        <div class="form-group">
+            <label>Senha:</label>
+            <input type="password" id="test-password" placeholder="senha">
+        </div>
+        <button class="btn btn-primary" onclick="testLogin()">🔐 Testar Login</button>
+        <button class="btn btn-warning" onclick="firebase.auth().signOut()">🚪 Logout</button>
+    </div>
+    
+    <div class="section">
+        <h2>📋 Log de Atividades</h2>
+        <button class="btn btn-secondary" onclick="clearLog()">🗑️ Limpar Log</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        // Configuração Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxUEcAze739pFzE_T9O_plNb_jWOMRowI",
+            authDomain: "cozygymnastics.firebaseapp.com",
+            projectId: "cozygymnastics",
+            storageBucket: "cozygymnastics.appspot.com",
+            messagingSenderId: "977608365901",
+            appId: "1:977608365901:web:3040bf9cb269e7363e4904",
+            measurementId: "G-FYRCES6W8Y"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function getRoleBadge(role) {
+            const roleClass = role ? `role-${role}` : 'role-undefined';
+            const roleText = role || 'UNDEFINED';
+            return `<span class="role-badge ${roleClass}">${roleText}</span>`;
+        }
+
+        async function loadUsers() {
+            log('🔄 Carregando usuários da collection users...');
+            
+            try {
+                const snapshot = await db.collection('users').get();
+                
+                if (snapshot.empty) {
+                    document.getElementById('users-list').innerHTML = '<p>❌ Nenhum usuário encontrado na collection users.</p>';
+                    log('❌ Collection users está vazia');
+                    return;
+                }
+                
+                const users = [];
+                snapshot.forEach((doc) => {
+                    const userData = doc.data();
+                    users.push({
+                        id: doc.id,
+                        email: userData.email,
+                        role: userData.role,
+                        fullData: userData
+                    });
+                });
+                
+                log(`✅ ${users.length} usuários encontrados`);
+                
+                const usersHtml = users.map(user => `
+                    <div class="user-item">
+                        <h4>📧 ${user.email}</h4>
+                        <p><strong>ID:</strong> ${user.id}</p>
+                        <p><strong>Role:</strong> ${getRoleBadge(user.role)}</p>
+                        <div class="actions">
+                            <button class="btn btn-warning" onclick="updateUserRole('${user.id}', '${user.email}')">✏️ Editar Role</button>
+                            <button class="btn btn-danger" onclick="deleteUser('${user.id}', '${user.email}')">🗑️ Remover</button>
+                        </div>
+                        <details>
+                            <summary>Ver dados completos</summary>
+                            <pre>${JSON.stringify(user.fullData, null, 2)}</pre>
+                        </details>
+                    </div>
+                `).join('');
+                
+                document.getElementById('users-list').innerHTML = usersHtml;
+                
+            } catch (error) {
+                const errorMsg = `💥 Erro ao carregar usuários: ${error.message}`;
+                document.getElementById('users-list').innerHTML = `<p style="color: red;">${errorMsg}</p>`;
+                log(errorMsg);
+            }
+        }
+
+        async function addUser() {
+            const email = document.getElementById('new-email').value.trim();
+            const role = document.getElementById('new-role').value;
+            
+            if (!email) {
+                alert('❌ Por favor, informe o e-mail do usuário');
+                return;
+            }
+            
+            log(`➕ Adicionando usuário: ${email} com role: ${role}`);
+            
+            try {
+                // Criar documento na collection users
+                await db.collection('users').add({
+                    email: email,
+                    role: role,
+                    createdAt: new Date(),
+                    createdBy: 'admin-panel'
+                });
+                
+                log(`✅ Usuário ${email} adicionado com sucesso!`);
+                
+                // Limpar campos
+                document.getElementById('new-email').value = '';
+                document.getElementById('new-role').value = 'admin';
+                
+                // Recarregar lista
+                loadUsers();
+                
+            } catch (error) {
+                const errorMsg = `💥 Erro ao adicionar usuário: ${error.message}`;
+                log(errorMsg);
+                alert(errorMsg);
+            }
+        }
+
+        async function updateUserRole(userId, email) {
+            const newRole = prompt(`🔧 Nova role para ${email}:`, '');
+            if (!newRole) return;
+            
+            log(`🔧 Atualizando role de ${email} para: ${newRole}`);
+            
+            try {
+                await db.collection('users').doc(userId).update({
+                    role: newRole,
+                    updatedAt: new Date()
+                });
+                
+                log(`✅ Role de ${email} atualizada para ${newRole}`);
+                loadUsers();
+                
+            } catch (error) {
+                const errorMsg = `💥 Erro ao atualizar role: ${error.message}`;
+                log(errorMsg);
+                alert(errorMsg);
+            }
+        }
+
+        async function deleteUser(userId, email) {
+            if (!confirm(`❌ Tem certeza que deseja remover o usuário ${email}?`)) return;
+            
+            log(`🗑️ Removendo usuário: ${email}`);
+            
+            try {
+                await db.collection('users').doc(userId).delete();
+                
+                log(`✅ Usuário ${email} removido com sucesso`);
+                loadUsers();
+                
+            } catch (error) {
+                const errorMsg = `💥 Erro ao remover usuário: ${error.message}`;
+                log(errorMsg);
+                alert(errorMsg);
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('test-email').value.trim();
+            const password = document.getElementById('test-password').value;
+            
+            if (!email || !password) {
+                alert('❌ Por favor, preencha e-mail e senha');
+                return;
+            }
+            
+            log(`🔐 Testando login para: ${email}`);
+            
+            try {
+                // Tentar fazer login
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                log(`✅ Login bem-sucedido no Firebase Auth`);
+                
+                // Buscar dados do usuário
+                let userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    log(`📧 Tentando buscar por email: ${email}`);
+                    const emailQuery = await db.collection('users').where('email', '==', email).get();
+                    if (!emailQuery.empty) {
+                        userDoc = emailQuery.docs[0];
+                        log(`✅ Usuário encontrado por email`);
+                    }
+                }
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    log(`📋 Dados do usuário: ${JSON.stringify(userData, null, 2)}`);
+                    log(`🎭 Role detectada: ${userData.role}`);
+                    
+                    // Simular o redirecionamento
+                    let redirectUrl = null;
+                    if (userData.role === 'admin') {
+                        redirectUrl = 'dashboard.html';
+                    } else if (userData.role === 'judge_d' || userData.role === 'jurado_d') {
+                        redirectUrl = 'judges-d.html';
+                    } else if (userData.role === 'judge_e' || userData.role === 'jurado_e') {
+                        redirectUrl = 'judges-e.html';
+                    }
+                    
+                    if (redirectUrl) {
+                        log(`🎯 Login OK! Redirecionaria para: ${redirectUrl}`);
+                        alert(`✅ Login bem-sucedido!\nRole: ${userData.role}\nRedirecionaria para: ${redirectUrl}`);
+                    } else {
+                        log(`❌ Role não reconhecida: ${userData.role}`);
+                        alert(`❌ Role não reconhecida: ${userData.role}`);
+                    }
+                } else {
+                    log(`❌ Usuário não encontrado na collection users`);
+                    alert('❌ Usuário não encontrado na collection users');
+                }
+                
+            } catch (error) {
+                const errorMsg = `💥 Erro no login: ${error.message}`;
+                log(errorMsg);
+                alert(errorMsg);
+            }
+        }
+
+        // Carregar usuários ao iniciar
+        loadUsers();
+        log('🎬 Gerenciador de usuários inicializado');
+    </script>
+</body>
+</html>
