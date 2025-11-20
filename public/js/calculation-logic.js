@@ -85,7 +85,7 @@ function getAppScore(phaseScores, app, gymnastId = null, phaseName = null) {
     dVal = phaseScores[dKey];
     eVal = phaseScores[eKey];
     pVal = phaseScores[pKey];
-    
+
     // Se não encontrou e está procurando por VT nas qualificatórias, tenta VT1
     if ((dVal === undefined || dVal === null) && app === 'vt' && phaseName === 'qualifiers') {
         console.log(`[getAppScore] VT not found, trying VT1 for ${phaseName}`);
@@ -96,13 +96,13 @@ function getAppScore(phaseScores, app, gymnastId = null, phaseName = null) {
         eVal = phaseScores[eKey];
         pVal = phaseScores[pKey];
     }
-    
+
     // Ensure that explicitly set 0 scores are preserved
     const d = (dVal === 0 || dVal === '0') ? 0 : parseFloat(String(dVal).replace(',', '.')) || 0;
     const e = (eVal === 0 || eVal === '0') ? 0 : parseFloat(String(eVal).replace(',', '.')) || 0;
     const p = (pVal === 0 || pVal === '0') ? 0 : parseFloat(String(pVal).replace(',', '.')) || 0;    // Calculate total - always calculate if any scores exist, including 0
     const total = (d > 0 || e > 0 || dVal === 0 || eVal === 0) ? Math.max(0, d + e - p) : 0;
-    
+
     console.log(`[getAppScore] App: ${app}, Phase: ${phaseName}, Keys: ${dKey}=${d}, ${eKey}=${e}, ${pKey}=${p}, Total:${total}`);
     return { d, e, p, total };
 }
@@ -136,16 +136,16 @@ function getTeamFinalAppScore(gymnast, app) {
     if (dVal === undefined) dVal = teamFinalScores[fallbackDKey] ?? gymnast.scores?.[fallbackDKey];
     if (eVal === undefined) eVal = teamFinalScores[fallbackEKey] ?? gymnast.scores?.[fallbackEKey];
     if (pVal === undefined) pVal = teamFinalScores[fallbackPKey] ?? gymnast.scores?.[fallbackPKey];
-    
+
     // Ensure that explicitly set 0 scores are preserved
     const d = (dVal === 0 || dVal === '0') ? 0 : parseFloat(String(dVal ?? '').replace(',', '.')) || 0;
     const e = (eVal === 0 || eVal === '0') ? 0 : parseFloat(String(eVal ?? '').replace(',', '.')) || 0;
     const p = (pVal === 0 || pVal === '0') ? 0 : parseFloat(String(pVal ?? '').replace(',', '.')) || 0;
-    
+
     // Calculate total - always calculate if any scores exist, including 0
     const hasAnyScore = dVal !== undefined || eVal !== undefined || pVal !== undefined;
     const total = hasAnyScore ? Math.max(0, d + e - p) : 0;
-    
+
     console.log(`[getTeamFinalAppScore] ${gymnast.name} App: ${app}, Keys: ${primaryDKey}/${fallbackDKey}=${d}, ${primaryEKey}/${fallbackEKey}=${e}, ${primaryPKey}/${fallbackPKey}=${p}, Total:${total}`);
     return { d, e, p, total };
 }
@@ -171,7 +171,7 @@ function getQualifierVaultAverage(phaseScores, gymnastId = null) {
         // Apenas VT2 tem nota
         return vt2.total;
     }
-    
+
     // Se ambos zero ou inválidos, retorna 0
     return 0;
 }
@@ -179,9 +179,9 @@ function getQualifierVaultAverage(phaseScores, gymnastId = null) {
 
 function calculateAAScores(gymnastData, currentPhase = 'qualifiers') {
     console.log(`[calculateAAScores] Starting for ${gymnastData.length} athletes in phase: ${currentPhase}.`);
-    
+
     const phaseName = currentPhase === 'aa_final' ? 'aa_final' : 'qualifiers';
-    
+
     const calculatedScores = gymnastData.map((gymnast, index) => {
         // Support both nested phase object (gymnast.scores.aa_final) and flat keys (gymnast.scores['aa_final_vt_d'])
         let phaseScores = gymnast.scores?.[phaseName];
@@ -195,9 +195,9 @@ function calculateAAScores(gymnastData, currentPhase = 'qualifiers') {
             });
             if (!Object.keys(phaseScores).length) phaseScores = {};
         }
-        
+
         let vtScoreForAA, ubScore, bbScore, fxScore;
-        
+
         if (phaseName === 'aa_final') {
             // For AA final, use the specific apparatus scores from aa_final phase
             vtScoreForAA = getAppScore(phaseScores, 'vt', gymnast.id, phaseName).total;
@@ -211,14 +211,14 @@ function calculateAAScores(gymnastData, currentPhase = 'qualifiers') {
             bbScore = getAppScore(phaseScores, 'bb', gymnast.id, phaseName).total;
             fxScore = getAppScore(phaseScores, 'fx', gymnast.id, phaseName).total;
         }
-        
+
         const aaTotal = vtScoreForAA + ubScore + bbScore + fxScore;
-        
+
         console.log(`[calculateAAScores] ${gymnast.name} (${phaseName}): VT:${vtScoreForAA}, UB:${ubScore}, BB:${bbScore}, FX:${fxScore}, Total:${aaTotal}`);
-        
+
         return { ...gymnast, aaTotal: aaTotal };
     });
-    
+
     // Filter and sort - incluir zeros válidos
     return calculatedScores.filter(g => g.aaTotal >= 0).sort((a, b) => b.aaTotal - a.aaTotal);
 }
@@ -239,7 +239,7 @@ function calculateApparatusScores(gymnastData, apparatus) {
             if (!Object.keys(phaseScores).length) phaseScores = {};
         }
         console.log(`[calculateApparatusScores] ${gymnast.name} - phaseScores:`, phaseScores);
-        
+
         let score = 0;
         if (apparatus === 'vt') {
             // VT usa a lógica da média de qualificação
@@ -268,15 +268,17 @@ function calculateTeamScores(gymnastData) {
         if (!teamScores[gymnast.country]) {
             // Inicializa estrutura para o país
             teamScores[gymnast.country] = { total: 0, athletes: [], scores: { vt: [], ub: [], bb: [], fx: [] } };
-        }        // Calcula e armazena a nota relevante de cada aparelho para esta ginasta
+        }
+        // Calcula e armazena a nota relevante de cada aparelho para esta ginasta
         apparatusList.forEach(app => {
             let score = 0;
             if (app === 'vt') {
-                 // *** CORREÇÃO: Usa APENAS VT1 para o total da equipe na Qualificação ***
-                 score = getAppScore(phaseScores, 'vt1', gymnast.id, phaseName).total;
+                // *** CORREÇÃO: Usa APENAS VT1 para o total da equipe na Qualificação ***
+                score = getAppScore(phaseScores, 'vt1', gymnast.id, phaseName).total;
             } else {
                 score = getAppScore(phaseScores, app, gymnast.id, phaseName).total;
-            }            if (score >= 0) { // *** MUDANÇA: >= 0 para incluir zeros válidos ***
+            }
+            if (score >= 0) { // *** MUDANÇA: >= 0 para incluir zeros válidos ***
                 // Adiciona a nota {id, score} à lista do aparelho para aquele país
                 teamScores[gymnast.country].scores[app].push({ id: gymnast.id, score: score });
             }
@@ -343,49 +345,22 @@ function calculateTeamFinalScores(allGymnastData, qualifyingCountryCodes) {
         // ✅ VERIFICAR PRESENÇA: só processar se estiver presente no Team Final
         const isPresent = normalizeBoolean(gymnast.team_final_present, true);
         if (!isPresent) {
-            console.log(`[calculateTeamFinalScores] ${gymnast.name} (${country}) AUSENTE - pulando (present=${gymnast.team_final_present})`);
             return; // Pula esta ginasta
         }
 
-        // ✅ VERIFICAR SE HAS DADOS DE TEAM FINAL: só processar se tem dados válidos
-        const teamFinalScores = gymnast.scores?.team_final || {};
-        // Também verificar chaves planas no root de gymnast.scores
-        const rootScores = gymnast.scores || {};
-        const combinedKeys = Array.from(new Set([...(Object.keys(teamFinalScores || {})), ...(Object.keys(rootScores || {}))]));
-        const hasTeamFinalData = combinedKeys.some(key => {
-            const value = (teamFinalScores && teamFinalScores[key] !== undefined) ? teamFinalScores[key] : rootScores[key];
-            const hasValue = value !== '' && value !== null && value !== undefined;
-            if (!hasValue) return false;
-            if (key.startsWith('team_final_')) return true;
-            return apparatusList.some(app => key.startsWith(`${app}_`));
-        });
-        if (!hasTeamFinalData) {
-            console.log(`[calculateTeamFinalScores] ${gymnast.name} (${country}) SEM DADOS DE TEAM FINAL - pulando`);
-            return;
-        }
-
-        console.log(`[calculateTeamFinalScores] Processing ${gymnast.name} (${country}):`, phaseScores);
-
-        // Soma as notas dos aparelhos onde a ginasta competiu (3-up, 3-count - SOMA TODAS AS 3 NOTAS)
+        // Soma as notas dos aparelhos (SOMA TODAS AS NOTAS VÁLIDAS)
         apparatusList.forEach(app => {
-            const competesKey = `competes_on_${app}`; // Flag definida no modal
-            const competes = normalizeBoolean(phaseScores[competesKey], false);
-            if (competes) { // Verifica se a ginasta competiu neste aparelho
-                // ⚠️ USAR DADOS DIRETO DO FIREBASE ao invés de phaseScores
-                const appScoreData = getTeamFinalAppScore(gymnast, app);
-                console.log(`[calculateTeamFinalScores] ${gymnast.name} - ${app}: competes=${phaseScores[competesKey]}, score=${appScoreData.total}`);
-                
-                // MUDANÇA: Soma TODAS as notas válidas (>= 0), incluindo zeros
-                if (typeof appScoreData.total === 'number' && appScoreData.total >= 0) {
-                    teamScores[country][app] += appScoreData.total; // Adiciona ao total do aparelho para o time
-                    console.log(`[calculateTeamFinalScores] Added ${appScoreData.total} to ${country} ${app}. New total: ${teamScores[country][app]}`);
-                }
+            // ⚠️ USAR DADOS DIRETO DO FIREBASE
+            const appScoreData = getTeamFinalAppScore(gymnast, app);
+
+            // Soma TODAS as notas válidas (>= 0), incluindo zeros explícitos
+            if (typeof appScoreData.total === 'number' && appScoreData.total >= 0) {
+                teamScores[country][app] += appScoreData.total; // Adiciona ao total do aparelho para o time
             }
         });
-        
+
         // Recalcula o total após cada ginasta
         teamScores[country].total = teamScores[country].vt + teamScores[country].ub + teamScores[country].bb + teamScores[country].fx;
-        console.log(`[calculateTeamFinalScores] ${country} updated totals - VT:${teamScores[country].vt}, UB:${teamScores[country].ub}, BB:${teamScores[country].bb}, FX:${teamScores[country].fx}, Total:${teamScores[country].total}`);
     });
 
     // Ordena os times pelo total final
@@ -397,79 +372,112 @@ function calculateTeamFinalScores(allGymnastData, qualifyingCountryCodes) {
 // Nova função para calcular Team Final considerando duplicações
 function calculateTeamFinalScoresWithDuplication(allGymnastData, qualifyingCountryCodes, teamFinalDraw) {
     console.log(`[calculateTeamFinalScoresWithDuplication] Starting for ${qualifyingCountryCodes.length} teams.`);
-    const phaseName = 'team_final';
     const teamScores = {};
-    const apparatus = ['vt', 'ub', 'bb', 'fx'];
+    const apparatusList = ['vt', 'ub', 'bb', 'fx'];
 
     // Inicializa a estrutura para os times qualificados
     qualifyingCountryCodes.forEach(country => {
         teamScores[country] = { country: country, vt: 0, ub: 0, bb: 0, fx: 0, total: 0 };
     });
 
-    // Verificar se há estrutura de duplicações
-    if (!teamFinalDraw?.duplications) {
-        console.warn('[calculateTeamFinalScoresWithDuplication] No duplications structure found, fallback to standard calculation');
-        return calculateTeamFinalScores(allGymnastData, qualifyingCountryCodes);
+    // Determinar a estrutura de dados (suporta formato antigo 'duplications' e novo 'structure.rotations')
+    let rotationsData = null;
+
+    if (teamFinalDraw?.structure?.rotations) {
+        // Novo formato: { structure: { rotations: [...] } }
+        console.log('[calculateTeamFinalScoresWithDuplication] Using NEW structure format (rotations)');
+        rotationsData = teamFinalDraw.structure.rotations;
+    } else if (teamFinalDraw?.rotations) {
+        // Formato intermediário: { rotations: [...] } na raiz
+        console.log('[calculateTeamFinalScoresWithDuplication] Using intermediate format (rotations at root)');
+        rotationsData = teamFinalDraw.rotations;
+    } else if (teamFinalDraw?.duplications) {
+        // Formato antigo: { duplications: ... }
+        console.log('[calculateTeamFinalScoresWithDuplication] Using OLD format (duplications)');
     }
 
-    console.log('[calculateTeamFinalScoresWithDuplication] Using duplication structure:', teamFinalDraw.duplications);
+    if (rotationsData) {
+        // === LÓGICA PARA FORMATO NOVO (ROTATIONS) ===
+        rotationsData.forEach(rotation => {
+            const apparatusMap = rotation.apparatus; // Objeto { VT: [...], UB: [...] }
 
-    // Para cada rotação, aparelho e país, aplicar as duplicações
-    for (let rotation = 1; rotation <= 4; rotation++) {
-        const rotationKey = `rotation${rotation}`;
-        const rotationData = teamFinalDraw.duplications[rotationKey];
-        
-        if (!rotationData) continue;
+            if (!apparatusMap) return;
 
-        apparatus.forEach((app, appIndex) => {
-            const rotationApp = apparatus[(appIndex + rotation - 1) % 4];
-            const apparatusData = rotationData[rotationApp.toUpperCase()];
-            
-            if (!apparatusData) return;
+            Object.keys(apparatusMap).forEach(appKey => {
+                const app = appKey.toLowerCase(); // 'vt', 'ub'...
+                if (!apparatusList.includes(app)) return;
 
-            qualifyingCountryCodes.forEach(country => {
-                const countrySlots = apparatusData[country];
-                
-                if (!countrySlots) return;
+                const athletesList = apparatusMap[appKey]; // Array de { id, name, country, isDuplicate... }
+                if (!Array.isArray(athletesList)) return;
 
-                console.log(`[calculateTeamFinalScoresWithDuplication] Processing ${country} on ${rotationApp} (rotation ${rotation}):`, countrySlots);
+                athletesList.forEach(slot => {
+                    const country = slot.country;
+                    if (!teamScores[country]) return; // Ignora países não qualificados/inicializados
 
-                // Para cada slot da ginasta neste aparelho/rotação
-                countrySlots.forEach(slot => {
-                    if (slot.gymnastId) {
-                        const gymnast = allGymnastData.find(g => g.id === slot.gymnastId);
-                        const isPresent = gymnast ? normalizeBoolean(gymnast.team_final_present, true) : false;
-                        
-                        if (gymnast && isPresent) {
-                            const appScoreData = getTeamFinalAppScore(gymnast, rotationApp);
-                            const multiplier = typeof slot.multiplier === 'number' ? slot.multiplier : 1;
-                            const multipliedScore = appScoreData.total * multiplier;
-                            
-                            console.log(`[calculateTeamFinalScoresWithDuplication] ${gymnast.name} - ${rotationApp}: original_score=${appScoreData.total}, multiplier=${multiplier}, multiplied_score=${multipliedScore}, present=${gymnast.team_final_present}`);
-                            
-                            if (typeof multipliedScore === 'number' && multipliedScore >= 0) {
-                                const previousTotal = teamScores[country][rotationApp];
-                                teamScores[country][rotationApp] += multipliedScore;
-                                console.log(`[calculateTeamFinalScoresWithDuplication] ${country} ${rotationApp}: ${previousTotal} + ${multipliedScore} = ${teamScores[country][rotationApp]}`);
+                    // Encontrar ginasta (usando ID original, mesmo se for duplicata)
+                    const gymnastId = slot.id;
+                    const gymnast = allGymnastData.find(g => g.id === gymnastId);
+
+                    if (gymnast) {
+                        const isPresent = normalizeBoolean(gymnast.team_final_present, true);
+                        if (isPresent) {
+                            const appScoreData = getTeamFinalAppScore(gymnast, app);
+
+                            if (typeof appScoreData.total === 'number' && appScoreData.total >= 0) {
+                                teamScores[country][app] += appScoreData.total;
                             }
-                        } else {
-                            // Ginasta ausente ou sem notas = 0 pontos
-                            const presentStatus = gymnast ? gymnast.team_final_present : 'not found';
-                            console.log(`[calculateTeamFinalScoresWithDuplication] ${gymnast?.name || 'Unknown'} ABSENT or no scores (present: ${presentStatus}) - adding 0 points`);
                         }
-                    } else {
-                        // Slot vazio (ginasta ausente) = 0 pontos
-                        console.log(`[calculateTeamFinalScoresWithDuplication] Empty slot for ${country} on ${rotationApp} - adding 0 points`);
                     }
                 });
             });
         });
+
+    } else if (teamFinalDraw?.duplications) {
+        // === LÓGICA PARA FORMATO ANTIGO (DUPLICATIONS) ===
+        for (let rotation = 1; rotation <= 4; rotation++) {
+            const rotationKey = `rotation${rotation}`;
+            const rotationData = teamFinalDraw.duplications[rotationKey];
+
+            if (!rotationData) continue;
+
+            apparatusList.forEach((app, appIndex) => {
+                const rotationApp = apparatusList[(appIndex + rotation - 1) % 4];
+                const apparatusData = rotationData[rotationApp.toUpperCase()];
+
+                if (!apparatusData) return;
+
+                qualifyingCountryCodes.forEach(country => {
+                    const countrySlots = apparatusData[country];
+                    if (!countrySlots) return;
+
+                    countrySlots.forEach(slot => {
+                        if (slot.gymnastId) {
+                            const gymnast = allGymnastData.find(g => g.id === slot.gymnastId);
+                            const isPresent = gymnast ? normalizeBoolean(gymnast.team_final_present, true) : false;
+
+                            if (gymnast && isPresent) {
+                                const appScoreData = getTeamFinalAppScore(gymnast, rotationApp);
+                                const multiplier = typeof slot.multiplier === 'number' ? slot.multiplier : 1;
+                                const multipliedScore = appScoreData.total * multiplier;
+
+                                if (typeof multipliedScore === 'number' && multipliedScore >= 0) {
+                                    teamScores[country][rotationApp] += multipliedScore;
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+        }
+    } else {
+        console.warn('[calculateTeamFinalScoresWithDuplication] Unknown draw format. Falling back to standard calculation.');
+        return calculateTeamFinalScores(allGymnastData, qualifyingCountryCodes);
     }
 
     // Recalcular totais finais
     qualifyingCountryCodes.forEach(country => {
         teamScores[country].total = teamScores[country].vt + teamScores[country].ub + teamScores[country].bb + teamScores[country].fx;
-        console.log(`[calculateTeamFinalScoresWithDuplication] ${country} final totals - VT:${teamScores[country].vt}, UB:${teamScores[country].ub}, BB:${teamScores[country].bb}, FX:${teamScores[country].fx}, Total:${teamScores[country].total}`);
+        console.log(`[calculateTeamFinalScoresWithDuplication] ${country} final total: ${teamScores[country].total}`);
     });
 
     // Ordena os times pelo total final

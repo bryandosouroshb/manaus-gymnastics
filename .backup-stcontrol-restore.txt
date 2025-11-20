@@ -1,0 +1,15 @@
+CRITICAL FILE CORRUPTION DETECTED in stcontrol.html
+
+The updateBroadcastOverlay function and all subsequent code is severely corrupted.
+Lines 1876-2100+ contain broken syntax with event listeners incorrectly nested inside the function.
+
+The file needs to be restored from a backup or the entire section needs to be rewritten.
+
+Current corruption starts at line 1883 where overlayData object definition is broken.
+Event listener code (lines 1884-2100+) should NOT be inside updateBroadcastOverlay function.
+
+Missing functions that should exist:
+- loadFXStartListFromDropdown (completely missing)
+- updateFullPhaseSelection (completely missing)
+- Timer button handlers (misplaced)
+- Initialization code (misplaced)

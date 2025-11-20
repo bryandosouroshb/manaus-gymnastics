@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -42,6 +43,9 @@
             color: #f7c948;
         }
     </style>
+     <!-- Fonte para emojis de bandeiras -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Judge Score Notification -->
@@ -58,10 +62,10 @@
             <section class="scene" id="scene-standby" data-scene="SCENE_STANDBY" style="display:none;">
                 <div class="scene-layer">
                     <div class="scene-card">
-                        <h1 class="scene-title">EVENTO-TESTE EM BREVE</h1>
+                        <h1 class="scene-title">MANAUS 2025 FIG WORLD GYMNASTICS CHAMPIONSHIPS</h1>
                         <p class="scene-subtitle">
-                            A transmissão oficial do evento-teste de Manaus 2025 começará em instantes.<br>
-                            Evento Oficial Preparatório para o Mundial de Ginástica Artística FIG Manaus 2025.
+                            A transmissão oficial do Mundial de Manaus 2025 começará em instantes.<br>
+                            Evento Oficial da Federação Internacional de Ginástica do Roblox.
                         </p>
                     </div>
                 </div>
@@ -332,7 +336,7 @@
 
               <section class="overlay-podium-flags" id="overlay-podium-flags" data-visible="false">
                   <div class="podium-title" style="justify-content: center;">
-                      <span>HINO NACIONAL</span>
+                      <span>HINO NACIONAL </span>
                       <span id="podium-flags-phase">Team Final</span>
                   </div>
                   <div class="flag-raising-stage" id="podium-flags-stage"></div>
@@ -1668,7 +1672,7 @@
          * @param {number} currentRank - Posição atual da ginasta no ranking
          * @param {boolean} isTeamRanking - Se true, rankingList contém equipes (países), não ginastas
          */
-        function showScoreRevealOverlay(gymnastData, phase, apparatus, scoreData, rankingList, currentRank, isTeamRanking = false) {
+        function showScoreRevealOverlay(gymnastData, phase, apparatus, scoreData, rankingList, currentRank, isTeamRanking = false, showCountryCode = true) {
             console.log('[Stream] ✨ Mostrando Score Reveal Overlay:', { gymnastData, phase, apparatus, scoreData, currentRank, isTeamRanking });
             
             const overlay = document.getElementById('overlay-score-reveal');
@@ -1681,8 +1685,8 @@
             const isVT2Mode = scoreData.isVT2 === true;
             
             // Atualizar CENTRO: Card Principal
-            const countryInfo = getCountryInfo(gymnastData.country);
-            const nameParts = splitNameParts(gymnastData.name);
+            const countryInfo = getCountryInfo(gymnastData?.country);
+            const nameParts = splitNameParts(gymnastData?.name || (gymnastData?.firstName || ''));
             
             applyFlagImage(
                 document.getElementById('reveal-flag-img'),
@@ -1691,9 +1695,25 @@
                 countryInfo.emoji
             );
             
-            document.getElementById('reveal-country').textContent = gymnastData.country?.toUpperCase() || 'COUNTRY';
-            document.getElementById('reveal-firstname').textContent = nameParts.firstName || gymnastData.firstName || 'First';
-            document.getElementById('reveal-lastname').textContent = nameParts.lastName || gymnastData.lastName || 'LASTNAME';
+            // Mostrar a sigla/label do país abaixo da bandeira dependendo da flag showCountryCode
+            const revealCountryEl = document.getElementById('reveal-country');
+            if (revealCountryEl) {
+                if (showCountryCode) {
+                    // Mostrar sigla (ex: BRA / BR) quando permitido
+                    revealCountryEl.textContent = (gymnastData?.country || countryInfo?.code || '').toString().toUpperCase() || 'COUNTRY';
+                    revealCountryEl.style.display = '';
+                } else {
+                    // Ocultar a sigla redundante
+                    revealCountryEl.textContent = '';
+                    revealCountryEl.style.display = 'none';
+                }
+            }
+
+            // Sempre mostrar o nome da ginasta no MAIN (firstname + LASTNAME em caixa alta)
+            const revealFirstnameEl = document.getElementById('reveal-firstname');
+            const revealLastnameEl = document.getElementById('reveal-lastname');
+            if (revealFirstnameEl) revealFirstnameEl.textContent = nameParts.firstName || gymnastData?.firstName || '';
+            if (revealLastnameEl) revealLastnameEl.textContent = (nameParts.lastName || gymnastData?.lastName || '').toString().toUpperCase();
             document.getElementById('reveal-apparatus-icon').textContent = apparatus.toUpperCase();
             
             // Atualizar label e valor do score
@@ -1848,7 +1868,7 @@
             }
             
             scoreRevealAnimationTimeout = setTimeout(() => {
-                animateRankingPositionChange(rankingList, currentRank, gymnastData.id);
+                animateRankingPositionChange(rankingList, currentRank, isTeamRanking ? gymnastData.country : gymnastData.id, isTeamRanking);
             }, 2000);
         }
 
@@ -1885,24 +1905,47 @@
                     if (item.country === currentId) {
                         card.classList.add('current');
                     }
-                    
+
                     card.dataset.rank = i;
                     card.dataset.country = item.country;
-                    
+
                     // Buscar score da equipe
                     let scoreValue = item.total || item.score || item.teamTotal || 0;
-                    
-                    // Nome do país
+
+                    // Mostrar NOME DO PAÍS por extenso (ex: BRAZIL) e total da equipe
+                    const countryName = (window.getCountryName && window.getCountryName(item.country)) || (item.country || '').toString().toUpperCase() || 'PAÍS';
                     const countryInfo = getCountryInfo(item.country);
-                    const displayName = countryInfo.code || item.country || 'PAÍS';
                     const resolvedFlagCode = countryInfo.code || (window.getCountryCode ? window.getCountryCode(item.country) : null);
                     const resolvedFlagEmoji = countryInfo.emoji || (window.getCountryFlag ? window.getCountryFlag(item.country) : '🏳️');
                     const flagMarkup = getFlagMarkup({ flagCode: resolvedFlagCode, flagEmoji: resolvedFlagEmoji }, 'w80');
+                    // Exibir bandeira (emoji) + sigla do país (preferir item.country se fornecido)
+                    let countrySigla = '';
+                    if (item.country) {
+                        countrySigla = String(item.country).toUpperCase();
+                    } else if (countryInfo && countryInfo.code) {
+                        // countryInfo.code geralmente é o código 2-letter (lowercase). Tentar mapear de volta ao 3-letter
+                        if (window.countryData) {
+                            for (const three of Object.keys(window.countryData)) {
+                                const cd = window.countryData[three];
+                                if (cd && cd.code && cd.code.toLowerCase() === countryInfo.code.toLowerCase()) {
+                                    countrySigla = three.toUpperCase();
+                                    break;
+                                }
+                            }
+                        }
+                        // se ainda vazio, usar o 2-letter em uppercase
+                        if (!countrySigla) countrySigla = (countryInfo.code || '').toUpperCase();
+                    }
+
+                    // último fallback: nome do país por extenso ou rótulo genérico
+                    const countryNameFallback = (window.getCountryName && window.getCountryName(item.country)) || (item.country || '').toString().toUpperCase();
+                    if (!countrySigla || countrySigla.trim() === '') countrySigla = countryNameFallback || 'PAÍS';
+
                     card.innerHTML = `
                         <div class="ranking-position">#${i}</div>
                         <div class="ranking-info">
                             <div class="ranking-flag">${flagMarkup}</div>
-                            <div class="ranking-name">${displayName}</div>
+                            <div class="ranking-name">${countrySigla}</div>
                         </div>
                         <div class="ranking-score">${formatScoreValue(scoreValue, 3)}</div>
                     `;
@@ -1934,7 +1977,7 @@
                     }
                     
                     // Nome formatado
-                    const displayName = gymnast.name || gymnast.displayName || gymnast.firstName || 'Ginasta';
+                    const displayName = gymnast.name || gymnast.displayName || gymnast.firstName || '-';
                     
                     const countryInfo = getCountryInfo(gymnast.country);
                     const indFlagMarkup = getFlagMarkup({ flagCode: countryInfo.code, flagEmoji: countryInfo.emoji }, 'w80');
@@ -1955,7 +1998,7 @@
         /**
          * Anima a mudança de posição da ginasta no ranking (estilo F1)
          */
-        function animateRankingPositionChange(rankingList, newRank, gymnastId) {
+        function animateRankingPositionChange(rankingList, newRank, currentId, isTeamRanking = false) {
             const rankingCards = document.getElementById('ranking-cards');
             if (!rankingCards) return;
             
@@ -1970,8 +2013,43 @@
             // Preparar novos cards
             const newCardsData = [];
             for (let i = startRank; i <= endRank; i++) {
-                const gymnast = rankingList[i - 1];
-                if (gymnast) {
+                const entry = rankingList[i - 1];
+                if (!entry) continue;
+
+                if (isTeamRanking) {
+                    // Team entry: show country sigla/name and team total
+                    const scoreValue = entry.total || entry.score || entry.teamTotal || 0;
+                    const countryInfo = getCountryInfo(entry.country);
+                    const resolvedFlagCode = countryInfo.code || (window.getCountryCode ? window.getCountryCode(entry.country) : null);
+                    const resolvedFlagEmoji = countryInfo.emoji || (window.getCountryFlag ? window.getCountryFlag(entry.country) : '🏳️');
+                    const flagMarkup = getFlagMarkup({ flagCode: resolvedFlagCode, flagEmoji: resolvedFlagEmoji }, 'w80');
+
+                    // Determine sigla: prefer provided entry.country, fallback to mapping or name
+                    let sigla = entry.country ? String(entry.country).toUpperCase() : '';
+                    if (!sigla && countryInfo && countryInfo.code) {
+                        if (window.countryData) {
+                            for (const three of Object.keys(window.countryData)) {
+                                const cd = window.countryData[three];
+                                if (cd && cd.code && cd.code.toLowerCase() === countryInfo.code.toLowerCase()) {
+                                    sigla = three.toUpperCase();
+                                    break;
+                                }
+                            }
+                        }
+                        if (!sigla) sigla = (countryInfo.code || '').toUpperCase();
+                    }
+                    if (!sigla) sigla = (window.getCountryName && window.getCountryName(entry.country)) || 'PAÍS';
+
+                    newCardsData.push({
+                        rank: i,
+                        id: entry.country || (`team-${i}`),
+                        name: sigla,
+                        flagMarkup,
+                        score: scoreValue,
+                        isCurrent: entry.country === currentId
+                    });
+                } else {
+                    const gymnast = entry;
                     // Buscar score correto (priorizar campos específicos)
                     let scoreValue = 0;
                     if (gymnast.apparatusScore !== undefined && gymnast.apparatusScore !== null) {
@@ -1985,13 +2063,13 @@
                     } else if (gymnast.score !== undefined && gymnast.score !== null) {
                         scoreValue = gymnast.score;
                     }
-                    
+
                     newCardsData.push({
                         rank: i,
                         id: gymnast.id,
-                        name: gymnast.name || gymnast.displayName || 'Ginasta',
+                        name: gymnast.name || gymnast.displayName || '-',
                         score: scoreValue,
-                        isCurrent: gymnast.id === gymnastId
+                        isCurrent: gymnast.id === currentId
                     });
                 }
             }
@@ -2016,27 +2094,28 @@
                 newCardsData.forEach((data, index) => {
                     const card = document.createElement('div');
                     card.className = 'ranking-card';
-                    
-                    if (data.isCurrent) {
-                        card.classList.add('current');
-                    }
-                    
+
+                    if (data.isCurrent) card.classList.add('current');
+
                     card.dataset.rank = data.rank;
                     card.dataset.gymnastId = data.id;
-                    
+
+                    const flagHtml = data.flagMarkup ? `<div class="ranking-flag">${data.flagMarkup}</div>` : '';
+
                     card.innerHTML = `
                         <div class="ranking-position">#${data.rank}</div>
                         <div class="ranking-info">
+                            ${flagHtml}
                             <div class="ranking-name">${data.name}</div>
                         </div>
                         <div class="ranking-score">${formatScoreValue(data.score, 3)}</div>
                     `;
-                    
+
                     rankingCards.appendChild(card);
-                    
+
                     // Forçar reflow
                     void card.offsetWidth;
-                    
+
                     // Animar entrada com delay escalonado
                     setTimeout(() => {
                         card.style.opacity = '1';
@@ -3700,7 +3779,8 @@
                         finalScoreData,
                         resultsRaw,
                         currentRank,
-                        phase === 'team_final' // isTeamRanking flag
+                        phase === 'team_final', // isTeamRanking flag
+                        true // showCountryCode: always show sigla under flag in center
                     );
                 }
                 else if (data.action === 'hide-score-reveal') {
@@ -4050,14 +4130,14 @@
 
         function getFlagMarkup(entry, size = 'w80') {
             if (!entry) return '';
-            if (entry.flagCode) {
-                return `<img src="${FLAG_CDN_BASE}/${size}/${entry.flagCode}.png" alt="${(entry.country || '').toUpperCase()}">`;
-            }
+            // Sempre usar emoji (mais confiável que CDN externa)
             if (entry.flagEmoji) {
-                const fontSize = size === 'w256' ? '3rem' : (size === 'w160' ? '2.4rem' : '2rem');
-                return `<span style="font-size:${fontSize};">${entry.flagEmoji}</span>`;
+                const fontSize = size === 'w256' ? '8rem' : (size === 'w160' ? '5rem' : '2rem');
+                return `<span style="font-size:${fontSize}; font-family: 'Noto Color Emoji', sans-serif;">${entry.flagEmoji}</span>`;
             }
-            return '';
+            // Fallback para bandeira branca
+            const fontSize = size === 'w256' ? '8rem' : (size === 'w160' ? '5rem' : '2rem');
+            return `<span style="font-size:${fontSize}; font-family: 'Noto Color Emoji', sans-serif;">🏳️</span>`;
         }
 
         function resetPodiumState(clearAudio = false) {
@@ -4219,9 +4299,9 @@
                             .filter(g => g.country === team.country && normalizeBooleanValue(g.team_final_present, true))
                             .map(g => g.name)
                             .slice(0, 6);
-                        // Garantir flagCode e flagEmoji robustos (aceitar 2 or 3 letter codes)
-                        const resolvedFlagCode = (countryInfo && countryInfo.code) ? countryInfo.code : (window.getCountryCode ? window.getCountryCode(team.country) : null);
-                        const resolvedFlagEmoji = (countryInfo && countryInfo.emoji) ? countryInfo.emoji : (window.getCountryFlag ? window.getCountryFlag(team.country) : '🏳️');
+                        // getCountryInfo já converte 3-letter para 2-letter lowercase
+                        const resolvedFlagCode = countryInfo?.code || null;
+                        const resolvedFlagEmoji = countryInfo?.emoji || '🏳️';
                         return {
                             type: 'team',
                             rank: index + 1,
@@ -4248,8 +4328,8 @@
                             gymnastId: gymnast.id,
                             fullName: gymnast.name,
                             country: gymnast.country,
-                            flagCode: countryInfo.code,
-                            flagEmoji: countryInfo.emoji,
+                            flagCode: countryInfo?.code || null,
+                            flagEmoji: countryInfo?.emoji || '🏳️',
                             score: Number(gymnast.aaTotal || 0)
                         };
                     });
@@ -4270,8 +4350,8 @@
                             gymnastId: gymnast.id,
                             fullName: gymnast.name || gymnast.displayName || `${gymnast.firstName || ''} ${gymnast.lastName || ''}`.trim(),
                             country: gymnast.country,
-                            flagCode: countryInfo.code,
-                            flagEmoji: countryInfo.emoji,
+                            flagCode: countryInfo?.code || null,
+                            flagEmoji: countryInfo?.emoji || '🏳️',
                             score: Number(scoreValue)
                         };
                     });

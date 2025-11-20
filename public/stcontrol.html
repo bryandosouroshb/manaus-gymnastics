@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1225,21 +1226,12 @@
             if (!applyConfigurationElement) return;
             
             applyConfigurationElement.onclick = () => {
-                let phase = phaseSelectElement?.value;
-                let rotation = rotationSelectElement?.value;
-                let apparatus = apparatusSelectElement?.value;
-
-                // If operator selected an apparatus final, force apparatus derived from phase
-                if (phase && phase.endsWith('_final') && !phase.startsWith('aa') && !phase.startsWith('team')) {
-                    apparatus = phase.replace('_final','');
-                    try { if (apparatusSelectElement) apparatusSelectElement.value = apparatus; } catch(e){}
-                    currentSelectedApparatus = apparatus;
-                }
+                const phase = phaseSelectElement?.value;
+                const rotation = rotationSelectElement?.value;
+                const apparatus = apparatusSelectElement?.value;
                 
                 // Para finais por aparelho (exceto VT e AA), rotação não é necessária
-                // Rotation is required for qualifiers, AA final and team final only.
-                // Apparatus finals MUST NOT use rotation — do not require rotation for vt/ub/bb/fx finals.
-                const needsRotation = phase === 'qualifiers' || phase === 'aa_final' || phase === 'team_final';
+                const needsRotation = phase === 'qualifiers' || phase === 'aa_final' || (phase.includes('_final') && apparatus === 'vt');
                 
                 if (!phase || (!needsRotation && !apparatus) || (needsRotation && (!rotation || !apparatus))) {
                     if (needsRotation) {
@@ -2220,20 +2212,6 @@
                 const rotIdx = parseInt(rotation) - 1; // Convert 1-based to 0-based
                 finalSelection = `${phase}|rot${rotIdx}|${apparatus}`;
                 console.log(`[Stream Control] Built team/aa final selection: ${finalSelection}`);
-            } else if (phase && phase.endsWith('_final') && !phase.startsWith('aa') && !phase.startsWith('team')) {
-                // Apparatus finals (vt_final, ub_final, bb_final, fx_final)
-                // Rotation MUST NOT be used for apparatus finals — always use phase|apparatus
-                const derivedApp = apparatus || phase.replace('_final','');
-                finalSelection = `${phase}|${derivedApp}`;
-                // Hide rotation selector for apparatus finals to prevent operators choosing a rotation
-                try {
-                    if (rotationSelectElement?.parentElement) rotationSelectElement.parentElement.style.display = 'none';
-                } catch (e) { /* ignore */ }
-                // Ensure apparatus dropdown reflects the phase (force selection to derived apparatus)
-                if (apparatusSelectElement) {
-                    try { apparatusSelectElement.value = derivedApp; currentSelectedApparatus = derivedApp; } catch(e) { /* ignore */ }
-                }
-                console.log(`[Stream Control] Built apparatus final selection (no rotation): ${finalSelection}`);
             } else if (phase === 'qualifiers' && rotation && apparatus) {
                 const rotIdx = parseInt(rotation) - 1;
                 finalSelection = `qualifiers|rot${rotIdx}|${apparatus}`;
@@ -2255,11 +2233,6 @@
             } else {
                 // Other phases (apparatus finals) - allow load
                 canLoad = true;
-            }
-
-            // Restore rotation selector visibility for phases that need it
-            if (phase && !(phase.endsWith('_final') && !phase.startsWith('aa') && !phase.startsWith('team'))) {
-                try { if (rotationSelectElement?.parentElement) rotationSelectElement.parentElement.style.display = 'block'; } catch(e){}
             }
 
             if (canLoad && finalSelection) {
