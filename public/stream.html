@@ -46,6 +46,26 @@
      <!-- Fonte para emojis de bandeiras -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    <style>
+        /* Fullscreen standby video styling with fade transition */
+        #standby-video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 9990; /* below overlays which use higher z-index */
+            background: #000;
+            display: none;
+            opacity: 0;
+            transition: opacity 600ms ease;
+            pointer-events: none;
+        }
+
+        #standby-video.visible {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <!-- Judge Score Notification -->
@@ -56,20 +76,13 @@
     
     <div id="app-shell">
         <video id="video-stream" playsinline muted autoplay></video>
+        <!-- Fullscreen standby video (plays when scene is STANDBY) -->
+        <video id="standby-video" playsinline muted loop preload="auto">
+            <source src="video/manaus.mp4" type="video/mp4">
+        </video>
 
         <div id="scene-container">
-            <!-- SCENE: Standby -->
-            <section class="scene" id="scene-standby" data-scene="SCENE_STANDBY" style="display:none;">
-                <div class="scene-layer">
-                    <div class="scene-card">
-                        <h1 class="scene-title">MANAUS 2025 FIG WORLD GYMNASTICS CHAMPIONSHIPS</h1>
-                        <p class="scene-subtitle">
-                            A transmissão oficial do Mundial de Manaus 2025 começará em instantes.<br>
-                            Evento Oficial da Federação Internacional de Ginástica do Roblox.
-                        </p>
-                    </div>
-                </div>
-            </section>
+            <!-- SCENE: Standby (removed - replaced by fullscreen standby video) -->
 
             <!-- SCENE: Live Performance -->
             <section class="scene" id="scene-live" data-scene="SCENE_LIVE_PERFORMANCE" style="display:none;">
@@ -514,6 +527,13 @@
     </button>
 
     <button id="enable-audio-btn">🔊 Habilitar áudio</button>
+
+    <!-- RTMP controls -->
+    <div id="rtmp-controls" style="position:fixed; top:24px; left:220px; z-index:100; display:flex; gap:8px; align-items:center;">
+        <input id="rtmp-url-input" placeholder="rtmp://localhost:1935/live/STREAMKEY" style="width:360px; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.4); color:#fff;" />
+        <button id="start-stream-btn" style="padding:8px 12px; border-radius:8px;">Iniciar transmissão</button>
+        <button id="stop-stream-btn" style="padding:8px 12px; border-radius:8px; display:none;">Parar transmissão</button>
+    </div>
 
     <audio id="gymnast-audio" preload="auto"></audio>
     <audio id="beep-audio" preload="auto">
@@ -1245,6 +1265,19 @@
             const gymnastReady = await primeAudioElement(gymnastAudioElement);
             audioEnabled = beepReady || gymnastReady;
             setAudioButtonState(audioEnabled);
+            try {
+                const sv = document.getElementById('standby-video');
+                if (sv) {
+                    // Unmute standby video when audio is enabled by user
+                    sv.muted = !audioEnabled;
+                    if (audioEnabled && sv.style.display === 'block') {
+                        const p = sv.play();
+                        if (p && p.catch) p.catch(() => console.warn('[Stream] standby-video play blocked after unmute'));
+                    }
+                }
+            } catch (e) {
+                console.warn('[Stream] Erro ao atualizar standby-video mute state:', e);
+            }
             return audioEnabled;
         }
 
@@ -3829,18 +3862,31 @@
                     console.log('[Stream] 🔍 data.inquiry.resolution:', data.inquiry?.resolution);
                     
                     const gymnastName = data.inquiry?.gymnastName || 'Ginasta';
-                    const decision = data.inquiry?.resolution?.decision || 'mantido';
+                    const rawDecision = (data.inquiry?.resolution?.decision || '').toString().trim().toLowerCase();
                     const justification = data.inquiry?.resolution?.justification || '';
-                    console.log('[Stream] ✅ Recurso resolvido:', gymnastName, decision, justification);
-                    
-                    if (decision === 'aumentado') {
-                        console.log('[Stream] 🟣 Vai mostrar NOTA AUMENTADA');
+                    console.log('[Stream] ✅ Recurso resolvido (rawDecision):', gymnastName, rawDecision, justification);
+
+                    // Normalizar possíveis valores em português/inglês
+                    let normalizedDecision = null;
+                    if (['aumentado', 'aumentada', 'increased', 'increase', 'up'].includes(rawDecision)) {
+                        normalizedDecision = 'increased';
+                    } else if (['diminuido', 'diminuida', 'decreased', 'decrease', 'down'].includes(rawDecision)) {
+                        normalizedDecision = 'decreased';
+                    } else if (rawDecision === 'mantido' || rawDecision === 'nochange' || rawDecision === '') {
+                        normalizedDecision = 'maintained';
+                    } else {
+                        // fallback: use rawDecision as-is
+                        normalizedDecision = rawDecision;
+                    }
+
+                    if (normalizedDecision === 'increased') {
+                        console.log('[Stream] 🟣 Vai mostrar NOTA AUMENTADA (normalized)');
                         showInquiryOverlay(gymnastName, justification, 'increased', 10000);
-                    } else if (decision === 'diminuido') {
-                        console.log('[Stream] 🟣 Vai mostrar NOTA DIMINUÍDA');
+                    } else if (normalizedDecision === 'decreased') {
+                        console.log('[Stream] 🟣 Vai mostrar NOTA DIMINUÍDA (normalized)');
                         showInquiryOverlay(gymnastName, justification, 'decreased', 10000);
                     } else {
-                        console.log('[Stream] ⚠️ Decision não é aumentado nem diminuido:', decision);
+                        console.log('[Stream] ⚠️ Decision desconhecida, não será exibido overlay especial:', normalizedDecision);
                     }
                 }
                 else if (data.action === 'inquiry-stop') {
@@ -4715,7 +4761,10 @@
 
             const newScene = sceneNodes.find(scene => scene.dataset.scene === sceneId);
             if (!newScene) {
-                console.warn(`Cena não encontrada: ${sceneId}`);
+                console.warn(`Cena não encontrada: ${sceneId} — executando updateScene mesmo assim`);
+                // Ensure internal state updates and side-effects still run (e.g., standby video)
+                activeSceneId = sceneId;
+                updateScene(sceneId, payload);
                 return;
             }
 
@@ -4734,9 +4783,55 @@
                 // Isso já é feito em syncComputedOverlays() com a lógica correta
                 // updateLowerThirdContent(payload);
                 // setLowerThirdVisibility já é gerenciado por currentLowerThirdState
+                // If a standby fullscreen video is playing, fade it out and stop when transition ends
+                try {
+                    const sv = document.getElementById('standby-video');
+                    if (sv) {
+                        // remove visible class to trigger fade-out
+                        sv.classList.remove('visible');
+                        const onEnd = (ev) => {
+                            if (ev.propertyName !== 'opacity') return;
+                            try {
+                                sv.pause();
+                                sv.currentTime = 0;
+                                sv.style.display = 'none';
+                            } catch (err) {
+                                console.warn('[Stream] Erro ao limpar standby-video após fade:', err);
+                            }
+                        };
+                        // Use once listener to cleanup after transition
+                        sv.addEventListener('transitionend', onEnd, { once: true });
+                        // Fallback: if transition doesn't fire, ensure hidden after 700ms
+                        setTimeout(() => {
+                            if (getComputedStyle(sv).opacity === '0') {
+                                try { sv.pause(); sv.currentTime = 0; sv.style.display = 'none'; } catch(_){}
+                            }
+                        }, 800);
+                    }
+                } catch (e) {
+                    console.warn('[Stream] Erro ao parar standby-video:', e);
+                }
             } else if (sceneId === SCENES.STANDBY) {
                 setLowerThirdVisibility(false);
                 currentLowerThirdState = false;
+                // Play fullscreen standby video until Ao Vivo with fade-in
+                try {
+                    const sv = document.getElementById('standby-video');
+                    if (sv) {
+                        if (sv.style.display !== 'block') sv.style.display = 'block';
+                        // small delay to ensure display applied before adding visible class
+                        requestAnimationFrame(() => {
+                            sv.classList.add('visible');
+                            sv.currentTime = 0;
+                            const playPromise = sv.play();
+                            if (playPromise && playPromise.catch) {
+                                playPromise.catch(err => console.warn('[Stream] standby-video play blocked:', err));
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.warn('[Stream] Erro ao tocar standby-video:', e);
+                }
             }
         }
 
@@ -4844,6 +4939,180 @@
                 listenBroadcastState();
             }
         });
+
+        // ========== RTMP Streaming (MediaRecorder -> WebSocket -> server -> ffmpeg -> RTMP) ==========
+        const rtmpUrlInput = document.getElementById('rtmp-url-input');
+        const startStreamBtn = document.getElementById('start-stream-btn');
+        const stopStreamBtn = document.getElementById('stop-stream-btn');
+
+        let streaming = false;
+        let wsStream = null;
+        let mediaRecorder = null;
+        let capturedStream = null;
+
+        async function startStreaming({ skipServerStart = false } = {}) {
+            if (streaming) return;
+            const rtmpUrl = (rtmpUrlInput && rtmpUrlInput.value) ? rtmpUrlInput.value.trim() : '';
+            if (!rtmpUrl) {
+                alert('Informe a URL RTMP (ex: rtmp://a.rtmp.youtube.com/live2/STREAMKEY)');
+                return;
+            }
+
+            // 1) Request server to start ffmpeg (skip when already started by control panel)
+            if (!skipServerStart) {
+                try {
+                    const res = await fetch('http://localhost:4000/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ rtmpUrl })
+                    });
+                    const json = await res.json();
+                    if (!res.ok || !json.ok) {
+                        console.error('Failed to start ffmpeg on server', json);
+                        alert('Falha ao iniciar ffmpeg no servidor: ' + (json.message || res.statusText));
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Erro ao chamar /start:', err);
+                    alert('Não foi possível contactar o servidor local. Verifique se o proxy está rodando em http://localhost:4000');
+                    return;
+                }
+            }
+
+            // 2) Open WebSocket to send media chunks
+            try {
+                wsStream = new WebSocket('ws://localhost:4000/live');
+            } catch (err) {
+                console.error('Erro ao criar WebSocket:', err);
+                alert('Erro ao conectar ao WebSocket do servidor');
+                return;
+            }
+
+            wsStream.binaryType = 'arraybuffer';
+
+            wsStream.addEventListener('open', async () => {
+                console.log('[RTMP] WebSocket conectado, iniciando captura...');
+
+                // 3) Ensure we have a capture stream (prefer the existing display capture)
+                try {
+                    if (videoStream && videoStream.srcObject) {
+                        capturedStream = videoStream.srcObject;
+                    } else {
+                        // Request display + audio capture
+                        capturedStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                        // show locally
+                        videoStream.srcObject = capturedStream;
+                        captureButton.classList.add('hidden');
+                    }
+                } catch (err) {
+                    console.error('[RTMP] Falha ao obter capture stream:', err);
+                    alert('Falha ao capturar a tela. Permissões necessárias.');
+                    wsStream.close();
+                    return;
+                }
+
+                // 4) Start MediaRecorder and send chunks
+                try {
+                    const options = { mimeType: 'video/webm;codecs=vp8,opus' };
+                    mediaRecorder = new MediaRecorder(capturedStream, options);
+
+                    mediaRecorder.ondataavailable = async (e) => {
+                        if (!e.data || e.data.size === 0) return;
+                        try {
+                            // send raw binary chunk
+                            if (wsStream && wsStream.readyState === WebSocket.OPEN) {
+                                const ab = await e.data.arrayBuffer();
+                                wsStream.send(ab);
+                            }
+                        } catch (sendErr) {
+                            console.error('[RTMP] Erro ao enviar chunk via WS:', sendErr);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        console.log('[RTMP] MediaRecorder stopped');
+                    };
+
+                    mediaRecorder.start(1000); // 1s chunks
+                    streaming = true;
+                    startStreamBtn.style.display = 'none';
+                    stopStreamBtn.style.display = '';
+                    console.log('[RTMP] MediaRecorder iniciado');
+                } catch (mrErr) {
+                    console.error('[RTMP] Fail to start MediaRecorder:', mrErr);
+                    alert('Seu navegador pode não suportar a configuração de codec demandada (webm/vp8).');
+                    wsStream.close();
+                }
+            });
+
+            wsStream.addEventListener('close', () => {
+                console.log('[RTMP] WebSocket fechado');
+            });
+
+            wsStream.addEventListener('error', (err) => {
+                console.error('[RTMP] WebSocket error', err);
+                alert('WebSocket error: ' + String(err));
+            });
+        }
+
+        async function stopStreaming() {
+            if (!streaming) return;
+
+            // Stop MediaRecorder
+            try {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            } catch (err) {
+                console.warn('[RTMP] Erro ao parar MediaRecorder:', err);
+            }
+
+            // Close WebSocket
+            try {
+                if (wsStream && wsStream.readyState === WebSocket.OPEN) wsStream.close();
+            } catch (e) { }
+
+            // Ask server to stop ffmpeg
+            try {
+                await fetch('http://localhost:4000/stop', { method: 'POST' });
+            } catch (err) {
+                console.warn('[RTMP] Falha ao chamar /stop:', err);
+            }
+
+            streaming = false;
+            mediaRecorder = null;
+            wsStream = null;
+            startStreamBtn.style.display = '';
+            stopStreamBtn.style.display = 'none';
+            console.log('[RTMP] Transmissão parada');
+        }
+
+        startStreamBtn.addEventListener('click', startStreaming);
+        stopStreamBtn.addEventListener('click', stopStreaming);
+
+        // Listen for remote commands from control (BroadcastChannel) to start/stop streaming
+        try {
+            controlChannel = new BroadcastChannel('fx-control');
+            controlChannel.onmessage = (ev) => {
+                const data = ev.data || {};
+                try {
+                    if (data.action === 'rtmp-start') {
+                        console.log('[Stream] Received rtmp-start from control:', data);
+                        if (data.rtmpUrl && rtmpUrlInput) rtmpUrlInput.value = data.rtmpUrl;
+                        // Start sending media to already-running ffmpeg (skip server start)
+                        startStreaming({ skipServerStart: true });
+                    } else if (data.action === 'rtmp-stop') {
+                        console.log('[Stream] Received rtmp-stop from control');
+                        stopStreaming();
+                    }
+                } catch (e) {
+                    console.warn('[Stream] Error handling control message', e);
+                }
+            };
+            console.log('[Stream] ✅ BroadcastChannel fx-control initialized');
+        } catch (err) {
+            console.warn('[Stream] BroadcastChannel fx-control unavailable:', err);
+        }
 
         // Initialize everything (script is at end of body, DOM is ready)
         console.log('[Stream] 🚀🚀🚀 VERSAO 5.0 COM IMAGENS PNG - TIMESTAMP:', new Date().toISOString(), '🚀🚀🚀');

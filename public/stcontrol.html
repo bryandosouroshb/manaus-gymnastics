@@ -705,6 +705,22 @@
                     <button class="control-btn danger" id="btn-hide-all-overlays">❌ Ocultar Todos Overlays</button>
                 </div>
                 
+                <!-- RTMP Controls -->
+                <div style="margin-top:16px; border-top:1px dashed var(--border-color); padding-top:12px;">
+                    <div style="font-weight:700; margin-bottom:8px; color:var(--primary-green);">🔴 Transmissão RTMP (local)</div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input id="rtmp-url-control" placeholder="rtmp://a.rtmp.youtube.com/live2/STREAMKEY" style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--border-color);" />
+                        <button class="control-btn primary" id="btn-rtmp-start">Iniciar RTMP</button>
+                        <button class="control-btn danger" id="btn-rtmp-stop" style="display:none;">Parar RTMP</button>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+                        <button class="control-btn" id="btn-rtmp-gen" style="padding:8px 12px;">Gerar chave</button>
+                        <button class="control-btn" id="btn-rtmp-copy" style="padding:8px 12px;">Copiar chave</button>
+                        <div style="font-size:0.9rem; color:var(--text-light);">Cole a chave gerada em YouTube Studio → Stream</div>
+                    </div>
+                    <div id="rtmp-status" style="margin-top:8px; font-size:0.9rem; color:var(--text-light);">Servidor local: http://localhost:4000</div>
+                </div>
+                
                 <!-- ✨ NOVA SEÇÃO: Controles de Rodapé -->
                 <div class="section-title" style="margin-top: 1.5rem;">🏷️ Controles de Rodapé</div>
                 
@@ -1874,6 +1890,99 @@
                         .catch(err2 => console.error(`[Stream Control] ❌ Fallback também falhou:`, err2));
                 });
         }
+
+                    // ======= RTMP Control Handlers (calls local server) =======
+                    (function setupRtmpControls() {
+                        const rtmpInput = document.getElementById('rtmp-url-control');
+                        const btnStart = document.getElementById('btn-rtmp-start');
+                        const btnStop = document.getElementById('btn-rtmp-stop');
+                        const statusEl = document.getElementById('rtmp-status');
+
+                        if (!btnStart || !btnStop || !rtmpInput) return;
+
+                        async function startRtmp() {
+                            const url = (rtmpInput.value || '').trim();
+                            if (!url) {
+                                alert('Informe a URL RTMP (ex: rtmp://a.rtmp.youtube.com/live2/STREAMKEY)');
+                                return;
+                            }
+                            btnStart.disabled = true;
+                            try {
+                                const res = await fetch('http://localhost:4000/start', {
+                                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rtmpUrl: url })
+                                });
+                                const json = await res.json();
+                                if (!res.ok || !json.ok) throw new Error(json.message || res.statusText);
+                                statusEl.textContent = 'RTMP: transmitindo -> ' + url;
+                                btnStart.style.display = 'none';
+                                btnStop.style.display = '';
+                                // Update Firebase state for visibility/monitoring
+                                try { updateBroadcastOverlay('rtmp', true, { url, status: 'started' }); } catch(e){/*ignore*/}
+                                // Notify stream clients to start sending media (skip server start there)
+                                try {
+                                    if (typeof controlChannel !== 'undefined' && controlChannel) {
+                                        controlChannel.postMessage({ action: 'rtmp-start', rtmpUrl: url });
+                                    }
+                                } catch (e) {
+                                    console.warn('Could not post BroadcastChannel rtmp-start:', e);
+                                }
+                            } catch (err) {
+                                console.error('Failed to start RTMP:', err);
+                                alert('Falha ao iniciar RTMP: ' + err.message);
+                            } finally {
+                                btnStart.disabled = false;
+                            }
+                        }
+
+                        async function stopRtmp() {
+                            btnStop.disabled = true;
+                            try {
+                                await fetch('http://localhost:4000/stop', { method: 'POST' });
+                                statusEl.textContent = 'RTMP: parado';
+                                btnStart.style.display = '';
+                                btnStop.style.display = 'none';
+                                try { updateBroadcastOverlay('rtmp', false, { status: 'stopped' }); } catch(e){/*ignore*/}
+                                try {
+                                    if (typeof controlChannel !== 'undefined' && controlChannel) {
+                                        controlChannel.postMessage({ action: 'rtmp-stop' });
+                                    }
+                                } catch (e) {
+                                    console.warn('Could not post BroadcastChannel rtmp-stop:', e);
+                                }
+                            } catch (err) {
+                                console.error('Failed to stop RTMP:', err);
+                                alert('Falha ao parar RTMP: ' + (err.message || err));
+                            } finally {
+                                btnStop.disabled = false;
+                            }
+                        }
+
+                        btnStart.addEventListener('click', startRtmp);
+                        btnStop.addEventListener('click', stopRtmp);
+                        // Generate and copy key handlers
+                        const genBtn = document.getElementById('btn-rtmp-gen');
+                        const copyBtn = document.getElementById('btn-rtmp-copy');
+                        function generateKey(len = 16) {
+                            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                            let out = '';
+                            for (let i = 0; i < len; i++) out += chars.charAt(Math.floor(Math.random() * chars.length));
+                            return out;
+                        }
+                        if (genBtn) genBtn.addEventListener('click', () => {
+                            const key = generateKey(16);
+                            rtmpInput.value = `rtmp://a.rtmp.youtube.com/live2/${key}`;
+                        });
+                        if (copyBtn) copyBtn.addEventListener('click', async () => {
+                            try {
+                                const val = rtmpInput.value || '';
+                                await navigator.clipboard.writeText(val);
+                                alert('Chave RTMP copiada para a área de transferência. Cole no YouTube Studio → Stream.');
+                            } catch (err) {
+                                console.warn('Clipboard copy failed', err);
+                                prompt('Copie a chave abaixo (Ctrl+C):', rtmpInput.value || '');
+                            }
+                        });
+                    })();
 
         function loadFXStartListFromDropdown(value) {
             currentFullSelection = value;
@@ -3123,6 +3232,13 @@
                 inquiry: currentInquiry
             });
 
+            // ALSO update Firestore broadcast document so stream receives the inquiry
+            try {
+                updateBroadcastOverlay('inquiry', true, { ...currentInquiry });
+            } catch (e) {
+                console.warn('[Stream Control] ❌ updateBroadcastOverlay failed for inquiry-submitted:', e);
+            }
+
             // Limpar campos
             inquiryGymnast.value = '';
             inquiryReason.value = '';
@@ -3184,11 +3300,24 @@
                 inquiry: currentInquiry
             });
 
+            // ALSO update Firestore so displays that don't receive BroadcastChannel will react
+            try {
+                updateBroadcastOverlay('inquiry', true, { ...currentInquiry });
+            } catch (e) {
+                console.warn('[Stream Control] ❌ updateBroadcastOverlay failed for inquiry-rejected:', e);
+            }
+
             closeModal('modal-reject-inquiry');
 
             setTimeout(() => {
                 currentInquiry = null;
                 updateInquiryStatus('idle', 'Nenhum recurso ativo');
+                try {
+                    // Hide inquiry widget on Firebase after rejection
+                    updateBroadcastOverlay('inquiry', false, {});
+                } catch (e) {
+                    console.warn('[Stream Control] ❌ updateBroadcastOverlay failed hiding inquiry after reject:', e);
+                }
             }, 5000);
 
             console.log('[Inquiry] Recurso rejeitado:', currentInquiry);
@@ -3218,11 +3347,24 @@
                 inquiry: currentInquiry
             });
 
+            // ALSO update Firestore so stream/listeners can react even without BroadcastChannel
+            try {
+                updateBroadcastOverlay('inquiry', true, { ...currentInquiry });
+            } catch (e) {
+                console.warn('[Stream Control] ❌ updateBroadcastOverlay failed for inquiry-resolved:', e);
+            }
+
             closeModal('modal-resolve-inquiry');
 
             setTimeout(() => {
                 currentInquiry = null;
                 updateInquiryStatus('idle', 'Nenhum recurso ativo');
+                try {
+                    // Hide inquiry widget on Firebase after resolving
+                    updateBroadcastOverlay('inquiry', false, {});
+                } catch (e) {
+                    console.warn('[Stream Control] ❌ updateBroadcastOverlay failed hiding inquiry after resolve:', e);
+                }
             }, 5000);
 
             console.log('[Inquiry] Recurso resolvido:', currentInquiry);
