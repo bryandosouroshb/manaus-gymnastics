@@ -10,7 +10,8 @@ WORKDIR /usr/src/app
 
 # Copy package files and install production dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+# Use `npm install` when there's no package-lock.json available (safer for build servers)
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copy app source
 COPY . .
