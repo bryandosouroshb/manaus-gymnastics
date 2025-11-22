@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Capture Helper — Manaus Broadcast</title>
+    <style>
+        body{font-family:Arial,Helvetica,sans-serif;background:#0b1220;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0}
+        .card{background:linear-gradient(180deg,#0f1724,#061021);padding:20px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.6);max-width:720px;width:90%}
+        h1{font-size:1.25rem;margin-bottom:.5rem}
+        p{color:#cbd5e1}
+        button{padding:12px 16px;border-radius:10px;border:none;background:#06b6d4;color:#042a2b;font-weight:700;cursor:pointer}
+        .danger{background:#ef4444;color:#fff}
+        .muted{opacity:.6}
+        .status{margin-top:12px;font-size:.95rem}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Capture Helper</h1>
+        <p id="desc">Esta janela irá capturar a guia que contém a saída de vídeo (a guia `stream`) e enviar para o proxy RTMP. Você precisará escolher a guia correta no seletor do navegador e permitir o áudio da guia.</p>
+        <div style="display:flex;gap:8px;margin-top:12px">
+            <button id="startBtn">Iniciar captura e transmitir</button>
+            <button id="stopBtn" class="danger" style="display:none">Parar captura</button>
+        </div>
+        <div class="status" id="status">Aguardando ação do usuário...</div>
+    </div>
+
+    <script>
+        const RTMP_PROXY_BASE = (window.RTMP_PROXY_BASE || 'https://manaus-gymnastics.onrender.com').replace(/\/$/, '');
+        const proxyHost = RTMP_PROXY_BASE.replace(/^https?:\/\//, '');
+        const wsProto = RTMP_PROXY_BASE.startsWith('https') ? 'wss' : 'ws';
+        const wsUrl = `${wsProto}://${proxyHost}/live`;
+
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusEl = document.getElementById('status');
+
+        let mediaRecorder = null;
+        let ws = null;
+        let capturedStream = null;
+        let streaming = false;
+
+        function setStatus(t){ statusEl.textContent = t; }
+
+        async function startCapture(rtmpUrl) {
+            try {
+                setStatus('Checando status do proxy...');
+
+                // Check status first to avoid "Already streaming" race
+                let proxyStreaming = false;
+                try {
+                    const sres = await fetch(RTMP_PROXY_BASE + '/status');
+                    if (sres.ok) {
+                        const sjson = await sres.json();
+                        proxyStreaming = !!sjson.streaming;
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch /status:', e);
+                }
+
+                // Start ffmpeg on proxy only if not already streaming
+                if (!proxyStreaming) {
+                    setStatus('Solicitando ao proxy para iniciar ffmpeg...');
+                    try {
+                        const res = await fetch(RTMP_PROXY_BASE + '/start', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rtmpUrl })
+                        });
+                        if (!res.ok) {
+                            // If already streaming (409) treat as non-fatal and continue
+                            if (res.status === 409) {
+                                console.warn('Proxy reports already streaming, will continue');
+                            } else {
+                                const json = await res.json().catch(()=>({}));
+                                throw new Error(json.message || res.statusText || 'start failed');
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Falha ao iniciar proxy:', e);
+                        alert('Falha ao iniciar proxy: ' + (e.message || e));
+                        setStatus('Erro ao iniciar proxy');
+                        return;
+                    }
+                } else {
+                    setStatus('Proxy já está transmitindo — conectando WebSocket...');
+                }
+
+                // Open WebSocket
+                ws = new WebSocket(wsUrl);
+                ws.binaryType = 'arraybuffer';
+
+                ws.addEventListener('open', async () => {
+                    setStatus('WebSocket conectado. Abrindo seletor de captura...');
+
+                    try {
+                        capturedStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    } catch (err) {
+                        console.error('getDisplayMedia failed', err);
+                        alert('Falha ao capturar. Verifique permissões e tente novamente.');
+                        ws.close();
+                        setStatus('Captura cancelada');
+                        return;
+                    }
+
+                    // Start sending
+                    try {
+                        const options = { mimeType: 'video/webm;codecs=vp8,opus' };
+                        mediaRecorder = new MediaRecorder(capturedStream, options);
+                        mediaRecorder.ondataavailable = async (e) => {
+                            if (!e.data || e.data.size === 0) return;
+                            try { if (ws && ws.readyState === WebSocket.OPEN) ws.send(await e.data.arrayBuffer()); } catch (err){ console.error('send chunk failed', err); }
+                        };
+                        mediaRecorder.onstop = () => { setStatus('MediaRecorder parado'); };
+                        // Use 2s chunks to reduce WebSocket/ffmpeg overhead
+                        mediaRecorder.start(2000);
+                        streaming = true;
+                        startBtn.style.display = 'none';
+                        stopBtn.style.display = '';
+                        setStatus('Transmitindo — selecione a guia STREAM no seletor do navegador');
+
+                        // Notify other clients (stream.html) that capture started
+                        try { new BroadcastChannel('fx-control').postMessage({ action: 'capture-started' }); } catch(e){/*ignore*/}
+                    } catch (mrErr) {
+                        console.error('MediaRecorder error', mrErr);
+                        alert('Erro ao iniciar MediaRecorder: ' + mrErr.message);
+                        ws.close();
+                        setStatus('Erro MediaRecorder');
+                    }
+                });
+
+                ws.addEventListener('close', () => { console.log('WS closed'); if (!streaming) setStatus('WebSocket fechado'); });
+                ws.addEventListener('error', (err) => { console.error('WS err', err); setStatus('Erro no WebSocket'); });
+
+            } catch (err) {
+                console.error('startCapture error', err);
+                setStatus('Erro: ' + (err.message || err));
+            }
+        }
+
+        async function stopCapture() {
+            try {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            } catch(e){}
+            try { if (capturedStream) { capturedStream.getTracks().forEach(t => t.stop()); capturedStream = null; } } catch(e){}
+            try { if (ws && ws.readyState === WebSocket.OPEN) ws.close(); } catch(e){}
+            try { await fetch(RTMP_PROXY_BASE + '/stop', { method: 'POST' }); } catch(e){ console.warn('stop proxy failed', e); }
+            streaming = false;
+            startBtn.style.display = '';
+            stopBtn.style.display = 'none';
+            setStatus('Transmissão parada');
+            try { new BroadcastChannel('fx-control').postMessage({ action: 'capture-stopped' }); } catch(e){/*ignore*/}
+        }
+
+        // Try to extract RTMP from query param
+        function getRtmpFromQuery() {
+            try { const u = new URL(window.location.href); return u.searchParams.get('rtmp') || ''; } catch(e){return '';}
+        }
+
+        startBtn.addEventListener('click', async () => {
+            const rtmp = getRtmpFromQuery() || prompt('RTMP URL (ex: rtmp://a.rtmp.youtube.com/live2/KEY)');
+            if (!rtmp) return alert('Nenhum RTMP informado');
+            await startCapture(rtmp);
+        });
+        stopBtn.addEventListener('click', stopCapture);
+
+        // Auto-start if window was opened by control and query param present
+        (function autoTryStart(){
+            const rtmp = getRtmpFromQuery();
+            if (rtmp) {
+                // Try to start after a tiny delay (gives popup time to be considered user gesture in some browsers)
+                setTimeout(() => { startBtn.click(); }, 250);
+            }
+        })();
+    </script>
+</body>
+</html>

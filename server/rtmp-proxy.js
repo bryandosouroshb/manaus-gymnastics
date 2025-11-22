@@ -16,19 +16,20 @@ const wss = new WebSocket.Server({ server, path: '/live' });
 let ffmpegProc = null;
 let isStreaming = false;
 let connectedClients = new Set();
+// Default encoding configuration (overridable via env)
+const VIDEO_BITRATE = process.env.VIDEO_BITRATE || '1200k';
+const VIDEO_MAXRATE = process.env.VIDEO_MAXRATE || VIDEO_BITRATE;
+const VIDEO_BUFSIZE = process.env.VIDEO_BUFSIZE || '2400k';
+const VIDEO_SCALE = process.env.VIDEO_SCALE || '1280:-2'; // width:height, -2 preserves aspect
+const VIDEO_FPS = process.env.VIDEO_FPS || '25';
 
 // Resolve ffmpeg executable path: prefer FFMPEG_PATH env, then ./public/server/ffmpeg(.exe), then 'ffmpeg' on PATH
-const path = require('path');
-const fs = require('fs');
-let ffmpegCmd = process.env.FFMPEG_PATH || null;
-if (!ffmpegCmd) {
-  const localCandidate = path.join(__dirname, '..', 'public', 'server', process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg');
-  if (fs.existsSync(localCandidate)) {
-    ffmpegCmd = localCandidate;
-  } else {
-    ffmpegCmd = 'ffmpeg';
-  }
-}
+// BIBLIOTECA NOVA: Resolve o caminho do ffmpeg automaticamente
+const ffmpegPath = require('ffmpeg-static');
+
+// Usa o ffmpeg do pacote ou uma variável de ambiente se definida
+let ffmpegCmd = process.env.FFMPEG_PATH || ffmpegPath;
+
 console.log('[rtmp-proxy] using ffmpeg command:', ffmpegCmd);
 
 function startFFmpeg(rtmpUrl) {
@@ -44,18 +45,27 @@ function startFFmpeg(rtmpUrl) {
   // Spawn ffmpeg to read webm from stdin and push to RTMP
   // We transcode to H.264/AAC for maximum compatibility with YouTube
   const args = [
-    '-y', // overwrite
+    '-y',
+    '-thread_queue_size', '1024',
     '-f', 'webm',
     '-i', 'pipe:0',
     '-c:v', 'libx264',
-    '-preset', 'veryfast',
+    '-preset', 'ultrafast', // Mantém leve pro seu PC
     '-tune', 'zerolatency',
-    '-b:v', '2500k',
-    '-maxrate', '2500k',
-    '-bufsize', '5000k',
-    '-g', '50',
+    
+    // --- MUDANÇA AQUI: FORÇAR CBR (Taxa Constante) ---
+    '-b:v', '2500k',    // Alvo: 2500k (O que o YouTube pede)
+    '-minrate', '2500k', // OBRIGATÓRIO: Nunca baixar disso
+    '-maxrate', '2500k', // Teto: Não passar disso
+    '-bufsize', '5000k', // Buffer de 2x o bitrate
+    // ------------------------------------------------
+    
+    '-vf', `scale=${VIDEO_SCALE}`,
+    '-r', '24', // 24fps é mais leve
+    '-g', '48',
+    '-keyint_min', '48',
     '-c:a', 'aac',
-    '-b:a', '128k',
+    '-b:a', '128k', // Aumentei um pouco o áudio para ajudar no "peso" do stream
     '-ar', '44100',
     '-f', 'flv',
     rtmpUrl
@@ -116,12 +126,55 @@ app.post('/stop', (req, res) => {
 wss.on('connection', (ws, req) => {
   console.log('WebSocket connected:', req.socket.remoteAddress);
   connectedClients.add(ws);
+  // Per-socket small buffer queue to handle backpressure
+  ws._queue = [];
+  ws._queuedBytes = 0;
+  ws._flushing = false;
+  // protection thresholds
+  ws._maxQueueMessages = 100; // max messages to hold in memory
+  ws._maxQueueBytes = 25 * 1024 * 1024; // 25MB
 
   ws.on('message', (msg) => {
     // Expect binary data (webm chunks) or text control messages
     if (Buffer.isBuffer(msg)) {
       if (isStreaming && ffmpegProc && ffmpegProc.stdin && !ffmpegProc.stdin.destroyed) {
-        ffmpegProc.stdin.write(msg);
+        try {
+          const ok = ffmpegProc.stdin.write(msg);
+          if (!ok) {
+            // stdin buffer is full — queue the message and flush on 'drain'
+            ws._queue.push(msg);
+            ws._queuedBytes += msg.length;
+            console.warn(`stdin backpressure: queued=${ws._queue.length} bytes=${ws._queuedBytes}`);
+            // enforce queue limits
+            while (ws._queue.length > ws._maxQueueMessages || ws._queuedBytes > ws._maxQueueBytes) {
+              const dropped = ws._queue.shift();
+              ws._queuedBytes -= dropped.length;
+              console.warn('Dropped oldest queued chunk to avoid memory growth. newQueued=', ws._queue.length, 'bytes=', ws._queuedBytes);
+            }
+            ffmpegProc.stdin.once('drain', () => {
+              // flush queued messages
+              if (ws._queue.length === 0) return;
+              try {
+                console.log('Flushing queued stdin messages, count=', ws._queue.length, 'bytes=', ws._queuedBytes);
+                while (ws._queue.length) {
+                  const next = ws._queue.shift();
+                  ws._queuedBytes -= next.length;
+                  const ok2 = ffmpegProc.stdin.write(next);
+                  if (!ok2) {
+                    // still backpressure — requeue remaining and wait again
+                    console.warn('Still backpressure while flushing; remaining queued=', ws._queue.length);
+                    break;
+                  }
+                }
+                if (ws._queue.length === 0) console.log('Flushed all queued stdin messages');
+              } catch (e) {
+                console.warn('Error flushing stdin queue', e);
+              }
+            });
+          }
+        } catch (e) {
+          console.warn('Error writing to ffmpeg stdin', e);
+        }
       }
     } else {
       // text message
@@ -155,6 +208,27 @@ server.listen(PORT, () => {
 // Simple status endpoint
 app.get('/status', (req, res) => {
   res.json({ ok: true, streaming: isStreaming, clients: connectedClients.size });
+});
+
+// Simple metrics endpoint for diagnostics
+app.get('/metrics', (req, res) => {
+  const mem = process.memoryUsage();
+  let totalQueuedMessages = 0;
+  let totalQueuedBytes = 0;
+  for (const ws of connectedClients) {
+    if (ws && ws._queue) totalQueuedMessages += ws._queue.length;
+    if (ws && ws._queuedBytes) totalQueuedBytes += ws._queuedBytes;
+  }
+
+  res.json({
+    ok: true,
+    streaming: isStreaming,
+    clients: connectedClients.size,
+    ffmpegPid: ffmpegProc ? ffmpegProc.pid : null,
+    queuedMessages: totalQueuedMessages,
+    queuedBytes: totalQueuedBytes,
+    memory: mem
+  });
 });
 
 process.on('SIGINT', () => {

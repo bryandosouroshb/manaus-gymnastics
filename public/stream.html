@@ -687,6 +687,15 @@
         const captureButton = document.getElementById('capture-button');
         const videoStream = document.getElementById('video-stream');
 
+        // Hide local capture UI on the stream page: control panel (`stcontrol`) manages RTMP.
+        try {
+            if (captureButton) captureButton.style.display = 'none';
+            const rtmpControlsEl = document.getElementById('rtmp-controls');
+            if (rtmpControlsEl) rtmpControlsEl.style.display = 'none';
+        } catch (e) {
+            console.warn('Could not hide capture UI elements:', e);
+        }
+
         const apparatusIcons = {
             VT: 'VT',
             UB: 'UB',
@@ -4941,6 +4950,8 @@
         });
 
         // ========== RTMP Streaming (MediaRecorder -> WebSocket -> server -> ffmpeg -> RTMP) ==========
+        // Base URL do proxy RTMP. Pode ser sobrescrita por `window.RTMP_PROXY_BASE` em tempo de execução.
+        const RTMP_PROXY_BASE = (window.RTMP_PROXY_BASE || 'https://manaus-gymnastics.onrender.com').replace(/\/$/, '');
         const rtmpUrlInput = document.getElementById('rtmp-url-input');
         const startStreamBtn = document.getElementById('start-stream-btn');
         const stopStreamBtn = document.getElementById('stop-stream-btn');
@@ -4958,10 +4969,10 @@
                 return;
             }
 
-            // 1) Request server to start ffmpeg (skip when already started by control panel)
+                    // 1) Request server to start ffmpeg (skip when already started by control panel)
             if (!skipServerStart) {
                 try {
-                    const res = await fetch('http://localhost:4000/start', {
+                    const res = await fetch(`${RTMP_PROXY_BASE}/start`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ rtmpUrl })
@@ -4972,16 +4983,20 @@
                         alert('Falha ao iniciar ffmpeg no servidor: ' + (json.message || res.statusText));
                         return;
                     }
-                } catch (err) {
+                    } catch (err) {
                     console.error('Erro ao chamar /start:', err);
-                    alert('Não foi possível contactar o servidor local. Verifique se o proxy está rodando em http://localhost:4000');
+                    alert('Não foi possível contactar o servidor de proxy. Verifique a configuração de `RTMP_PROXY_BASE` (ex: ' + RTMP_PROXY_BASE + ')');
                     return;
                 }
             }
 
             // 2) Open WebSocket to send media chunks
             try {
-                wsStream = new WebSocket('ws://localhost:4000/live');
+                // Construir URL WS/WSS a partir do proxy base
+                const proxyHost = RTMP_PROXY_BASE.replace(/^https?:\/\//, '');
+                const wsProto = RTMP_PROXY_BASE.startsWith('https') ? 'wss' : 'ws';
+                const wsUrl = `${wsProto}://${proxyHost}/live`;
+                wsStream = new WebSocket(wsUrl);
             } catch (err) {
                 console.error('Erro ao criar WebSocket:', err);
                 alert('Erro ao conectar ao WebSocket do servidor');
@@ -5012,28 +5027,29 @@
                 }
 
                 // 4) Start MediaRecorder and send chunks
-                try {
-                    const options = { mimeType: 'video/webm;codecs=vp8,opus' };
-                    mediaRecorder = new MediaRecorder(capturedStream, options);
-
-                    mediaRecorder.ondataavailable = async (e) => {
-                        if (!e.data || e.data.size === 0) return;
-                        try {
-                            // send raw binary chunk
-                            if (wsStream && wsStream.readyState === WebSocket.OPEN) {
-                                const ab = await e.data.arrayBuffer();
-                                wsStream.send(ab);
-                            }
-                        } catch (sendErr) {
-                            console.error('[RTMP] Erro ao enviar chunk via WS:', sendErr);
-                        }
+            try {
+                // Tenta H.264, se não der vai de VP8
+                let options = { 
+                    mimeType: 'video/webm;codecs=h264,opus',
+                    videoBitsPerSecond: 2500000 // <--- ADICIONE ISTO: Pede 2.5 Mbps fixos pro navegador
+                };
+                
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    console.warn('H.264 não suportado, voltando para VP8');
+                    options = { 
+                        mimeType: 'video/webm;codecs=vp8,opus',
+                        videoBitsPerSecond: 2500000 // <--- ADICIONE AQUI TAMBÉM
                     };
+                }
+
+                mediaRecorder = new MediaRecorder(capturedStream, options);
 
                     mediaRecorder.onstop = () => {
                         console.log('[RTMP] MediaRecorder stopped');
                     };
 
-                    mediaRecorder.start(1000); // 1s chunks
+                    // Use 2s chunks to reduce WebSocket/ffmpeg overhead
+                    mediaRecorder.start(250);
                     streaming = true;
                     startStreamBtn.style.display = 'none';
                     stopStreamBtn.style.display = '';
@@ -5074,7 +5090,7 @@
 
             // Ask server to stop ffmpeg
             try {
-                await fetch('http://localhost:4000/stop', { method: 'POST' });
+                await fetch(`${RTMP_PROXY_BASE}/stop`, { method: 'POST' });
             } catch (err) {
                 console.warn('[RTMP] Falha ao chamar /stop:', err);
             }
@@ -5097,10 +5113,27 @@
                 const data = ev.data || {};
                 try {
                     if (data.action === 'rtmp-start') {
-                        console.log('[Stream] Received rtmp-start from control:', data);
-                        if (data.rtmpUrl && rtmpUrlInput) rtmpUrlInput.value = data.rtmpUrl;
-                        // Start sending media to already-running ffmpeg (skip server start)
-                        startStreaming({ skipServerStart: true });
+                            // legacy: ignore rtmp-start if control tried sending it
+                            console.log('[Stream] Ignoring legacy rtmp-start from control:', data);
+                    } else if (data.action === 'prepare-capture') {
+                            console.log('[Stream] Received prepare-capture from control:', data);
+                            // Place the RTMP URL in the input for visibility
+                            if (data.rtmpUrl && rtmpUrlInput) rtmpUrlInput.value = data.rtmpUrl;
+                            // Ensure the standby video and audio are prepared; do NOT call getDisplayMedia here
+                            (async () => {
+                                try {
+                                    await unlockAudio();
+                                    const sv = document.getElementById('standby-video');
+                                    if (sv) {
+                                        sv.style.display = 'block';
+                                        sv.classList.add('visible');
+                                    }
+                                    // Inform operator UI visually
+                                    console.log('[Stream] Prepared for capture — waiting for capture helper to start');
+                                } catch (e) {
+                                    console.warn('[Stream] Could not prepare audio/video for capture:', e);
+                                }
+                            })();
                     } else if (data.action === 'rtmp-stop') {
                         console.log('[Stream] Received rtmp-stop from control');
                         stopStreaming();

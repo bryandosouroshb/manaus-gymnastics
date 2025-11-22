@@ -718,7 +718,7 @@
                         <button class="control-btn" id="btn-rtmp-copy" style="padding:8px 12px;">Copiar chave</button>
                         <div style="font-size:0.9rem; color:var(--text-light);">Cole a chave gerada em YouTube Studio → Stream</div>
                     </div>
-                    <div id="rtmp-status" style="margin-top:8px; font-size:0.9rem; color:var(--text-light);">Servidor local: http://localhost:4000</div>
+                    <div id="rtmp-status" style="margin-top:8px; font-size:0.9rem; color:var(--text-light);">Servidor proxy: https://manaus-gymnastics.onrender.com</div>
                 </div>
                 
                 <!-- ✨ NOVA SEÇÃO: Controles de Rodapé -->
@@ -849,7 +849,7 @@
                         🎉 BOAS-VINDAS
                     </button>
                     
-                    <button class="sound-btn anthem" onclick="playSoundEffect('brazil-anthem', event)">
+                    <button class="sound-btn anthem" onclick="playSoundEffect('initial-anthem', event)">
                         🇧🇷 HINO BRASIL
                     </button>
                     
@@ -1897,6 +1897,8 @@
                         const btnStart = document.getElementById('btn-rtmp-start');
                         const btnStop = document.getElementById('btn-rtmp-stop');
                         const statusEl = document.getElementById('rtmp-status');
+                        // Base URL of the deployed RTMP proxy (update if you deploy elsewhere)
+                        const RTMP_PROXY_BASE = window.RTMP_PROXY_BASE || 'https://manaus-gymnastics.onrender.com';
 
                         if (!btnStart || !btnStop || !rtmpInput) return;
 
@@ -1908,23 +1910,47 @@
                             }
                             btnStart.disabled = true;
                             try {
-                                const res = await fetch('http://localhost:4000/start', {
+                                const res = await fetch(RTMP_PROXY_BASE + '/start', {
                                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rtmpUrl: url })
                                 });
-                                const json = await res.json();
-                                if (!res.ok || !json.ok) throw new Error(json.message || res.statusText);
-                                statusEl.textContent = 'RTMP: transmitindo -> ' + url;
-                                btnStart.style.display = 'none';
-                                btnStop.style.display = '';
+                                let json = {};
+                                try { json = await res.json(); } catch(e) { json = {}; }
+
+                                // Treat 409 (Already streaming) as a non-fatal state: continue as if started
+                                if (!res.ok) {
+                                    if (res.status === 409) {
+                                        console.warn('Proxy returned 409 Already streaming — continuing');
+                                        statusEl.textContent = 'RTMP: já transmitindo (proxy) -> ' + url;
+                                        // ensure UI shows stop button
+                                        btnStart.style.display = 'none';
+                                        btnStop.style.display = '';
+                                    } else {
+                                        throw new Error(json.message || res.statusText || 'start failed');
+                                    }
+                                } else {
+                                    // res.ok
+                                    statusEl.textContent = 'RTMP: transmitindo -> ' + url;
+                                    btnStart.style.display = 'none';
+                                    btnStop.style.display = '';
+                                }
                                 // Update Firebase state for visibility/monitoring
                                 try { updateBroadcastOverlay('rtmp', true, { url, status: 'started' }); } catch(e){/*ignore*/}
-                                // Notify stream clients to start sending media (skip server start there)
+                                // Notify stream clients to prepare for capture and open capture helper
                                 try {
                                     if (typeof controlChannel !== 'undefined' && controlChannel) {
-                                        controlChannel.postMessage({ action: 'rtmp-start', rtmpUrl: url });
+                                        controlChannel.postMessage({ action: 'prepare-capture', rtmpUrl: url });
                                     }
                                 } catch (e) {
-                                    console.warn('Could not post BroadcastChannel rtmp-start:', e);
+                                    console.warn('Could not post BroadcastChannel prepare-capture:', e);
+                                }
+
+                                try {
+                                    // Open helper window that will prompt the user to select the "stream" tab and send media to proxy
+                                    const captureUrl = `./capture.html?rtmp=${encodeURIComponent(url)}`;
+                                    const w = window.open(captureUrl, 'captureWindow', 'width=900,height=700');
+                                    if (w) w.focus();
+                                } catch (e) {
+                                    console.warn('Could not open capture helper window:', e);
                                 }
                             } catch (err) {
                                 console.error('Failed to start RTMP:', err);
@@ -1937,7 +1963,7 @@
                         async function stopRtmp() {
                             btnStop.disabled = true;
                             try {
-                                await fetch('http://localhost:4000/stop', { method: 'POST' });
+                                await fetch(RTMP_PROXY_BASE + '/stop', { method: 'POST' });
                                 statusEl.textContent = 'RTMP: parado';
                                 btnStart.style.display = '';
                                 btnStop.style.display = 'none';
@@ -3470,7 +3496,8 @@
 
         // Mapeamento dos sons para arquivos (todos existem!)
         const soundFiles = {
-            'welcome': 'audio/welcome.mp3',                 // ✅ EXISTE
+            'welcome': 'audio/welcome.mp3',
+            'initial-anthem': 'music/initial-anthem.mp3', // ✅ EXISTE
             'brazil-anthem': 'music/brazil-anthem.mp3',  // ✅ EXISTE
             'china-reception': 'music/china-reception.mp3', // ✅ EXISTE
             'italy-reception': 'music/italy-reception.mp3', // ✅ EXISTE
